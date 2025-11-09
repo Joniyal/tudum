@@ -15,9 +15,18 @@ export async function POST(req: Request) {
     const { email, password, name } = registerSchema.parse(body);
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
+    let existingUser;
+    try {
+      existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+    } catch (dbError: any) {
+      console.error("Database connection error:", dbError);
+      return NextResponse.json(
+        { error: "Database connection failed", details: dbError.message },
+        { status: 500 }
+      );
+    }
 
     if (existingUser) {
       return NextResponse.json(
