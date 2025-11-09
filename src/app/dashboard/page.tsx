@@ -1,0 +1,297 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+
+type Habit = {
+  id: string;
+  title: string;
+  description: string | null;
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  completions: Array<{
+    id: string;
+    completedAt: string;
+  }>;
+};
+
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    frequency: "DAILY" as "DAILY" | "WEEKLY" | "MONTHLY",
+  });
+
+  useEffect(() => {
+    fetchHabits();
+  }, []);
+
+  const fetchHabits = async () => {
+    try {
+      const res = await fetch("/api/habits");
+      if (res.ok) {
+        const data = await res.json();
+        setHabits(data);
+      }
+    } catch (error) {
+      console.error("Error fetching habits:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateHabit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/habits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setFormData({ title: "", description: "", frequency: "DAILY" });
+        setShowForm(false);
+        fetchHabits();
+      }
+    } catch (error) {
+      console.error("Error creating habit:", error);
+    }
+  };
+
+  const handleCompleteHabit = async (habitId: string) => {
+    try {
+      const res = await fetch(`/api/habits/${habitId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+      }
+    } catch (error) {
+      console.error("Error completing habit:", error);
+    }
+  };
+
+  const handleDeleteHabit = async (habitId: string) => {
+    if (!confirm("Are you sure you want to delete this habit?")) return;
+
+    try {
+      const res = await fetch(`/api/habits/${habitId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        fetchHabits();
+      }
+    } catch (error) {
+      console.error("Error deleting habit:", error);
+    }
+  };
+
+  const isCompletedToday = (completions: Array<{ completedAt: string }>) => {
+    const today = new Date().toDateString();
+    return completions.some(
+      (c) => new Date(c.completedAt).toDateString() === today
+    );
+  };
+
+  const getStreak = (completions: Array<{ completedAt: string }>) => {
+    if (completions.length === 0) return 0;
+
+    const dates = completions
+      .map((c) => new Date(c.completedAt).toDateString())
+      .filter((date, index, self) => self.indexOf(date) === index)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+    let streak = 0;
+    let currentDate = new Date();
+
+    for (const date of dates) {
+      const completionDate = new Date(date);
+      const diffDays = Math.floor(
+        (currentDate.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (diffDays === streak) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            My Habits
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Track your daily, weekly, and monthly goals
+          </p>
+        </div>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+        >
+          {showForm ? "Cancel" : "+ New Habit"}
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            Create New Habit
+          </h2>
+          <form onSubmit={handleCreateHabit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Title
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                placeholder="e.g., Morning Exercise"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Description (optional)
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Add more details..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Frequency
+              </label>
+              <select
+                value={formData.frequency}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    frequency: e.target.value as "DAILY" | "WEEKLY" | "MONTHLY",
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="DAILY">Daily</option>
+                <option value="WEEKLY">Weekly</option>
+                <option value="MONTHLY">Monthly</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+            >
+              Create Habit
+            </button>
+          </form>
+        </div>
+      )}
+
+      {habits.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            No habits yet. Create your first habit to get started!
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {habits.map((habit) => {
+            const completedToday = isCompletedToday(habit.completions);
+            const streak = getStreak(habit.completions);
+
+            return (
+              <div
+                key={habit.id}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      {habit.title}
+                    </h3>
+                    <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                      {habit.frequency}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteHabit(habit.id)}
+                    className="text-gray-400 hover:text-red-600 transition"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {habit.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {habit.description}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Streak: </span>
+                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                      {streak} days 🔥
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {habit.completions.length} completions
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleCompleteHabit(habit.id)}
+                  disabled={completedToday}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold transition ${
+                    completedToday
+                      ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                  }`}
+                >
+                  {completedToday ? "✓ Completed Today" : "Mark Complete"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
