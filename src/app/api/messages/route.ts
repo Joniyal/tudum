@@ -33,14 +33,14 @@ export async function GET(req: Request) {
       },
       include: {
         fromUser: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, username: true },
         },
         replyTo: {
           select: {
             id: true,
             content: true,
             fromUser: {
-              select: { name: true, email: true },
+              select: { name: true, email: true, username: true },
             },
           },
         },
@@ -104,14 +104,14 @@ export async function POST(req: Request) {
       },
       include: {
         fromUser: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, username: true },
         },
         replyTo: {
           select: {
             id: true,
             content: true,
             fromUser: {
-              select: { name: true, email: true },
+              select: { name: true, email: true, username: true },
             },
           },
         },
