@@ -91,12 +91,13 @@ export async function POST(req: Request) {
     }
 
     const { toUserId, email } = body;
+    console.log("[CONNECTIONS POST] Parsed toUserId:", toUserId, "email:", email);
 
     // Step 3: Resolve target user ID
     if (!toUserId && !email) {
       console.error("[CONNECTIONS POST] Missing toUserId and email");
       return NextResponse.json(
-        { error: "toUserId or email is required" },
+        { error: "toUserId or email is required", received: { toUserId, email } },
         { status: 400 }
       );
     }

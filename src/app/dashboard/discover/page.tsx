@@ -34,6 +34,7 @@ export default function DiscoverPage() {
     }, 300);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const searchUsers = async () => {
@@ -87,21 +88,31 @@ export default function DiscoverPage() {
 
   const handleAddConnection = async (userId: string) => {
     try {
+      console.log("[DISCOVER] Adding connection to user:", userId);
+      const payload = { toUserId: userId };
+      console.log("[DISCOVER] Payload:", JSON.stringify(payload));
+      
       const res = await fetch("/api/connections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toUserId: userId }),
+        body: JSON.stringify(payload),
       });
 
+      console.log("[DISCOVER] Response status:", res.status);
+      const data = await res.json();
+      console.log("[DISCOVER] Response data:", data);
+
       if (res.ok) {
+        console.log("[DISCOVER] Connection created successfully");
         await fetchConnectionStatus(userId);
       } else {
-        const data = await res.json();
-        alert(`Error: ${data.error || "Failed to add connection"}`);
+        const errorMsg = data.error || data.message || "Failed to add connection";
+        console.error("[DISCOVER] Error response:", errorMsg);
+        alert(`Error: ${errorMsg}`);
       }
     } catch (error) {
-      console.error("Error adding connection:", error);
-      alert("Failed to add connection");
+      console.error("[DISCOVER] Error adding connection:", error);
+      alert("Failed to add connection - check console for details");
     }
   };
 
