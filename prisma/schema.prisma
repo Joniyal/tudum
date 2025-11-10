@@ -94,7 +94,9 @@ enum ConnectionStatus {
 
 model Message {
   id         String   @id @default(cuid())
-  content    String
+  content    String?
+  voiceUrl   String?
+  duration   Int?     // duration in milliseconds
   fromUserId String
   toUserId   String
   read       Boolean  @default(false)

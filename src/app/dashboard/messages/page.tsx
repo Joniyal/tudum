@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
 type Message = {
   id: string;
   content: string;
+  voiceUrl?: string | null;
+  duration?: number | null;
   fromUserId: string;
   toUserId: string;
   read: boolean;
@@ -43,12 +45,52 @@ function MessagesContent() {
   const [loading, setLoading] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const [recordDuration, setRecordDuration] = useState(0);
+  const recordTimerRef = useRef<number | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+  const fetchPartners = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections");
+      if (res.ok) {
+        const connections = await res.json();
+        const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
+        const partnersList = acceptedConnections.map((c: any) => {
+          const currentUserId = session?.user?.id;
+          return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
+        });
+        setPartners(partnersList);
+      }
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [session]);
+
   useEffect(() => {
     fetchPartners();
-  }, []);
+  }, [fetchPartners]);
+
+  const fetchMessages = useCallback(async () => {
+    if (!selectedPartner) return;
+
+    try {
+      const res = await fetch(`/api/messages?partnerId=${selectedPartner.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  }, [selectedPartner]);
 
   useEffect(() => {
     const partnerId = searchParams.get("partnerId");
@@ -66,7 +108,7 @@ function MessagesContent() {
       const interval = setInterval(fetchMessages, 3000); // Poll every 3 seconds
       return () => clearInterval(interval);
     }
-  }, [selectedPartner]);
+  }, [selectedPartner, fetchMessages]);
 
   useEffect(() => {
     if (shouldAutoScroll) {
@@ -78,44 +120,12 @@ function MessagesContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+
   const handleScroll = () => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
       setShouldAutoScroll(isNearBottom);
-    }
-  };
-
-  const fetchPartners = async () => {
-    try {
-      const res = await fetch("/api/connections");
-      if (res.ok) {
-        const connections = await res.json();
-        const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
-        const partnersList = acceptedConnections.map((c: any) => {
-          const currentUserId = session?.user?.id;
-          return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
-        });
-        setPartners(partnersList);
-      }
-    } catch (error) {
-      console.error("Error fetching partners:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchMessages = async () => {
-    if (!selectedPartner) return;
-
-    try {
-      const res = await fetch(`/api/messages?partnerId=${selectedPartner.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data);
-      }
-    } catch (error) {
-      console.error("Error fetching messages:", error);
     }
   };
 
@@ -164,6 +174,113 @@ function MessagesContent() {
       }
     } catch (error) {
       console.error("Error sending reminder:", error);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Your browser does not support audio recording");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      recordedChunksRef.current = [];
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.addEventListener("dataavailable", (e) => {
+        if (e.data && e.data.size > 0) {
+          recordedChunksRef.current.push(e.data);
+        }
+      });
+
+      mediaRecorder.addEventListener("stop", () => {
+        // stop all tracks
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(recordedChunksRef.current, { type: recordedChunksRef.current[0]?.type || "audio/webm" });
+        uploadVoiceMessage(blob, recordDuration);
+        setIsRecording(false);
+        if (recordTimerRef.current) {
+          window.clearInterval(recordTimerRef.current);
+          recordTimerRef.current = null;
+        }
+        setRecordDuration(0);
+      });
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      // start duration timer
+      setRecordDuration(0);
+      recordTimerRef.current = window.setInterval(() => {
+        setRecordDuration((d) => d + 1000);
+      }, 1000);
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      alert("Failed to start recording");
+    }
+  };
+
+  const stopRecording = () => {
+    const mediaRecorder = mediaRecorderRef.current;
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+  };
+
+  const uploadVoiceMessage = async (blob: Blob, durationMs: number) => {
+    if (!selectedPartner) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const form = new FormData();
+      form.append("file", blob, "voice.webm");
+      form.append("toUserId", selectedPartner.id);
+      form.append("duration", String(durationMs));
+      if (replyingTo?.id) form.append("replyToId", replyingTo.id);
+
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(percent);
+        }
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
+          }
+        });
+
+        xhr.addEventListener("error", () => {
+          reject(new Error("Network error during upload"));
+        });
+
+        xhr.addEventListener("abort", () => {
+          reject(new Error("Upload cancelled"));
+        });
+
+        xhr.open("POST", "/api/messages/voice");
+        xhr.send(form);
+      });
+
+      setReplyingTo(null);
+      setShouldAutoScroll(true);
+      await fetchMessages();
+    } catch (error) {
+      console.error("Error uploading voice message:", error);
+      alert(`Failed to send voice message: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -259,17 +376,23 @@ function MessagesContent() {
                                 : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
                             }`}
                           >
-                            <p className="break-words">{message.content}</p>
-                            <p
-                              className={`text-xs mt-1 ${
-                                isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"
-                              }`}
-                            >
-                              {new Date(message.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
+                            {message.voiceUrl ? (
+                              <div className="space-y-2">
+                                <audio src={message.voiceUrl} controls className="w-full" />
+                                {message.content && <p className="break-words">{message.content}</p>}
+                                <p className={`text-xs mt-1 ${isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"}`}>
+                                  {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                  {message.duration ? ` • ${Math.floor((message.duration || 0)/1000)}s` : ""}
+                                </p>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="break-words">{message.content}</p>
+                                <p className={`text-xs mt-1 ${isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"}`}>
+                                  {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                </p>
+                              </>
+                            )}
                           </div>
 
                           {/* Action Buttons */}
@@ -283,18 +406,45 @@ function MessagesContent() {
                             <button
                               onClick={async () => {
                                 try {
-                                  await fetch("/api/messages", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({
-                                      toUserId: selectedPartner?.id,
-                                      content: `[Forwarded] ${message.content}`,
-                                    }),
-                                  });
+                                  if (message.voiceUrl) {
+                                    // Forward voice message: download and re-upload
+                                    const audioRes = await fetch(message.voiceUrl);
+                                    if (!audioRes.ok) throw new Error("Failed to download voice message");
+                                    const audioBlob = await audioRes.blob();
+
+                                    const form = new FormData();
+                                    form.append("file", audioBlob, "voice.webm");
+                                    form.append("toUserId", selectedPartner?.id || "");
+                                    form.append("duration", String(message.duration || 0));
+                                    if (message.content) {
+                                      form.append("forwardedContent", `[Forwarded] ${message.content}`);
+                                    }
+
+                                    const voiceRes = await fetch("/api/messages/voice", {
+                                      method: "POST",
+                                      body: form,
+                                    });
+
+                                    if (!voiceRes.ok) {
+                                      const data = await voiceRes.json();
+                                      throw new Error(data.error || "Failed to forward voice message");
+                                    }
+                                  } else {
+                                    // Forward text message
+                                    await fetch("/api/messages", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({
+                                        toUserId: selectedPartner?.id,
+                                        content: `[Forwarded] ${message.content}`,
+                                      }),
+                                    });
+                                  }
                                   setShouldAutoScroll(true);
                                   fetchMessages();
                                 } catch (error) {
                                   console.error("Error forwarding message:", error);
+                                  alert("Failed to forward message");
                                 }
                               }}
                               className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800"
@@ -327,19 +477,62 @@ function MessagesContent() {
 
                 {/* Input */}
                 <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800">
-                  <div className="flex gap-2">
+                    {/* Upload Progress Bar */}
+                    {isUploading && (
+                      <div className="mb-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-indigo-600 h-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    )}
+                    {isUploading && (
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 text-center">
+                        Uploading... {uploadProgress}%
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 items-center">
                     <input
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                      disabled={isUploading || isRecording}
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       maxLength={1000}
                       autoComplete="off"
                     />
+
+                    {/* Record button */}
+                    {!isRecording ? (
+                      <button
+                        type="button"
+                        onClick={startRecording}
+                        disabled={isUploading}
+                        title="Record voice message"
+                        className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        🎤
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={stopRecording}
+                          disabled={isUploading}
+                          title="Stop recording"
+                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          ■
+                        </button>
+                        <span className="text-xs text-gray-700 dark:text-gray-300">{Math.floor(recordDuration/1000)}s</span>
+                      </div>
+                    )}
+
                     <button
                       type="submit"
-                      disabled={!newMessage.trim()}
+                      disabled={!newMessage.trim() || isUploading || isRecording}
                       className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Send
