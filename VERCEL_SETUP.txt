@@ -1,0 +1,17 @@
+# Update NEXTAUTH_URL in Vercel
+
+Your app is deployed at: https://tudum-pied.vercel.app
+
+To fix the authentication:
+1. Go to: https://vercel.com/joniyals-projects/tudum/settings/environment-variables
+2. Find NEXTAUTH_URL
+3. Click Edit
+4. Change the value to: https://tudum-pied.vercel.app
+5. Make sure it's checked for Production
+6. Save
+7. Go to Deployments and click Redeploy
+
+OR use this command:
+vercel env rm NEXTAUTH_URL production --yes
+echo https://tudum-pied.vercel.app | vercel env add NEXTAUTH_URL production
+vercel --prod
