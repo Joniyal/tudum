@@ -10,6 +10,7 @@ function DashboardNav() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     // Check system preference on mount
@@ -38,7 +39,6 @@ function DashboardNav() {
 
   const navItems = [
     { href: "/dashboard", label: "My Habits" },
-    { href: "/dashboard/profile", label: "Profile" },
     { href: "/dashboard/discover", label: "Discover" },
     { href: "/dashboard/partners", label: "Partners" },
     { href: "/dashboard/connections", label: "Connections" },
@@ -87,15 +87,62 @@ function DashboardNav() {
                 </svg>
               )}
             </button>
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {session?.user?.name || session?.user?.email}
-            </span>
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition"
-            >
-              Sign out
-            </button>
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+              >
+                <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  {(session?.user?.name || session?.user?.email)?.[0]?.toUpperCase()}
+                </div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">
+                  {session?.user?.name || session?.user?.email}
+                </span>
+                <svg
+                  className={`w-4 h-4 text-gray-700 dark:text-gray-300 transition-transform ${
+                    showProfileMenu ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-t-lg"
+                  >
+                    👤 View Profile
+                  </Link>
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
+                    ✏️ Edit Profile
+                  </Link>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 last:rounded-b-lg"
+                  >
+                    🚪 Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
