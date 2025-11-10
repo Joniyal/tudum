@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
@@ -24,7 +24,7 @@ type Partner = {
   email: string;
 };
 
-export default function MessagesPage() {
+function MessagesContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -242,5 +242,14 @@ export default function MessagesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className='flex items-center justify-center h-64'><div className='text-gray-600 dark:text-gray-400'>Loading...</div></div>}>
+      <MessagesContent />
+    </Suspense>
   );
 }

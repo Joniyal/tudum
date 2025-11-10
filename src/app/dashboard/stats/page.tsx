@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
@@ -25,7 +25,7 @@ type Partner = {
   email: string;
 };
 
-export default function StatsPage() {
+function StatsContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [stats, setStats] = useState<Stats | null>(null);
@@ -249,5 +249,14 @@ export default function StatsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+
+export default function StatsPage() {
+  return (
+    <Suspense fallback={<div className='flex items-center justify-center h-64'><div className='text-gray-600 dark:text-gray-400'>Loading...</div></div>}>
+      <StatsContent />
+    </Suspense>
   );
 }
