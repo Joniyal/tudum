@@ -8,6 +8,8 @@ const habitSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
+  reminderTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:MM format
+  reminderEnabled: z.boolean().optional(),
 });
 
 export async function PATCH(
@@ -30,11 +32,17 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { title, description, frequency } = habitSchema.parse(body);
+    const { title, description, frequency, reminderTime, reminderEnabled } = habitSchema.parse(body);
 
     const updatedHabit = await prisma.habit.update({
       where: { id },
-      data: { title, description, frequency },
+      data: { 
+        title, 
+        description, 
+        frequency,
+        reminderTime,
+        reminderEnabled,
+      },
     });
 
     return NextResponse.json(updatedHabit);

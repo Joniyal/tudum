@@ -5,8 +5,11 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useHabitReminders } from "@/hooks/useHabitReminders";
 
 function DashboardNav() {
+  // Enable habit reminders
+  useHabitReminders();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);

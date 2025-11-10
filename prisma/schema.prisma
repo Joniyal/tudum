@@ -31,18 +31,21 @@ model User {
 }
 
 model Habit {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  frequency   Frequency
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  frequency      Frequency
+  userId         String
+  reminderTime   String?   // Time in HH:MM format (e.g., "05:00", "14:30")
+  reminderEnabled Boolean  @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   completions Completion[]
 
   @@index([userId])
+  @@index([reminderEnabled, reminderTime]) // For efficient reminder queries
   @@map("habits")
 }
 

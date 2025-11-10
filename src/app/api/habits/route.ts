@@ -8,6 +8,8 @@ const habitSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
+  reminderTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:MM format
+  reminderEnabled: z.boolean().optional().default(false),
   sharedWith: z.array(z.string()).optional(),
 });
 
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, frequency, sharedWith } = habitSchema.parse(body);
+    const { title, description, frequency, reminderTime, reminderEnabled, sharedWith } = habitSchema.parse(body);
 
     // Create habit for the current user
     const habit = await prisma.habit.create({
@@ -55,6 +57,8 @@ export async function POST(req: Request) {
         title,
         description,
         frequency,
+        reminderTime,
+        reminderEnabled: reminderEnabled || false,
         userId: session.user.id,
       },
     });
@@ -66,6 +70,8 @@ export async function POST(req: Request) {
           title,
           description,
           frequency,
+          reminderTime,
+          reminderEnabled: reminderEnabled || false,
           userId: partnerId,
         })),
       });

@@ -8,6 +8,8 @@ type Habit = {
   title: string;
   description: string | null;
   frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  reminderTime: string | null;
+  reminderEnabled: boolean;
   completions: Array<{
     id: string;
     completedAt: string;
@@ -31,6 +33,8 @@ export default function DashboardPage() {
     title: "",
     description: "",
     frequency: "DAILY" as "DAILY" | "WEEKLY" | "MONTHLY",
+    reminderTime: "",
+    reminderEnabled: false,
     sharedWith: [] as string[],
   });
 
@@ -81,7 +85,14 @@ export default function DashboardPage() {
       });
 
       if (res.ok) {
-        setFormData({ title: "", description: "", frequency: "DAILY", sharedWith: [] });
+        setFormData({ 
+          title: "", 
+          description: "", 
+          frequency: "DAILY", 
+          reminderTime: "",
+          reminderEnabled: false,
+          sharedWith: [] 
+        });
         setShowForm(false);
         fetchHabits();
       }
@@ -238,6 +249,51 @@ export default function DashboardPage() {
                 <option value="WEEKLY">Weekly</option>
                 <option value="MONTHLY">Monthly</option>
               </select>
+            </div>
+
+            {/* Reminder Settings */}
+            <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+              <div className="flex items-center justify-between mb-3">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.reminderEnabled}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        reminderEnabled: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    🔔 Set Reminder
+                  </span>
+                </label>
+              </div>
+              
+              {formData.reminderEnabled && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Reminder Time
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.reminderTime}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        reminderTime: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required={formData.reminderEnabled}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    You&apos;ll receive a browser notification at this time
+                  </p>
+                </div>
+              )}
             </div>
 
             {partners.length > 0 && (
