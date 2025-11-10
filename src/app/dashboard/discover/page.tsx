@@ -94,10 +94,14 @@ export default function DiscoverPage() {
       });
 
       if (res.ok) {
-        fetchConnectionStatus(userId);
+        await fetchConnectionStatus(userId);
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error || "Failed to add connection"}`);
       }
     } catch (error) {
       console.error("Error adding connection:", error);
+      alert("Failed to add connection");
     }
   };
 

@@ -10,6 +10,34 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    // If userId is provided, check connection status with that user
+    if (userId) {
+      const connection = await prisma.connection.findFirst({
+        where: {
+          OR: [
+            { fromUserId: session.user.id, toUserId: userId },
+            { fromUserId: userId, toUserId: session.user.id },
+          ],
+        },
+        include: {
+          fromUser: {
+            select: { id: true, name: true, email: true },
+          },
+          toUser: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      });
+
+      if (connection) {
+        return NextResponse.json([connection]);
+      }
+      return NextResponse.json([]);
+    }
+
     const connections = await prisma.connection.findMany({
       where: {
         OR: [
@@ -46,25 +74,31 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { email } = body;
+    const { toUserId, email } = body;
 
-    if (!email) {
+    let targetUserId = toUserId;
+
+    // If email is provided instead of toUserId, find the user
+    if (!toUserId && email) {
+      const targetUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!targetUser) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      targetUserId = targetUser.id;
+    }
+
+    if (!targetUserId) {
       return NextResponse.json(
-        { error: "Email is required" },
+        { error: "toUserId or email is required" },
         { status: 400 }
       );
     }
 
-    // Find user by email
-    const targetUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    if (targetUser.id === session.user.id) {
+    if (targetUserId === session.user.id) {
       return NextResponse.json(
         { error: "Cannot connect to yourself" },
         { status: 400 }
@@ -75,8 +109,8 @@ export async function POST(req: Request) {
     const existing = await prisma.connection.findFirst({
       where: {
         OR: [
-          { fromUserId: session.user.id, toUserId: targetUser.id },
-          { fromUserId: targetUser.id, toUserId: session.user.id },
+          { fromUserId: session.user.id, toUserId: targetUserId },
+          { fromUserId: targetUserId, toUserId: session.user.id },
         ],
       },
     });
@@ -91,7 +125,7 @@ export async function POST(req: Request) {
     const connection = await prisma.connection.create({
       data: {
         fromUserId: session.user.id,
-        toUserId: targetUser.id,
+        toUserId: targetUserId,
         status: "PENDING",
       },
       include: {

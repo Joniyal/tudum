@@ -11,6 +11,7 @@ function DashboardNav() {
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     // Check system preference on mount
@@ -24,6 +25,32 @@ function DashboardNav() {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  useEffect(() => {
+    // Fetch pending requests count
+    const fetchPendingCount = async () => {
+      try {
+        const res = await fetch("/api/connections");
+        if (res.ok) {
+          const connections = await res.json();
+          const pending = connections.filter(
+            (c: any) =>
+              c.status === "PENDING" && c.toUserId === session?.user?.id
+          );
+          setPendingCount(pending.length);
+        }
+      } catch (error) {
+        console.error("Error fetching pending count:", error);
+      }
+    };
+
+    if (session?.user?.id) {
+      fetchPendingCount();
+      // Poll every 10 seconds
+      const interval = setInterval(fetchPendingCount, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [session?.user?.id]);
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -40,6 +67,7 @@ function DashboardNav() {
   const navItems = [
     { href: "/dashboard", label: "My Habits" },
     { href: "/dashboard/discover", label: "Discover" },
+    { href: "/dashboard/requests", label: "Requests" },
     { href: "/dashboard/partners", label: "Partners" },
     { href: "/dashboard/messages", label: "Messages" },
     { href: "/dashboard/stats", label: "Stats" },
@@ -58,13 +86,18 @@ function DashboardNav() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition ${
                     pathname === item.href
                       ? "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   {item.label}
+                  {item.href === "/dashboard/requests" && pendingCount > 0 && (
+                    <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {pendingCount}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
