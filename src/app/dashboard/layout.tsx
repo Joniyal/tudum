@@ -38,6 +38,8 @@ function DashboardNav() {
 
   const navItems = [
     { href: "/dashboard", label: "My Habits" },
+    { href: "/dashboard/profile", label: "Profile" },
+    { href: "/dashboard/discover", label: "Discover" },
     { href: "/dashboard/partners", label: "Partners" },
     { href: "/dashboard/connections", label: "Connections" },
     { href: "/dashboard/messages", label: "Messages" },

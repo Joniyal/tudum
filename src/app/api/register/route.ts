@@ -14,7 +14,22 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, password, name } = registerSchema.parse(body);
 
-    // Check if user already exists
+    // Generate username from email (first part before @)
+    let username = email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+    let finalUsername = username;
+    let counter = 1;
+
+    // Check if username is available, if not add numbers
+    while (true) {
+      const existingUsername = await prisma.user.findUnique({
+        where: { username: finalUsername },
+      });
+      if (!existingUsername) break;
+      finalUsername = `${username}${counter}`;
+      counter++;
+    }
+
+    // Check if user already exists by email
     let existingUser;
     try {
       existingUser = await prisma.user.findUnique({
@@ -44,10 +59,12 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         name,
+        username: finalUsername,
       },
       select: {
         id: true,
         email: true,
+        username: true,
         name: true,
         createdAt: true,
       },
