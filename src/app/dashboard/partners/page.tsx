@@ -24,6 +24,7 @@ export default function PartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPartners();
@@ -84,6 +85,29 @@ export default function PartnersPage() {
     }
 
     return streak;
+  };
+
+  const handleSendReminder = async (partnerId: string, habitTitle: string) => {
+    setSendingReminder(partnerId);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toUserId: partnerId,
+          content: `🔔 Reminder: Don't forget to complete "${habitTitle}" today!`,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Reminder sent successfully!");
+      }
+    } catch (error) {
+      console.error("Error sending reminder:", error);
+      alert("Failed to send reminder");
+    } finally {
+      setSendingReminder(null);
+    }
   };
 
   if (loading) {
@@ -211,10 +235,18 @@ export default function PartnersPage() {
                             </div>
                           </div>
 
-                          {completedToday && (
+                          {completedToday ? (
                             <p className="text-xs text-green-600 dark:text-green-400 font-medium pt-2">
                               ✨ Completed today!
                             </p>
+                          ) : (
+                            <button
+                              onClick={() => handleSendReminder(partnerData.partner.id, habit.title)}
+                              disabled={sendingReminder === partnerData.partner.id}
+                              className="w-full mt-2 px-3 py-1.5 text-xs font-medium bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {sendingReminder === partnerData.partner.id ? "Sending..." : "🔔 Send Reminder"}
+                            </button>
                           )}
                         </div>
                       </div>

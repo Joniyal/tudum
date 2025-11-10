@@ -32,7 +32,9 @@ function MessagesContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchPartners();
@@ -57,11 +59,21 @@ function MessagesContent() {
   }, [selectedPartner]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (shouldAutoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, shouldAutoScroll]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+      setShouldAutoScroll(isNearBottom);
+    }
   };
 
   const fetchPartners = async () => {
@@ -113,10 +125,33 @@ function MessagesContent() {
 
       if (res.ok) {
         setNewMessage("");
+        setShouldAutoScroll(true); // Enable auto-scroll when user sends
         fetchMessages();
       }
     } catch (error) {
       console.error("Error sending message:", error);
+    }
+  };
+
+  const handleSendReminder = async (habitId: string) => {
+    if (!selectedPartner) return;
+
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toUserId: selectedPartner.id,
+          content: "🔔 Reminder: Don't forget to complete your habits today!",
+        }),
+      });
+
+      if (res.ok) {
+        setShouldAutoScroll(true);
+        fetchMessages();
+      }
+    } catch (error) {
+      console.error("Error sending reminder:", error);
     }
   };
 
@@ -129,7 +164,7 @@ function MessagesContent() {
   }
 
   return (
-    <div className="h-[calc(100vh-12rem)]">
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
         Messages
       </h1>
@@ -141,13 +176,13 @@ function MessagesContent() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-0">
           {/* Partners List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 overflow-y-auto">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col max-h-full">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white p-4 pb-2 flex-shrink-0">
               Partners
             </h2>
-            <div className="space-y-2">
+            <div className="overflow-y-auto flex-1 p-4 pt-2 space-y-2">
               {partners.map((partner) => (
                 <button
                   key={partner.id}
@@ -168,18 +203,22 @@ function MessagesContent() {
           </div>
 
           {/* Chat Area */}
-          <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col">
+          <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col max-h-full">
             {selectedPartner ? (
               <>
                 {/* Header */}
-                <div className="p-4 border-b dark:border-gray-700">
+                <div className="p-4 border-b dark:border-gray-700 flex-shrink-0">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {selectedPartner.name || selectedPartner.email}
                   </h3>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div 
+                  ref={messagesContainerRef}
+                  onScroll={handleScroll}
+                  className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0"
+                >
                   {messages.map((message) => {
                     const isOwn = message.fromUserId === session?.user?.id;
                     return (
@@ -213,7 +252,7 @@ function MessagesContent() {
                 </div>
 
                 {/* Input */}
-                <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700">
+                <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700 flex-shrink-0">
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -222,6 +261,7 @@ function MessagesContent() {
                       placeholder="Type a message..."
                       className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                       maxLength={1000}
+                      autoComplete="off"
                     />
                     <button
                       type="submit"
