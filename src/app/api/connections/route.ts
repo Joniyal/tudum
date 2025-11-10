@@ -80,6 +80,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     console.log("[CONNECTIONS POST] Authenticated user:", session.user.id);
+    
+    // VERIFY CURRENT USER EXISTS
+    console.log("[CONNECTIONS POST] Verifying current user exists in database");
+    const currentUserCount = await prisma.user.count({
+      where: { id: session.user.id }
+    });
+    console.log("[CONNECTIONS POST] Current user count in database:", currentUserCount);
+    
+    if (currentUserCount === 0) {
+      console.error("[CONNECTIONS POST] Current user does not exist in database!", session.user.id);
+      return NextResponse.json(
+        { error: "Your user account not found in database", userId: session.user.id },
+        { status: 401 }
+      );
+    }
+    
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, email: true, username: true }
+    });
+    console.log("[CONNECTIONS POST] Current user details:", currentUser);
 
     // Step 2: Parse request body
     try {
