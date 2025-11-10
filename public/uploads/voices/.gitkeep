@@ -1,2 +1,0 @@
-# This directory stores voice message recordings
-# For production, configure S3 storage via AWS_S3_BUCKET_NAME env variable
