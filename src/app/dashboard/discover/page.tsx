@@ -129,6 +129,13 @@ export default function DiscoverPage() {
         Discover Users
       </h1>
 
+      {/* Debug info */}
+      {session?.user && (
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm">
+          <strong>Logged in as:</strong> @{session.user.name} ({session.user.email}) - ID: {session.user.id}
+        </div>
+      )}
+
       <div className="mb-8">
         <input
           type="text"
@@ -137,6 +144,11 @@ export default function DiscoverPage() {
           placeholder="Search by username or name (min 2 characters)"
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
         />
+        {searchQuery.length > 0 && searchQuery.length < 2 && (
+          <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
+            Type at least 2 characters to search
+          </p>
+        )}
       </div>
 
       {loading && (

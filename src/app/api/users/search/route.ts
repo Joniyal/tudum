@@ -13,11 +13,15 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q");
 
-    if (!query || query.length < 2) {
+    console.log("[SEARCH] Raw query:", query, "Length:", query?.length, "User:", session.user.id);
+
+    if (!query || query.trim().length < 2) {
+      console.log("[SEARCH] Query too short or empty, returning empty array");
       return NextResponse.json([]);
     }
 
-    console.log("[SEARCH] Query:", query, "User:", session.user.id);
+    const trimmedQuery = query.trim();
+    console.log("[SEARCH] Trimmed query:", trimmedQuery);
 
     // Search with improved matching - prioritize exact/partial username matches
     const users = await prisma.user.findMany({
@@ -25,9 +29,9 @@ export async function GET(req: Request) {
         AND: [
           {
             OR: [
-              { username: { contains: query.toLowerCase(), mode: "insensitive" } },
-              { name: { contains: query, mode: "insensitive" } },
-              { email: { contains: query.toLowerCase(), mode: "insensitive" } },
+              { username: { contains: trimmedQuery.toLowerCase(), mode: "insensitive" } },
+              { name: { contains: trimmedQuery, mode: "insensitive" } },
+              { email: { contains: trimmedQuery.toLowerCase(), mode: "insensitive" } },
             ],
           },
           { id: { not: session.user.id } }, // Don't return current user
