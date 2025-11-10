@@ -108,9 +108,9 @@ export default function DashboardLayout({
 }) {
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
         <DashboardNav />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 overflow-hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
       </div>
