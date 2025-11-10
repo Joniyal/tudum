@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
@@ -67,156 +68,174 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  let session;
+  let body;
+  let targetUserId;
+
   try {
-    const session = await getServerSession(authOptions);
+    // Step 1: Check authentication
+    session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      console.error("POST /api/connections - No session");
+      console.error("[CONNECTIONS POST] No session found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    console.log("[CONNECTIONS POST] Authenticated user:", session.user.id);
 
-    console.log("POST /api/connections - User ID:", session.user.id);
-
-    let body;
+    // Step 2: Parse request body
     try {
       body = await req.json();
-    } catch (e) {
-      console.error("POST /api/connections - Invalid JSON:", e);
+      console.log("[CONNECTIONS POST] Request body:", JSON.stringify(body));
+    } catch (e: any) {
+      console.error("[CONNECTIONS POST] Invalid JSON:", e.message);
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
     const { toUserId, email } = body;
-    console.log("POST /api/connections - Request:", { toUserId, email });
 
-    let targetUserId = toUserId;
-
-    // If email is provided instead of toUserId, find the user
-    if (!toUserId && email) {
-      try {
-        const targetUser = await prisma.user.findUnique({
-          where: { email },
-        });
-
-        if (!targetUser) {
-          console.log("POST /api/connections - User not found by email:", email);
-          return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-
-        targetUserId = targetUser.id;
-      } catch (dbError: any) {
-        console.error("POST /api/connections - Database error finding user:", dbError);
-        return NextResponse.json(
-          { error: "Database error", details: dbError.message },
-          { status: 500 }
-        );
-      }
-    }
-
-    if (!targetUserId) {
-      console.error("POST /api/connections - Missing toUserId");
+    // Step 3: Resolve target user ID
+    if (!toUserId && !email) {
+      console.error("[CONNECTIONS POST] Missing toUserId and email");
       return NextResponse.json(
         { error: "toUserId or email is required" },
         { status: 400 }
       );
     }
 
+    if (toUserId) {
+      targetUserId = toUserId;
+      console.log("[CONNECTIONS POST] Using provided toUserId:", targetUserId);
+    } else if (email) {
+      console.log("[CONNECTIONS POST] Looking up user by email:", email);
+      const user = await prisma.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+
+      if (!user) {
+        console.error("[CONNECTIONS POST] User not found by email:", email);
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      targetUserId = user.id;
+      console.log("[CONNECTIONS POST] Found user by email:", targetUserId);
+    }
+
+    // Step 4: Validate target user
     if (targetUserId === session.user.id) {
-      console.log("POST /api/connections - Attempt to connect to self");
+      console.error("[CONNECTIONS POST] Attempt to connect to self");
       return NextResponse.json(
         { error: "Cannot connect to yourself" },
         { status: 400 }
       );
     }
 
-    // Verify target user exists
-    try {
-      const targetUser = await prisma.user.findUnique({
-        where: { id: targetUserId },
-        select: { id: true, username: true },
-      });
+    // Step 5: Check if target user exists
+    console.log("[CONNECTIONS POST] Verifying target user exists:", targetUserId);
+    const targetUserExists = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, username: true },
+    });
 
-      if (!targetUser) {
-        console.log("POST /api/connections - Target user not found:", targetUserId);
-        return NextResponse.json(
-          { error: "Target user not found" },
-          { status: 404 }
-        );
-      }
-
-      console.log("POST /api/connections - Target user found:", targetUser.username);
-    } catch (dbError: any) {
-      console.error("POST /api/connections - Database error checking target user:", dbError);
+    if (!targetUserExists) {
+      console.error("[CONNECTIONS POST] Target user does not exist:", targetUserId);
       return NextResponse.json(
-        { error: "Database error", details: dbError.message },
-        { status: 500 }
+        { error: "Target user not found" },
+        { status: 404 }
       );
     }
+    console.log("[CONNECTIONS POST] Target user verified:", targetUserExists.username);
 
-    // Check if connection already exists (in either direction)
-    try {
-      const existing = await prisma.connection.findFirst({
-        where: {
-          OR: [
-            { fromUserId: session.user.id, toUserId: targetUserId },
-            { fromUserId: targetUserId, toUserId: session.user.id },
-          ],
-        },
-      });
+    // Step 6: Check for existing connection
+    console.log("[CONNECTIONS POST] Checking for existing connection");
+    const existingConnection = await prisma.connection.findFirst({
+      where: {
+        OR: [
+          { fromUserId: session.user.id, toUserId: targetUserId },
+          { fromUserId: targetUserId, toUserId: session.user.id },
+        ],
+      },
+    });
 
-      if (existing) {
-        console.log("POST /api/connections - Connection already exists:", existing.id);
-        return NextResponse.json(
-          { error: "Connection already exists", status: existing.status },
-          { status: 400 }
-        );
-      }
-    } catch (dbError: any) {
-      console.error("POST /api/connections - Database error checking existing:", dbError);
+    if (existingConnection) {
+      console.log("[CONNECTIONS POST] Connection already exists:", existingConnection.id, existingConnection.status);
       return NextResponse.json(
-        { error: "Database error", details: dbError.message },
-        { status: 500 }
+        { error: "Connection already exists", connectionStatus: existingConnection.status },
+        { status: 400 }
       );
     }
+    console.log("[CONNECTIONS POST] No existing connection found");
 
-    // Create the connection
-    try {
-      const connection = await prisma.connection.create({
-        data: {
-          fromUserId: session.user.id,
-          toUserId: targetUserId,
-          status: "PENDING",
-        },
-        include: {
-          toUser: {
-            select: { id: true, name: true, email: true, username: true },
+    // Step 7: Create connection
+    console.log("[CONNECTIONS POST] Creating new connection");
+    const newConnection = await prisma.connection.create({
+      data: {
+        fromUserId: session.user.id,
+        toUserId: targetUserId,
+        status: "PENDING",
+      },
+      include: {
+        toUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            username: true,
           },
         },
-      });
+        fromUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            username: true,
+          },
+        },
+      },
+    });
 
-      console.log("POST /api/connections - Connection created:", connection.id);
-      return NextResponse.json(connection, { status: 201 });
-    } catch (dbError: any) {
-      console.error("POST /api/connections - Database error creating connection:", dbError);
-      console.error("Error code:", dbError.code);
-      console.error("Error meta:", dbError.meta);
+    console.log("[CONNECTIONS POST] Connection created successfully:", newConnection.id);
+    return NextResponse.json(newConnection, { status: 201 });
+
+  } catch (error: any) {
+    console.error("[CONNECTIONS POST] Error caught:", error.message);
+    console.error("[CONNECTIONS POST] Error name:", error.name);
+    console.error("[CONNECTIONS POST] Error code:", error.code);
+    
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("[CONNECTIONS POST] Prisma error code:", error.code);
+      console.error("[CONNECTIONS POST] Prisma error meta:", JSON.stringify(error.meta));
       
-      // Handle Prisma unique constraint violation
-      if (dbError.code === "P2002") {
+      if (error.code === "P2002") {
+        // Unique constraint violation
         return NextResponse.json(
-          { error: "Connection already exists" },
+          { error: "Connection already exists (database constraint)" },
+          { status: 400 }
+        );
+      } else if (error.code === "P2003") {
+        // Foreign key constraint violation
+        return NextResponse.json(
+          { error: "Invalid user reference" },
           { status: 400 }
         );
       }
-      
+    }
+
+    if (error instanceof Prisma.PrismaClientValidationError) {
+      console.error("[CONNECTIONS POST] Prisma validation error");
       return NextResponse.json(
-        { error: "Failed to create connection", details: dbError.message },
-        { status: 500 }
+        { error: "Invalid data format" },
+        { status: 400 }
       );
     }
-  } catch (error: any) {
-    console.error("POST /api/connections - Unexpected error:", error);
-    console.error("Error stack:", error.stack);
+
+    // Generic error
+    console.error("[CONNECTIONS POST] Stack trace:", error.stack);
     return NextResponse.json(
-      { error: "Internal server error", details: error.message },
+      { 
+        error: "Failed to create connection", 
+        message: error.message,
+        details: process.env.NODE_ENV === "development" ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
