@@ -8,7 +8,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -94,9 +93,7 @@ enum ConnectionStatus {
 
 model Message {
   id         String   @id @default(cuid())
-  content    String?
-  voiceUrl   String?
-  duration   Int?     // duration in milliseconds
+  content    String
   fromUserId String
   toUserId   String
   read       Boolean  @default(false)
