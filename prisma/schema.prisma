@@ -23,6 +23,8 @@ model User {
   completions       Completion[]
   connectionsFrom   Connection[] @relation("ConnectionFrom")
   connectionsTo     Connection[] @relation("ConnectionTo")
+  messagesSent      Message[]    @relation("MessageFrom")
+  messagesReceived  Message[]    @relation("MessageTo")
 
   @@map("users")
 }
@@ -86,4 +88,21 @@ enum ConnectionStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  fromUserId String
+  toUserId   String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  fromUser   User     @relation("MessageFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("MessageTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([createdAt])
+  @@map("messages")
 }
