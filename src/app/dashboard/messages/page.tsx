@@ -11,6 +11,15 @@ type Message = {
   toUserId: string;
   read: boolean;
   createdAt: string;
+  replyToId?: string | null;
+  replyTo?: {
+    id: string;
+    content: string;
+    fromUser: {
+      name: string | null;
+      email: string;
+    };
+  } | null;
   fromUser: {
     id: string;
     name: string | null;
@@ -33,6 +42,7 @@ function MessagesContent() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -120,12 +130,14 @@ function MessagesContent() {
         body: JSON.stringify({
           toUserId: selectedPartner.id,
           content: newMessage,
+          replyToId: replyingTo?.id || undefined,
         }),
       });
 
       if (res.ok) {
         setNewMessage("");
-        setShouldAutoScroll(true); // Enable auto-scroll when user sends
+        setReplyingTo(null);
+        setShouldAutoScroll(true);
         fetchMessages();
       }
     } catch (error) {
@@ -224,32 +236,94 @@ function MessagesContent() {
                     return (
                       <div
                         key={message.id}
-                        className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                        className={`flex ${isOwn ? "justify-end" : "justify-start"} group`}
                       >
-                        <div
-                          className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg ${
-                            isOwn
-                              ? "bg-indigo-600 text-white"
-                              : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
-                          }`}
-                        >
-                          <p className="break-words">{message.content}</p>
-                          <p
-                            className={`text-xs mt-1 ${
-                              isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"
+                        <div className="flex flex-col gap-1 max-w-xs md:max-w-md">
+                          {/* Reply Quote */}
+                          {message.replyTo && (
+                            <div className={`text-xs px-3 py-2 rounded border-l-4 ${
+                              isOwn
+                                ? "bg-indigo-700 border-indigo-500 text-indigo-100"
+                                : "bg-gray-100 dark:bg-gray-600 border-gray-400 text-gray-600 dark:text-gray-300"
+                            }`}>
+                              <div className="font-semibold">{message.replyTo.fromUser.name || message.replyTo.fromUser.email}</div>
+                              <div className="truncate">{message.replyTo.content}</div>
+                            </div>
+                          )}
+                          
+                          {/* Main Message */}
+                          <div
+                            className={`px-4 py-2 rounded-lg ${
+                              isOwn
+                                ? "bg-indigo-600 text-white"
+                                : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
                             }`}
                           >
-                            {new Date(message.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
+                            <p className="break-words">{message.content}</p>
+                            <p
+                              className={`text-xs mt-1 ${
+                                isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            >
+                              {new Date(message.createdAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className={`flex gap-2 text-xs opacity-0 group-hover:opacity-100 transition ${isOwn ? "justify-end" : "justify-start"}`}>
+                            <button
+                              onClick={() => setReplyingTo(message)}
+                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800"
+                            >
+                              ↩️ Reply
+                            </button>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await fetch("/api/messages", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                      toUserId: selectedPartner?.id,
+                                      content: `[Forwarded] ${message.content}`,
+                                    }),
+                                  });
+                                  setShouldAutoScroll(true);
+                                  fetchMessages();
+                                } catch (error) {
+                                  console.error("Error forwarding message:", error);
+                                }
+                              }}
+                              className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800"
+                            >
+                              📤 Forward
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                   <div ref={messagesEndRef} />
                 </div>
+
+                {/* Reply Preview */}
+                {replyingTo && (
+                  <div className="px-4 pt-2 pb-0 border-t dark:border-gray-700 bg-blue-50 dark:bg-blue-900/30 flex items-center justify-between">
+                    <div className="text-sm">
+                      <div className="font-semibold text-blue-700 dark:text-blue-300">Replying to {replyingTo.fromUser.name || replyingTo.fromUser.email}</div>
+                      <div className="text-blue-600 dark:text-blue-400 truncate">{replyingTo.content}</div>
+                    </div>
+                    <button
+                      onClick={() => setReplyingTo(null)}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 {/* Input */}
                 <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800">

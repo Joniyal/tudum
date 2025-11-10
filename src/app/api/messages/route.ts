@@ -7,6 +7,7 @@ import { z } from "zod";
 const messageSchema = z.object({
   toUserId: z.string(),
   content: z.string().min(1).max(1000),
+  replyToId: z.string().optional(),
 });
 
 export async function GET(req: Request) {
@@ -33,6 +34,15 @@ export async function GET(req: Request) {
       include: {
         fromUser: {
           select: { id: true, name: true, email: true },
+        },
+        replyTo: {
+          select: {
+            id: true,
+            content: true,
+            fromUser: {
+              select: { name: true, email: true },
+            },
+          },
         },
       },
       orderBy: { createdAt: "asc" },
@@ -66,7 +76,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { toUserId, content } = messageSchema.parse(body);
+    const { toUserId, content, replyToId } = messageSchema.parse(body);
 
     // Verify connection exists
     const connection = await prisma.connection.findFirst({
@@ -90,10 +100,20 @@ export async function POST(req: Request) {
         content,
         fromUserId: session.user.id,
         toUserId,
+        replyToId: replyToId || null,
       },
       include: {
         fromUser: {
           select: { id: true, name: true, email: true },
+        },
+        replyTo: {
+          select: {
+            id: true,
+            content: true,
+            fromUser: {
+              select: { name: true, email: true },
+            },
+          },
         },
       },
     });

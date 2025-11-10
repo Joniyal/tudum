@@ -97,6 +97,11 @@ model Message {
   toUserId   String
   read       Boolean  @default(false)
   createdAt  DateTime @default(now())
+  
+  // Reply to feature
+  replyToId  String?
+  replyTo    Message? @relation("MessageReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies    Message[] @relation("MessageReply")
 
   fromUser   User     @relation("MessageFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
   toUser     User     @relation("MessageTo", fields: [toUserId], references: [id], onDelete: Cascade)
@@ -104,5 +109,6 @@ model Message {
   @@index([fromUserId])
   @@index([toUserId])
   @@index([createdAt])
+  @@index([replyToId])
   @@map("messages")
 }

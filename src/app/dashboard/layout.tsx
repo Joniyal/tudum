@@ -106,11 +106,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isMessagesPage = pathname === "/dashboard/messages";
+
   return (
     <SessionProvider>
-      <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 flex flex-col">
+      <div className={`${isMessagesPage ? "h-screen overflow-hidden" : "min-h-screen"} bg-gray-50 dark:bg-gray-900 flex flex-col`}>
         <DashboardNav />
-        <main className="flex-1 overflow-hidden max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        <main className={`${isMessagesPage ? "flex-1 overflow-hidden" : "flex-1 overflow-auto"} max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 ${isMessagesPage ? "py-8" : "py-8"}`}>
           {children}
         </main>
       </div>
