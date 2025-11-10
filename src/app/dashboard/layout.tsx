@@ -12,6 +12,7 @@ function DashboardNav() {
   const [isDark, setIsDark] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [showStaleSessionModal, setShowStaleSessionModal] = useState(false);
 
   useEffect(() => {
     // Check system preference on mount
@@ -25,6 +26,29 @@ function DashboardNav() {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  // Validate session on component mount
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const validateSession = async () => {
+      try {
+        // Try to fetch user's connections as a session validity check
+        const res = await fetch("/api/connections");
+        if (res.status === 401) {
+          const data = await res.json();
+          if (data.code === "STALE_SESSION") {
+            console.warn("[DASHBOARD] Stale session detected - user no longer in database");
+            setShowStaleSessionModal(true);
+          }
+        }
+      } catch (error) {
+        console.error("[DASHBOARD] Error validating session:", error);
+      }
+    };
+
+    validateSession();
+  }, [session?.user?.id]);
 
   useEffect(() => {
     // Fetch pending requests count
@@ -178,6 +202,29 @@ function DashboardNav() {
           </div>
         </div>
       </div>
+
+      {/* Stale Session Modal */}
+      {showStaleSessionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md shadow-lg">
+            <h2 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">
+              ⚠️ Session Expired
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Your session has expired. This can happen after a database update or if you logged in from another device.
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Please log out and log back in to continue.
+            </p>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
+            >
+              Log Out
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

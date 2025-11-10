@@ -90,8 +90,13 @@ export async function POST(req: Request) {
     
     if (currentUserCount === 0) {
       console.error("[CONNECTIONS POST] Current user does not exist in database!", session.user.id);
+      console.error("[CONNECTIONS POST] This is likely a stale session. User needs to log out and log back in.");
       return NextResponse.json(
-        { error: "Your user account not found in database", userId: session.user.id },
+        { 
+          error: "Your session is no longer valid. Please log out and log in again.",
+          code: "STALE_SESSION",
+          details: "Your user account was not found in the database. This typically happens after a database reset or data loss."
+        },
         { status: 401 }
       );
     }
