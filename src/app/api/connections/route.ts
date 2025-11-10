@@ -68,7 +68,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  let session;
+  let session: any;
   let body;
   let targetUserId;
 
@@ -130,21 +130,44 @@ export async function POST(req: Request) {
       );
     }
 
-    // Step 5: Check if target user exists
+    // Step 5: Check if target user exists - with explicit query
     console.log("[CONNECTIONS POST] Verifying target user exists:", targetUserId);
+    try {
+      const count = await prisma.user.count({
+        where: { id: targetUserId }
+      });
+      
+      console.log("[CONNECTIONS POST] User count result:", count);
+      
+      if (count === 0) {
+        console.error("[CONNECTIONS POST] Target user does not exist:", targetUserId);
+        return NextResponse.json(
+          { error: "Target user not found", userId: targetUserId, count },
+          { status: 404 }
+        );
+      }
+    } catch (e: any) {
+      console.error("[CONNECTIONS POST] Error counting users:", e.message);
+      return NextResponse.json(
+        { error: "Database error checking user", details: e.message },
+        { status: 500 }
+      );
+    }
+
+    // Also fetch to log the username
     const targetUserExists = await prisma.user.findUnique({
       where: { id: targetUserId },
-      select: { id: true, username: true },
+      select: { id: true, username: true, email: true },
     });
 
     if (!targetUserExists) {
-      console.error("[CONNECTIONS POST] Target user does not exist:", targetUserId);
+      console.error("[CONNECTIONS POST] Target user not found on re-check:", targetUserId);
       return NextResponse.json(
         { error: "Target user not found" },
         { status: 404 }
       );
     }
-    console.log("[CONNECTIONS POST] Target user verified:", targetUserExists.username);
+    console.log("[CONNECTIONS POST] Target user verified:", { id: targetUserExists.id, username: targetUserExists.username, email: targetUserExists.email });
 
     // Step 6: Check for existing connection
     console.log("[CONNECTIONS POST] Checking for existing connection");
@@ -208,16 +231,69 @@ export async function POST(req: Request) {
       
       if (error.code === "P2002") {
         // Unique constraint violation
+        console.error("[CONNECTIONS POST] Unique constraint violation");
         return NextResponse.json(
           { error: "Connection already exists (database constraint)" },
           { status: 400 }
         );
       } else if (error.code === "P2003") {
         // Foreign key constraint violation
-        return NextResponse.json(
-          { error: "Invalid user reference" },
-          { status: 400 }
-        );
+        console.error("[CONNECTIONS POST] Foreign key constraint violation - user may not exist");
+        
+        // Double-check the user really exists
+        const userCheck = await prisma.user.findUnique({
+          where: { id: targetUserId },
+          select: { id: true, email: true, username: true },
+        }).catch(e => {
+          console.error("[CONNECTIONS POST] Error re-checking user:", e.message);
+          return null;
+        });
+        
+        if (!userCheck) {
+          console.error("[CONNECTIONS POST] User verification FAILED - user does not exist:", targetUserId);
+          return NextResponse.json(
+            { error: "User does not exist", userId: targetUserId },
+            { status: 404 }
+          );
+        } else {
+          console.error("[CONNECTIONS POST] User verification PASSED - user exists but foreign key failed:", userCheck);
+          // User exists but foreign key failed - retry once
+          try {
+            const retryConnection = await prisma.connection.create({
+              data: {
+                fromUserId: session.user.id,
+                toUserId: targetUserId,
+                status: "PENDING",
+              },
+              include: {
+                toUser: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    username: true,
+                  },
+                },
+                fromUser: {
+                  select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    username: true,
+                  },
+                },
+              },
+            });
+            console.log("[CONNECTIONS POST] Retry successful:", retryConnection.id);
+            return NextResponse.json(retryConnection, { status: 201 });
+          } catch (retryError: any) {
+            console.error("[CONNECTIONS POST] Retry failed:", retryError.message);
+            return NextResponse.json(
+              { error: "Failed to create connection after retry", details: retryError.message },
+              { status: 500 }
+            );
+          }
+        }
       }
     }
 
