@@ -8,6 +8,7 @@ const habitSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
+  sharedWith: z.array(z.string()).optional(),
 });
 
 export async function GET(req: Request) {
@@ -46,8 +47,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, frequency } = habitSchema.parse(body);
+    const { title, description, frequency, sharedWith } = habitSchema.parse(body);
 
+    // Create habit for the current user
     const habit = await prisma.habit.create({
       data: {
         title,
@@ -56,6 +58,18 @@ export async function POST(req: Request) {
         userId: session.user.id,
       },
     });
+
+    // Create the same habit for shared partners
+    if (sharedWith && sharedWith.length > 0) {
+      await prisma.habit.createMany({
+        data: sharedWith.map((partnerId) => ({
+          title,
+          description,
+          frequency,
+          userId: partnerId,
+        })),
+      });
+    }
 
     return NextResponse.json(habit, { status: 201 });
   } catch (error) {

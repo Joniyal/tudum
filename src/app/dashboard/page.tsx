@@ -11,23 +11,51 @@ type Habit = {
   completions: Array<{
     id: string;
     completedAt: string;
+    userId: string;
   }>;
+};
+
+type Partner = {
+  id: string;
+  name: string | null;
+  email: string;
 };
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     frequency: "DAILY" as "DAILY" | "WEEKLY" | "MONTHLY",
+    sharedWith: [] as string[],
   });
 
   useEffect(() => {
     fetchHabits();
+    fetchPartners();
   }, []);
+
+  const fetchPartners = async () => {
+    try {
+      const res = await fetch("/api/connections");
+      if (res.ok) {
+        const connections = await res.json();
+        const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
+        const partnersList = acceptedConnections.map((c: any) => {
+          const currentUserId = session?.user?.id;
+          const partner = c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
+          return partner;
+        });
+        setPartners(partnersList);
+      }
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+    }
+  };
 
   const fetchHabits = async () => {
     try {
@@ -53,7 +81,7 @@ export default function DashboardPage() {
       });
 
       if (res.ok) {
-        setFormData({ title: "", description: "", frequency: "DAILY" });
+        setFormData({ title: "", description: "", frequency: "DAILY", sharedWith: [] });
         setShowForm(false);
         fetchHabits();
       }
@@ -204,13 +232,51 @@ export default function DashboardPage() {
                     frequency: e.target.value as "DAILY" | "WEEKLY" | "MONTHLY",
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="DAILY">Daily</option>
                 <option value="WEEKLY">Weekly</option>
                 <option value="MONTHLY">Monthly</option>
               </select>
             </div>
+
+            {partners.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Share with partners (optional)
+                </label>
+                <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700">
+                  {partners.map((partner) => (
+                    <label key={partner.id} className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.sharedWith.includes(partner.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              sharedWith: [...formData.sharedWith, partner.id],
+                            });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              sharedWith: formData.sharedWith.filter((id) => id !== partner.id),
+                            });
+                          }
+                        }}
+                        className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {partner.name || partner.email}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Selected partners will also be able to track this habit
+                </p>
+              </div>
+            )}
 
             <button
               type="submit"
