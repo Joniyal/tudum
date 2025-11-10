@@ -24,10 +24,10 @@ export async function GET(req: Request) {
         },
         include: {
           fromUser: {
-            select: { id: true, name: true, email: true },
+            select: { id: true, name: true, email: true, username: true },
           },
           toUser: {
-            select: { id: true, name: true, email: true },
+            select: { id: true, name: true, email: true, username: true },
           },
         },
       });
@@ -47,10 +47,10 @@ export async function GET(req: Request) {
       },
       include: {
         fromUser: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, username: true },
         },
         toUser: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, username: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -130,16 +130,21 @@ export async function POST(req: Request) {
       },
       include: {
         toUser: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, username: true },
         },
       },
     });
 
     return NextResponse.json(connection, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating connection:", error);
+    console.error("Error details:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     );
   }
