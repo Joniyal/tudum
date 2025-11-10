@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 type Connection = {
   id: string;
@@ -11,6 +12,7 @@ type Connection = {
 };
 
 export default function ConnectionsPage() {
+  const { data: session } = useSession();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
@@ -149,7 +151,7 @@ export default function ConnectionsPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               placeholder="Enter partner's email"
             />
             <button
@@ -170,8 +172,13 @@ export default function ConnectionsPage() {
           </h2>
           <div className="space-y-3">
             {pendingRequests.map((connection) => {
-              const isReceived = connection.toUser.id !== connection.fromUser.id;
-              const otherUser = isReceived ? connection.fromUser : connection.toUser;
+              // Determine if you are the receiver (toUser)
+              const currentUserId = session?.user?.id;
+              const isReceived = connection.toUser.id === currentUserId;
+              // The other user is the one who is NOT you
+              const otherUser = connection.fromUser.id === currentUserId 
+                ? connection.toUser 
+                : connection.fromUser;
 
               return (
                 <div
@@ -235,12 +242,10 @@ export default function ConnectionsPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {acceptedConnections.map((connection) => {
-              const otherUser =
-                connection.fromUser.id === connection.toUser.id
-                  ? connection.toUser
-                  : connection.fromUser.id
-                  ? connection.toUser
-                  : connection.fromUser;
+              const currentUserId = session?.user?.id;
+              const otherUser = connection.fromUser.id === currentUserId
+                ? connection.toUser
+                : connection.fromUser;
 
               return (
                 <div
