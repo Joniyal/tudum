@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Tudum - Collaborative Habit Tracker",
   description: "Track habits and goals with accountability partners",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
