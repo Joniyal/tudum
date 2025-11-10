@@ -41,7 +41,6 @@ function DashboardNav() {
     { href: "/dashboard", label: "My Habits" },
     { href: "/dashboard/discover", label: "Discover" },
     { href: "/dashboard/partners", label: "Partners" },
-    { href: "/dashboard/connections", label: "Connections" },
     { href: "/dashboard/messages", label: "Messages" },
     { href: "/dashboard/stats", label: "Stats" },
   ];
