@@ -79,7 +79,14 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Failed to upload to S3" }, { status: 500 });
       }
     } else {
-      // Fallback to local filesystem (development)
+      // Fallback to local filesystem (development only)
+      // NOTE: This will NOT work on Vercel (read-only filesystem)
+      if (process.env.VERCEL) {
+        return NextResponse.json({ 
+          error: "Voice messages require S3 configuration. See VOICE_MESSAGES_SETUP.md for instructions." 
+        }, { status: 500 });
+      }
+      
       const uploadsDir = path.join(process.cwd(), "public", "uploads", "voices");
       fs.mkdirSync(uploadsDir, { recursive: true });
       const filePath = path.join(uploadsDir, filename);
@@ -132,6 +139,7 @@ export async function POST(req: Request) {
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
     console.error("Error uploading voice message:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: errorMessage, details: String(error) }, { status: 500 });
   }
 }
