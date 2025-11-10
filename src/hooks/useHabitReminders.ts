@@ -40,11 +40,16 @@ export function useHabitReminders() {
           // Show notification for each reminder
           if (reminders && reminders.length > 0 && notificationPermission.current === "granted") {
             reminders.forEach((reminder: Reminder) => {
+              // Play notification sound
+              const audio = new Audio("/notification-sound.mp3");
+              audio.play().catch((err) => console.log("[REMINDERS] Audio play failed:", err));
+
               const notification = new Notification(`🎯 Time for: ${reminder.title}`, {
                 body: reminder.description || `Don't forget your ${reminder.frequency.toLowerCase()} habit!`,
                 icon: "/icon-192x192.png", // You can add an icon later
                 tag: reminder.id, // Prevents duplicate notifications
                 requireInteraction: true, // Notification stays until user interacts
+                silent: false, // Enable system notification sound
               });
 
               notification.onclick = () => {
