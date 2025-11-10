@@ -17,13 +17,21 @@ export async function GET(req: Request) {
       return NextResponse.json([]);
     }
 
+    console.log("[SEARCH] Query:", query, "User:", session.user.id);
+
+    // Search with improved matching - prioritize exact/partial username matches
     const users = await prisma.user.findMany({
       where: {
-        OR: [
-          { username: { contains: query.toLowerCase(), mode: "insensitive" } },
-          { name: { contains: query, mode: "insensitive" } },
+        AND: [
+          {
+            OR: [
+              { username: { contains: query.toLowerCase(), mode: "insensitive" } },
+              { name: { contains: query, mode: "insensitive" } },
+              { email: { contains: query.toLowerCase(), mode: "insensitive" } },
+            ],
+          },
+          { id: { not: session.user.id } }, // Don't return current user
         ],
-        id: { not: session.user.id }, // Don't return current user
       },
       select: {
         id: true,
@@ -31,14 +39,22 @@ export async function GET(req: Request) {
         name: true,
         bio: true,
       },
-      take: 10,
+      take: 20,
+      orderBy: [
+        // Prioritize username matches
+        { username: 'asc' },
+      ],
     });
 
+    console.log("[SEARCH] Found", users.length, "users");
+    console.log("[SEARCH] Results:", users.map(u => ({ username: u.username, name: u.name })));
+
     return NextResponse.json(users);
-  } catch (error) {
-    console.error("Error searching users:", error);
+  } catch (error: any) {
+    console.error("[SEARCH] Error searching users:", error);
+    console.error("[SEARCH] Error details:", error.message);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message },
       { status: 500 }
     );
   }

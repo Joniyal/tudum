@@ -40,20 +40,27 @@ export default function DiscoverPage() {
   const searchUsers = async () => {
     setLoading(true);
     try {
+      console.log("[DISCOVER] Searching for:", searchQuery);
       const res = await fetch(
         `/api/users/search?q=${encodeURIComponent(searchQuery)}`
       );
+      console.log("[DISCOVER] Search response status:", res.status);
+      
       if (res.ok) {
         const data = await res.json();
+        console.log("[DISCOVER] Search results:", data);
         setSearchResults(data);
         
         // Fetch connection statuses for all results
         data.forEach((user: User) => {
           fetchConnectionStatus(user.id);
         });
+      } else {
+        const errorData = await res.json();
+        console.error("[DISCOVER] Search error:", errorData);
       }
     } catch (error) {
-      console.error("Error searching users:", error);
+      console.error("[DISCOVER] Error searching users:", error);
     } finally {
       setLoading(false);
     }
