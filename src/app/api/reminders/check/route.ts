@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
  * Check for habits with reminders that are due now.
  * Returns habits where:
  * - reminderEnabled is true
- * - reminderTime matches current time (within 1 minute window)
+ * - reminderTime matches current UTC time (within 1 minute window)
  * - User is authenticated
  */
 export async function GET(req: Request) {
@@ -19,19 +19,19 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get current time in HH:MM format
+    // Get current UTC time in HH:MM format
     const now = new Date();
-    const currentHour = String(now.getHours()).padStart(2, '0');
-    const currentMinute = String(now.getMinutes()).padStart(2, '0');
+    const currentHour = String(now.getUTCHours()).padStart(2, '0');
+    const currentMinute = String(now.getUTCMinutes()).padStart(2, '0');
     const currentTime = `${currentHour}:${currentMinute}`;
     
     // Also check the previous minute (in case we're a bit late)
     const prevMinute = new Date(now.getTime() - 60000);
-    const prevHour = String(prevMinute.getHours()).padStart(2, '0');
-    const prevMinuteStr = String(prevMinute.getMinutes()).padStart(2, '0');
+    const prevHour = String(prevMinute.getUTCHours()).padStart(2, '0');
+    const prevMinuteStr = String(prevMinute.getUTCMinutes()).padStart(2, '0');
     const previousTime = `${prevHour}:${prevMinuteStr}`;
 
-    console.log("[REMINDERS] Current time:", currentTime, "Previous time:", previousTime, "User:", session.user.id);
+    console.log("[REMINDERS] Current UTC time:", currentTime, "Previous UTC time:", previousTime, "User:", session.user.id);
 
     // Find habits with reminders enabled that match current time or previous minute
     const habitsWithReminders = await prisma.habit.findMany({

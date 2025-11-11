@@ -34,6 +34,7 @@ export default function DashboardPage() {
     description: "",
     frequency: "DAILY" as "DAILY" | "WEEKLY" | "MONTHLY",
     reminderTime: "",
+    reminderPeriod: "AM" as "AM" | "PM",
     reminderEnabled: false,
     sharedWith: [] as string[],
   });
@@ -49,11 +50,13 @@ export default function DashboardPage() {
       if (res.ok) {
         const connections = await res.json();
         const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
-        const partnersList = acceptedConnections.map((c: any) => {
-          const currentUserId = session?.user?.id;
-          const partner = c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
-          return partner;
-        });
+        const partnersList = acceptedConnections
+          .map((c: any) => {
+            const currentUserId = session?.user?.id;
+            const partner = c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
+            return partner;
+          })
+          .filter((partner: any) => partner.id !== session?.user?.id); // Exclude current user
         setPartners(partnersList);
       }
     } catch (error) {
@@ -90,6 +93,7 @@ export default function DashboardPage() {
           description: "", 
           frequency: "DAILY", 
           reminderTime: "",
+          reminderPeriod: "AM",
           reminderEnabled: false,
           sharedWith: [] 
         });
@@ -273,30 +277,49 @@ export default function DashboardPage() {
               </div>
               
               {formData.reminderEnabled && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reminder Time
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.reminderTime}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        reminderTime: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    required={formData.reminderEnabled}
-                  />
-                  {formData.reminderTime && (
-                    <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-2">
-                      ✓ Reminder set for {formData.reminderTime}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Reminder Time
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <input
+                          type="time"
+                          value={formData.reminderTime}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              reminderTime: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          required={formData.reminderEnabled}
+                        />
+                      </div>
+                      <select
+                        value={formData.reminderPeriod}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            reminderPeriod: e.target.value as "AM" | "PM",
+                          })
+                        }
+                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                    {formData.reminderTime && (
+                      <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-2">
+                        ✓ Reminder set for {formData.reminderTime} {formData.reminderPeriod}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      You&apos;ll receive a browser notification at this time
                     </p>
-                  )}
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    You&apos;ll receive a browser notification at this time
-                  </p>
+                  </div>
                 </div>
               )}
             </div>
