@@ -73,6 +73,7 @@ export default function EnhancedHabitCard({
     MONTHLY: "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300",
   };
 
+  // Enhanced hover: gradient background, border, and color transitions
   return (
     <div
       className={`group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-750 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800 ${
