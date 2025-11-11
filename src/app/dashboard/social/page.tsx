@@ -726,8 +726,7 @@ export default function UnifiedPartnersPage() {
           userId={selectedUser.id}
           onClose={() => setSelectedUser(null)}
           onMessage={() => {
-            // Navigate to messages with this user
-            window.location.href = `/dashboard/messages?userId=${selectedUser.id}`;
+            // Navigation is now handled in the modal itself
           }}
         />
       )}

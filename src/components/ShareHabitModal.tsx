@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 type ShareHabitModalProps = {
   habitId: string;
@@ -21,6 +22,7 @@ export default function ShareHabitModal({
   onClose,
   onSuccess,
 }: ShareHabitModalProps) {
+  const { data: session } = useSession();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [selectedPartner, setSelectedPartner] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -29,8 +31,11 @@ export default function ShareHabitModal({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPartners();
-  }, []);
+    if (session?.user?.id) {
+      fetchPartners();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]);
 
   const fetchPartners = async () => {
     try {
@@ -41,11 +46,17 @@ export default function ShareHabitModal({
           .filter((c: any) => c.status === "ACCEPTED")
           .map((c: any) => {
             // Get the partner (not the current user)
-            return c.fromUser || c.toUser;
+            const currentUserId = session?.user?.id;
+            return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
           })
-          .filter((p: Partner) => p); // Filter out nulls
+          .filter((p: Partner) => p && p.id !== session?.user?.id); // Filter out nulls and current user
         
-        setPartners(acceptedPartners);
+        // Remove duplicates based on ID
+        const uniquePartners = Array.from(
+          new Map(acceptedPartners.map((p: Partner) => [p.id, p])).values()
+        ) as Partner[];
+        
+        setPartners(uniquePartners);
       }
     } catch (err) {
       console.error("Error fetching partners:", err);

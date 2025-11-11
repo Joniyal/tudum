@@ -197,7 +197,10 @@ export default function UserProfileModal({
               {/* Actions */}
               <div className="flex gap-3">
                 <button
-                  onClick={onMessage}
+                  onClick={() => {
+                    onClose();
+                    window.location.href = `/dashboard/messages?partnerId=${userId}`;
+                  }}
                   className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
                 >
                   💬 Send Message
