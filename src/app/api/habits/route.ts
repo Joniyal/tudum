@@ -8,10 +8,10 @@ const habitSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
-  reminderTime: z.string().regex(/^([01]?\d):([0-5]\d)$/).optional(), // HH:MM format (1-12)
+  reminderTime: z.string().regex(/^\d{1,2}:\d{2}$/).optional(), // HH:MM or H:MM format (1-12)
   reminderPeriod: z.enum(["AM", "PM"]).optional(),
   reminderEnabled: z.boolean().optional().default(false),
-  timezoneOffset: z.number().optional(), // User's timezone offset in minutes
+  timezoneOffset: z.number().optional().default(0), // User's timezone offset in minutes, default to 0
   sharedWith: z.array(z.string()).optional(),
 });
 
