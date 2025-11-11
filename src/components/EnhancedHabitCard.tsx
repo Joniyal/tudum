@@ -75,14 +75,13 @@ export default function EnhancedHabitCard({
 
   return (
     <div
+      data-habit-card="true"
       className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 ease-in-out overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
         completedToday ? "opacity-90" : ""
       }`}
     >
-      {/* Gradient Overlay on Hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 to-purple-50/0 group-hover:from-indigo-50 group-hover:to-purple-50 dark:group-hover:from-indigo-900/20 dark:group-hover:to-purple-900/20 transition-all duration-300 ease-in-out pointer-events-none" />
       {/* Collection Badge */}
       {habit.collection && (
         <div
