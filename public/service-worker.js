@@ -179,7 +179,9 @@ self.addEventListener("notificationclick", (event) => {
       fetch(`/api/habits/${habitId}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          completedAt: new Date().toISOString(),
+        }),
       })
         .then((res) => {
           if (res.ok) {
