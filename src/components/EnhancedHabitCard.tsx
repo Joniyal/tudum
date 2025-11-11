@@ -75,7 +75,7 @@ export default function EnhancedHabitCard({
 
   return (
     <div
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all duration-200 ease-out overflow-hidden ${
+      className={`group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-750 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800 ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
         completedToday ? "opacity-90" : ""
@@ -84,7 +84,7 @@ export default function EnhancedHabitCard({
       {/* Collection Badge */}
       {habit.collection && (
         <div
-          className="absolute top-0 left-0 right-0 h-2"
+          className="absolute top-0 left-0 right-0 h-2 transition-all duration-300"
           style={{
             background: `linear-gradient(90deg, ${habit.collection.color} 0%, ${habit.collection.color}dd 100%)`,
           }}
@@ -115,7 +115,7 @@ export default function EnhancedHabitCard({
             <div className="flex-1 min-w-0">
               {/* Title */}
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors duration-300">
                   {habit.title}
                 </h3>
                 {habit.reminderTime && (
