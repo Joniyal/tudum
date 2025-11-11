@@ -95,7 +95,9 @@ export default function TimetableHabitCarousel({
 
   const getCurrentTime = () => {
     const now = new Date();
-    return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+    const hour = now.getHours() % 12 || 12;
+    const period = now.getHours() < 12 ? "AM" : "PM";
+    return `${hour}:${now.getMinutes().toString().padStart(2, "0")} ${period}`;
   };
 
   const getTimeUntil = (time: string) => {
@@ -119,6 +121,27 @@ export default function TimetableHabitCarousel({
     } else {
       return "now";
     }
+  };
+
+  const isHabitTimeWindowActive = (habit: Habit) => {
+    if (!habit.reminderTime || !habit.alarmDuration) return true;
+    
+    const now = new Date();
+    const [h, m] = habit.reminderTime.split(":").map(Number);
+    const startTime = new Date();
+    startTime.setHours(h, m, 0, 0);
+    
+    // Calculate end time based on duration
+    const endTime = new Date(startTime);
+    if (habit.alarmDuration === -1) {
+      // "Until completed" means available all day after start time
+      endTime.setHours(23, 59, 59, 999);
+    } else {
+      endTime.setMinutes(endTime.getMinutes() + habit.alarmDuration);
+    }
+    
+    // Check if current time is within the window
+    return now >= startTime && now <= endTime;
   };
 
   return (
@@ -185,16 +208,41 @@ export default function TimetableHabitCarousel({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2">
             {!isCompletedToday ? (
-              <button
-                onClick={() => onComplete(currentHabit.id)}
-                className="flex-1 bg-white hover:bg-gray-100 text-indigo-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105"
-              >
-                ✓ Mark Complete
-              </button>
+              <>
+                {isHabitTimeWindowActive(currentHabit) ? (
+                  <button
+                    onClick={() => onComplete(currentHabit.id)}
+                    className="w-full bg-white hover:bg-gray-100 text-indigo-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105"
+                  >
+                    ✓ Mark Complete
+                  </button>
+                ) : (
+                  <div className="w-full bg-gray-500/20 border-2 border-gray-400/50 text-gray-100 font-semibold py-3 px-6 rounded-xl text-center">
+                    ⏰ Time window has passed
+                  </div>
+                )}
+                {currentHabit.alarmDuration && (
+                  <div className="text-white/60 text-xs text-center">
+                    Available: {formatTime(currentHabit.reminderTime!)} - {
+                      (() => {
+                        const [h, m] = currentHabit.reminderTime!.split(":").map(Number);
+                        const endTime = new Date();
+                        endTime.setHours(h, m, 0, 0);
+                        if (currentHabit.alarmDuration === -1) {
+                          return "Until completed";
+                        } else {
+                          endTime.setMinutes(endTime.getMinutes() + currentHabit.alarmDuration);
+                          return formatTime(`${endTime.getHours()}:${endTime.getMinutes().toString().padStart(2, "0")}`);
+                        }
+                      })()
+                    }
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="flex-1 bg-green-500/20 border-2 border-green-400/50 text-green-100 font-semibold py-3 px-6 rounded-xl text-center">
+              <div className="w-full bg-green-500/20 border-2 border-green-400/50 text-green-100 font-semibold py-3 px-6 rounded-xl text-center">
                 ✓ Completed
               </div>
             )}

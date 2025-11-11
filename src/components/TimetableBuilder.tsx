@@ -231,7 +231,18 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
                             {formatTime(slot.time)}
                           </span>
                           <span className="text-gray-400">→</span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">{slot.duration} min</span>
+                          <span className="text-sm font-mono font-semibold text-gray-900 dark:text-white">
+                            {(() => {
+                              const [h, m] = slot.time.split(":").map(Number);
+                              const endTime = new Date();
+                              endTime.setHours(h, m, 0, 0);
+                              endTime.setMinutes(endTime.getMinutes() + slot.duration);
+                              const endHour = endTime.getHours();
+                              const endMin = endTime.getMinutes();
+                              return formatTime(`${endHour.toString().padStart(2, "0")}:${endMin.toString().padStart(2, "0")}`);
+                            })()}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">({slot.duration} min)</span>
                         </div>
                         <div className="font-semibold text-gray-900 dark:text-white">{slot.title}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">{category.label}</div>
