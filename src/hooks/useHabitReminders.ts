@@ -42,6 +42,17 @@ export function useHabitReminders() {
       } else {
         console.error("[REMINDERS] Browser does not support notifications");
       }
+      
+      // Listen for messages from Service Worker
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          if (event.data.type === "OPEN_ALARM") {
+            console.log("[REMINDERS] Received alarm request from SW:", event.data.habitId);
+            // Trigger alarm for this habit
+            // (This would need to fetch habit details and add to activeAlarms)
+          }
+        });
+      }
     }
   }, [status]);
 
