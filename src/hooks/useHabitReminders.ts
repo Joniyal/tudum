@@ -86,8 +86,8 @@ export function useHabitReminders() {
     // Check immediately on mount
     checkReminders();
 
-    // Then check every minute
-    checkInterval.current = setInterval(checkReminders, 60000);
+    // Check every 10 seconds instead of every minute (to ensure we catch it)
+    checkInterval.current = setInterval(checkReminders, 10000);
 
     return () => {
       if (checkInterval.current) {

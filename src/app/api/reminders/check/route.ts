@@ -24,15 +24,23 @@ export async function GET(req: Request) {
     const currentHour = String(now.getHours()).padStart(2, '0');
     const currentMinute = String(now.getMinutes()).padStart(2, '0');
     const currentTime = `${currentHour}:${currentMinute}`;
+    
+    // Also check the previous minute (in case we're a bit late)
+    const prevMinute = new Date(now.getTime() - 60000);
+    const prevHour = String(prevMinute.getHours()).padStart(2, '0');
+    const prevMinuteStr = String(prevMinute.getMinutes()).padStart(2, '0');
+    const previousTime = `${prevHour}:${prevMinuteStr}`;
 
-    console.log("[REMINDERS] Checking for reminders at:", currentTime, "User:", session.user.id);
+    console.log("[REMINDERS] Current time:", currentTime, "Previous time:", previousTime, "User:", session.user.id);
 
-    // Find habits with reminders enabled that match current time
+    // Find habits with reminders enabled that match current time or previous minute
     const habitsWithReminders = await prisma.habit.findMany({
       where: {
         userId: session.user.id,
         reminderEnabled: true,
-        reminderTime: currentTime,
+        reminderTime: {
+          in: [currentTime, previousTime],
+        },
       },
       select: {
         id: true,
