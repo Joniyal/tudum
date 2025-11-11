@@ -8,33 +8,35 @@ const habitSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
-  reminderTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:MM format
+  reminderTime: z.string().regex(/^([01]?\d):([0-5]\d)$/).optional(), // HH:MM format (1-12)
   reminderPeriod: z.enum(["AM", "PM"]).optional(),
   reminderEnabled: z.boolean().optional().default(false),
+  timezoneOffset: z.number().optional(), // User's timezone offset in minutes
   sharedWith: z.array(z.string()).optional(),
 });
 
-// Convert local time (HH:MM + AM/PM) to UTC HH:MM format
-function convertToUTC(timeStr: string, period: string): string {
-  const [hours, minutes] = timeStr.split(':').map(Number);
+// Convert local time (HH:MM + AM/PM + timezone offset) to UTC HH:MM format
+function convertToUTC(timeStr: string, period: string, timezoneOffsetMinutes: number = 0): string {
+  const [hoursStr, minutesStr] = timeStr.split(':');
+  let hours = parseInt(hoursStr, 10);
+  const minutes = parseInt(minutesStr, 10);
   
   // Convert 12-hour to 24-hour format
-  let hours24 = hours;
   if (period === 'AM' && hours === 12) {
-    hours24 = 0; // 12 AM = 00:00
+    hours = 0; // 12 AM = 00:00
   } else if (period === 'PM' && hours !== 12) {
-    hours24 = hours + 12; // Convert PM hours (except 12)
+    hours = hours + 12; // Convert PM hours (except 12)
   }
   
-  // Create a date object with the local time
-  const localDate = new Date();
-  localDate.setHours(hours24, minutes, 0, 0);
+  // Create a date in UTC first, then adjust for the user's timezone
+  // If user is at UTC+5:30, and says 10:52 AM, we need to convert to UTC
+  // Local 10:52 = UTC (10:52 - 5:30) = UTC 05:22
   
-  // Get UTC time
-  const utcHours = String(localDate.getUTCHours()).padStart(2, '0');
-  const utcMinutes = String(localDate.getUTCMinutes()).padStart(2, '0');
+  const totalMinutes = hours * 60 + minutes - timezoneOffsetMinutes;
+  const utcHours = Math.floor((totalMinutes / 60 + 24) % 24); // +24 to handle negative wrap
+  const utcMinutes = ((totalMinutes % 60) + 60) % 60; // +60 to handle negative wrap
   
-  return `${utcHours}:${utcMinutes}`;
+  return `${String(utcHours).padStart(2, '0')}:${String(utcMinutes).padStart(2, '0')}`;
 }
 
 export async function GET(req: Request) {
@@ -73,13 +75,13 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, frequency, reminderTime, reminderPeriod, reminderEnabled, sharedWith } = habitSchema.parse(body);
+    const { title, description, frequency, reminderTime, reminderPeriod, timezoneOffset, reminderEnabled, sharedWith } = habitSchema.parse(body);
 
     // Convert local time to UTC if reminder is enabled
     let utcReminderTime = reminderTime;
     if (reminderEnabled && reminderTime && reminderPeriod) {
-      utcReminderTime = convertToUTC(reminderTime, reminderPeriod);
-      console.log(`[HABITS] Converted ${reminderTime} ${reminderPeriod} to UTC: ${utcReminderTime}`);
+      utcReminderTime = convertToUTC(reminderTime, reminderPeriod, timezoneOffset || 0);
+      console.log(`[HABITS] User timezone offset: ${timezoneOffset}min | Converted ${reminderTime} ${reminderPeriod} to UTC: ${utcReminderTime}`);
     }
 
     // Create habit for the current user

@@ -83,10 +83,16 @@ export default function DashboardPage() {
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Get timezone offset in minutes
+      const timezoneOffset = new Date().getTimezoneOffset();
+      
       const res = await fetch("/api/habits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          timezoneOffset, // Send timezone offset to server
+        }),
       });
 
       if (res.ok) {
