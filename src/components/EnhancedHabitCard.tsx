@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState } from "react";
 import HabitMenu from "./HabitMenu";
 
 type Habit = {
@@ -39,9 +39,6 @@ type EnhancedHabitCardProps = {
   streak: number;
   completedToday: boolean;
   selectionMode: boolean;
-  index: number;
-  isLast: boolean;
-  onShowNext: (index: number) => void;
 };
 
 export default function EnhancedHabitCard({
@@ -56,44 +53,8 @@ export default function EnhancedHabitCard({
   streak,
   completedToday,
   selectionMode,
-  index,
-  isLast,
-  onShowNext,
 }: EnhancedHabitCardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const triggerNextHabit = () => {
-    if (isLast) {
-      hoverTimeoutRef.current = null;
-      return;
-    }
-    hoverTimeoutRef.current = null;
-    onShowNext(index);
-  };
-
-  const handleHoverStart = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    if (isLast) return;
-    hoverTimeoutRef.current = setTimeout(triggerNextHabit, 350);
-  };
-
-  const handleHoverEnd = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-  };
 
   const handleComplete = async () => {
     if (completedToday) return;
@@ -116,8 +77,6 @@ export default function EnhancedHabitCard({
     <div
       data-habit-card="true"
       data-habit-card-id={habit.id}
-      onMouseEnter={handleHoverStart}
-      onMouseLeave={handleHoverEnd}
       className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden border border-gray-100 dark:border-gray-700 ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
