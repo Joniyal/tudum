@@ -72,8 +72,9 @@ export async function GET(req: Request) {
           orderBy: { completedAt: "desc" },
           take: 30,
         },
+        collection: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { sortOrder: "asc" },
     });
 
     return NextResponse.json(habits);

@@ -4,11 +4,13 @@ import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useHabitReminders } from "@/hooks/useHabitReminders";
 import AlarmModal from "@/components/AlarmModal";
-import HabitMenu from "@/components/HabitMenu";
 import EditHabitModal from "@/components/EditHabitModal";
 import TimetableBuilder from "@/components/TimetableBuilder";
 import TimetableHabitCarousel from "@/components/TimetableHabitCarousel";
 import ShareHabitModal from "@/components/ShareHabitModal";
+import EnhancedHabitCard from "@/components/EnhancedHabitCard";
+import BulkActionsToolbar from "@/components/BulkActionsToolbar";
+import CreateCollectionModal from "@/components/CreateCollectionModal";
 
 type Habit = {
   id: string;
@@ -18,11 +20,33 @@ type Habit = {
   reminderTime: string | null;
   reminderEnabled: boolean;
   alarmDuration: number | null;
+  collectionId: string | null;
+  sortOrder: number;
+  archived: boolean;
   completions: Array<{
     id: string;
     completedAt: string;
     userId: string;
   }>;
+  collection: {
+    id: string;
+    name: string;
+    color: string;
+    icon: string | null;
+  } | null;
+};
+
+type HabitCollection = {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  icon: string | null;
+  dayOfWeek: string | null;
+  habits: Habit[];
+  _count: {
+    habits: number;
+  };
 };
 
 type Partner = {
@@ -34,6 +58,7 @@ type Partner = {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [collections, setCollections] = useState<HabitCollection[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -41,6 +66,16 @@ export default function DashboardPage() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const [sharingHabit, setSharingHabit] = useState<{ id: string; title: string } | null>(null);
+  
+  // New state for enhanced features
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedHabits, setSelectedHabits] = useState<Set<string>>(new Set());
+  const [showCreateCollection, setShowCreateCollection] = useState(false);
+  const [filterCollection, setFilterCollection] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"title" | "frequency" | "streak" | "completions">("title");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showArchived, setShowArchived] = useState(false);
+  
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
     title: "",
@@ -87,12 +122,25 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const fetchCollections = useCallback(async () => {
+    try {
+      const res = await fetch("/api/collections");
+      if (res.ok) {
+        const data = await res.json();
+        setCollections(data);
+      }
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    }
+  }, []);
+
   useEffect(() => {
     if (session?.user?.id) {
       fetchHabits();
       fetchPartners();
+      fetchCollections();
     }
-  }, [session?.user?.id, fetchHabits, fetchPartners]);
+  }, [session?.user?.id, fetchHabits, fetchPartners, fetchCollections]);
 
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +192,127 @@ export default function DashboardPage() {
     }
   };
 
+  // Selection handlers
+  const handleSelectHabit = (habitId: string) => {
+    const newSelection = new Set(selectedHabits);
+    if (newSelection.has(habitId)) {
+      newSelection.delete(habitId);
+    } else {
+      newSelection.add(habitId);
+    }
+    setSelectedHabits(newSelection);
+  };
+
+  const handleSelectAll = () => {
+    const visibleHabits = getFilteredAndSortedHabits();
+    setSelectedHabits(new Set(visibleHabits.map(h => h.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedHabits(new Set());
+  };
+
+  // Bulk operations
+  const handleBulkDelete = async () => {
+    if (selectedHabits.size === 0) return;
+    if (!confirm(`Delete ${selectedHabits.size} habit(s)? This cannot be undone.`)) return;
+
+    try {
+      const res = await fetch("/api/habits/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "delete",
+          habitIds: Array.from(selectedHabits),
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+        setSelectedHabits(new Set());
+        setSelectionMode(false);
+      }
+    } catch (error) {
+      console.error("Error deleting habits:", error);
+    }
+  };
+
+  const handleBulkArchive = async () => {
+    if (selectedHabits.size === 0) return;
+
+    try {
+      const res = await fetch("/api/habits/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "archive",
+          habitIds: Array.from(selectedHabits),
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+        setSelectedHabits(new Set());
+        setSelectionMode(false);
+      }
+    } catch (error) {
+      console.error("Error archiving habits:", error);
+    }
+  };
+
+  const handleBulkComplete = async () => {
+    if (selectedHabits.size === 0) return;
+
+    try {
+      const res = await fetch("/api/habits/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "complete",
+          habitIds: Array.from(selectedHabits),
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+        setSelectedHabits(new Set());
+      }
+    } catch (error) {
+      console.error("Error completing habits:", error);
+    }
+  };
+
+  const handleCreateCollection = () => {
+    if (selectedHabits.size === 0) {
+      alert("Please select at least one habit to create a collection.");
+      return;
+    }
+    setShowCreateCollection(true);
+  };
+
+  const handleSubmitCollection = async (collectionData: any) => {
+    try {
+      const res = await fetch("/api/collections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...collectionData,
+          habitIds: Array.from(selectedHabits),
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+        fetchCollections();
+        setSelectedHabits(new Set());
+        setShowCreateCollection(false);
+        setSelectionMode(false);
+      }
+    } catch (error) {
+      console.error("Error creating collection:", error);
+    }
+  };
+
   const handleDeleteHabit = async (habitId: string) => {
     setDeletingHabitId(habitId);
   };
@@ -163,6 +332,57 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error deleting habit:", error);
     }
+  };
+
+  // Utility functions
+  const isCompletedToday = (completions: Habit["completions"]) => {
+    const today = new Date().toDateString();
+    return completions.some((c) => new Date(c.completedAt).toDateString() === today);
+  };
+
+  const getStreak = (completions: Habit["completions"]) => {
+    if (completions.length === 0) return 0;
+
+    const sortedCompletions = [...completions]
+      .map((c) => new Date(c.completedAt))
+      .sort((a, b) => b.getTime() - a.getTime());
+
+    let streak = 0;
+    let currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    for (const completionDate of sortedCompletions) {
+      completionDate.setHours(0, 0, 0, 0);
+      if (completionDate.getTime() === currentDate.getTime()) {
+        streak++;
+        currentDate.setDate(currentDate.getDate() - 1);
+      } else if (completionDate.getTime() < currentDate.getTime()) {
+        break;
+      }
+    }
+
+    return streak;
+  };
+
+  const getFilteredAndSortedHabits = () => {
+    let filtered = habits.filter(h => showArchived ? h.archived : !h.archived);
+
+    if (filterCollection) {
+      filtered = filtered.filter(h => h.collectionId === filterCollection);
+    }
+
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "frequency":
+          return a.frequency.localeCompare(b.frequency);
+        case "streak":
+          return getStreak(b.completions) - getStreak(a.completions);
+        case "completions":
+          return b.completions.length - a.completions.length;
+        default:
+          return a.title.localeCompare(b.title);
+      }
+    });
   };
 
   const handleEditHabit = (habit: Habit) => {
@@ -227,40 +447,6 @@ export default function DashboardPage() {
       console.error("Error creating timetable habits:", error);
       alert("Failed to create some habits");
     }
-  };
-
-  const isCompletedToday = (completions: Array<{ completedAt: string }>) => {
-    const today = new Date().toDateString();
-    return completions.some(
-      (c) => new Date(c.completedAt).toDateString() === today
-    );
-  };
-
-  const getStreak = (completions: Array<{ completedAt: string }>) => {
-    if (completions.length === 0) return 0;
-
-    const dates = completions
-      .map((c) => new Date(c.completedAt).toDateString())
-      .filter((date, index, self) => self.indexOf(date) === index)
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-
-    let streak = 0;
-    let currentDate = new Date();
-
-    for (const date of dates) {
-      const completionDate = new Date(date);
-      const diffDays = Math.floor(
-        (currentDate.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      if (diffDays === streak) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-
-    return streak;
   };
 
   if (loading) {
@@ -525,7 +711,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {habits.length === 0 ? (
+      {habits.length === 0 && !showArchived ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             No habits yet. Create your first habit to get started!
@@ -533,104 +719,148 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          {/* Timetable Carousel - Only show if there are habits with reminder times */}
-          <TimetableHabitCarousel
-            habits={habits}
-            onComplete={handleCompleteHabit}
-            onEdit={handleEditHabit}
-            onDelete={handleDeleteHabit}
-          />
+          {/* Timetable Carousel - Only show active habits with reminder times */}
+          {!showArchived && (
+            <TimetableHabitCarousel
+              habits={habits.filter(h => !h.archived)}
+              onComplete={handleCompleteHabit}
+              onEdit={handleEditHabit}
+              onDelete={handleDeleteHabit}
+            />
+          )}
 
-          {/* Regular Habits Grid */}
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              All Habits
-            </h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {habits.map((habit) => {
-              const completedToday = isCompletedToday(habit.completions);
-              const streak = getStreak(habit.completions);
+          {/* Enhanced Toolbar */}
+          <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md p-4 mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {/* Left Side - Title & Stats */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                  {showArchived ? "📦 Archived Habits" : "🎯 Your Habits"}
+                  <span className="text-base font-normal text-gray-500 dark:text-gray-400">
+                    ({getFilteredAndSortedHabits().length})
+                  </span>
+                </h2>
+                {collections.length > 0 && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {collections.length} collection{collections.length !== 1 ? "s" : ""}
+                  </p>
+                )}
+              </div>
 
-              return (
-                <div
-                  key={habit.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition"
+              {/* Right Side - Actions */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Selection Mode Toggle */}
+                <button
+                  onClick={() => {
+                    setSelectionMode(!selectionMode);
+                    if (selectionMode) {
+                      setSelectedHabits(new Set());
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    selectionMode
+                      ? "bg-indigo-600 text-white"
+                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                  }`}
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {habit.title}
-                        </h3>
-                        {habit.reminderTime && (
-                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
-                            {(() => {
-                              const [h, m] = habit.reminderTime.split(":").map(Number);
-                              const hour = h % 12 || 12;
-                              const period = h < 12 ? "AM" : "PM";
-                              return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
-                            })()}
-                          </span>
-                        )}
-                      </div>
-                      <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
-                        {habit.frequency}
-                      </span>
-                    </div>
-                    <HabitMenu
-                      habitId={habit.id}
-                      onEdit={() => handleEditHabit(habit)}
-                      onDelete={() => handleDeleteHabit(habit.id)}
-                    />
-                  </div>
+                  {selectionMode ? "✓ Done Selecting" : "☑️ Select"}
+                </button>
 
-                  {habit.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      {habit.description}
-                    </p>
-                  )}
+                {/* View Mode Toggle */}
+                <button
+                  onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+                  className="px-4 py-2 rounded-lg font-medium bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                  title="Toggle view mode"
+                >
+                  {viewMode === "grid" ? "☰" : "▦"}
+                </button>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Streak: </span>
-                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                        {streak} days 🔥
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {habit.completions.length} completions
-                    </div>
-                  </div>
+                {/* Sort Dropdown */}
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-4 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="title">Sort: A-Z</option>
+                  <option value="frequency">Sort: Frequency</option>
+                  <option value="streak">Sort: Streak</option>
+                  <option value="completions">Sort: Completions</option>
+                </select>
 
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => handleCompleteHabit(habit.id)}
-                      disabled={completedToday}
-                      className={`w-full py-3 px-4 rounded-lg font-semibold transition ${
-                        completedToday
-                          ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed"
-                          : "bg-indigo-600 hover:bg-indigo-700 text-white"
-                      }`}
-                    >
-                      {completedToday ? "✓ Completed Today" : "Mark Complete"}
-                    </button>
-                    
-                    {partners.length > 0 && (
-                      <button
-                        onClick={() => setSharingHabit({ id: habit.id, title: habit.title })}
-                        className="w-full py-2 px-4 rounded-lg font-medium transition bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800"
-                      >
-                        🤝 Share with Partner
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                {/* Collection Filter */}
+                {collections.length > 0 && (
+                  <select
+                    value={filterCollection || ""}
+                    onChange={(e) => setFilterCollection(e.target.value || null)}
+                    className="px-4 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">All Collections</option>
+                    {collections.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.icon} {c.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {/* Archive Toggle */}
+                <button
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="px-4 py-2 rounded-lg font-medium bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                  title={showArchived ? "Show active habits" : "Show archived habits"}
+                >
+                  {showArchived ? "📂 Active" : "📦 Archive"}
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Habits Display */}
+          <div className={
+            viewMode === "grid"
+              ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              : "space-y-4"
+          }>
+            {getFilteredAndSortedHabits().map((habit) => (
+              <EnhancedHabitCard
+                key={habit.id}
+                habit={habit}
+                isSelected={selectedHabits.has(habit.id)}
+                onSelect={handleSelectHabit}
+                onComplete={handleCompleteHabit}
+                onEdit={handleEditHabit}
+                onDelete={handleDeleteHabit}
+                onShare={(id, title) => setSharingHabit({ id, title })}
+                streak={getStreak(habit.completions)}
+                completedToday={isCompletedToday(habit.completions)}
+                selectionMode={selectionMode}
+              />
+            ))}
+          </div>
+
+          {getFilteredAndSortedHabits().length === 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
+              <p className="text-gray-600 dark:text-gray-400">
+                {showArchived ? "No archived habits" : "No habits match your filters"}
+              </p>
+            </div>
+          )}
         </>
       )}
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selectedHabits.size}
+        totalCount={getFilteredAndSortedHabits().length}
+        onSelectAll={handleSelectAll}
+        onDeselectAll={handleDeselectAll}
+        onDelete={handleBulkDelete}
+        onArchive={handleBulkArchive}
+        onCreateCollection={handleCreateCollection}
+        onAddToCollection={() => {}}
+        onComplete={handleBulkComplete}
+        collections={collections.map(c => ({ id: c.id, name: c.name, color: c.color }))}
+      />
 
       {/* Alarm Modals */}
       {activeAlarms.map((alarm) => (
@@ -675,6 +905,15 @@ export default function DashboardPage() {
             fetchHabits();
             setSharingHabit(null);
           }}
+        />
+      )}
+
+      {/* Create Collection Modal */}
+      {showCreateCollection && (
+        <CreateCollectionModal
+          selectedHabitIds={Array.from(selectedHabits)}
+          onClose={() => setShowCreateCollection(false)}
+          onSubmit={handleSubmitCollection}
         />
       )}
 

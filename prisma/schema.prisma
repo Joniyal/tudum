@@ -28,6 +28,7 @@ model User {
   messagesReceived    Message[]     @relation("MessageTo")
   habitSharesSent     HabitShare[]  @relation("ShareFrom")
   habitSharesReceived HabitShare[]  @relation("ShareTo")
+  collections         HabitCollection[]
 
   @@map("users")
 }
@@ -41,14 +42,19 @@ model Habit {
   reminderTime   String?   // Time in HH:MM format (e.g., "05:00", "14:30")
   reminderEnabled Boolean  @default(false)
   alarmDuration  Int?      // Duration in minutes (5, 10, 15, 30, 60, or -1 for "until completed")
+  collectionId   String?   // Optional: belongs to a collection
+  sortOrder      Int       @default(0) // For custom ordering within collections
+  archived       Boolean   @default(false) // Soft delete
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collection  HabitCollection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   completions Completion[]
   shares      HabitShare[]
 
   @@index([userId])
+  @@index([collectionId])
   @@index([reminderEnabled, reminderTime]) // For efficient reminder queries
   @@map("habits")
 }
@@ -145,4 +151,23 @@ enum HabitShareStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+model HabitCollection {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String   @default("#6366f1") // Hex color for visual distinction
+  icon        String?  // Optional emoji or icon
+  dayOfWeek   String?  // e.g., "Monday", "Tuesday", or null for all days
+  userId      String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habits      Habit[]
+
+  @@index([userId])
+  @@map("habit_collections")
 }

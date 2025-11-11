@@ -10,11 +10,20 @@ type Habit = {
   reminderTime: string | null;
   reminderEnabled: boolean;
   alarmDuration: number | null;
+  collectionId: string | null;
+  sortOrder: number;
+  archived: boolean;
   completions: Array<{
     id: string;
     completedAt: string;
     userId: string;
   }>;
+  collection: {
+    id: string;
+    name: string;
+    color: string;
+    icon: string | null;
+  } | null;
 };
 
 type TimetableHabitCarouselProps = {
