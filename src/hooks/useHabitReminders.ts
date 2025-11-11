@@ -137,21 +137,35 @@ export function useHabitReminders() {
       });
     }
     
-    setActiveAlarms(prev => prev.map(a => {
-      if (a.habit.id === habitId) {
-        return {
-          ...a,
-          snoozedUntil: new Date(Date.now() + minutes * 60 * 1000),
-        };
-      }
-      return a;
-    }));
+    console.log(`[REMINDERS] Snoozing alarm for ${minutes} minutes`);
+    
+    // Find the alarm
+    const alarm = activeAlarms.find(a => a.habit.id === habitId);
+    if (!alarm) return;
+    
+    // Remove from active alarms (close modal)
+    setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
+    
+    // Re-add after snooze duration
+    setTimeout(() => {
+      console.log(`[REMINDERS] Re-triggering alarm after ${minutes}m snooze:`, alarm.habit.title);
+      setActiveAlarms(prev => [...prev, {
+        habit: alarm.habit,
+        triggeredAt: new Date(),
+      }]);
+    }, minutes * 60 * 1000);
   };
 
   const handleComplete = async (habitId: string) => {
     try {
       const res = await fetch(`/api/habits/${habitId}/complete`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          completedAt: new Date().toISOString(),
+        }),
       });
       
       if (res.ok) {
@@ -166,6 +180,9 @@ export function useHabitReminders() {
         }
         
         setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
+      } else {
+        const errorData = await res.json();
+        console.error("[REMINDERS] Failed to mark complete:", errorData);
       }
     } catch (error) {
       console.error("[REMINDERS] Error marking habit complete:", error);
