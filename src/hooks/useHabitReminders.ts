@@ -116,10 +116,27 @@ export function useHabitReminders() {
   }, [status, activeAlarms]);
 
   const handleDismiss = (habitId: string) => {
+    // Tell Service Worker to stop re-notifications
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: "STOP_ALARM",
+        habitId: habitId,
+      });
+    }
+    
     setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
   };
 
   const handleSnooze = (habitId: string, minutes: number) => {
+    // Tell Service Worker to snooze alarm
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: "SNOOZE_ALARM",
+        habitId: habitId,
+        minutes: minutes,
+      });
+    }
+    
     setActiveAlarms(prev => prev.map(a => {
       if (a.habit.id === habitId) {
         return {
@@ -139,6 +156,15 @@ export function useHabitReminders() {
       
       if (res.ok) {
         console.log("[REMINDERS] Habit marked complete:", habitId);
+        
+        // Tell Service Worker to stop re-notifications
+        if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: "STOP_ALARM",
+            habitId: habitId,
+          });
+        }
+        
         setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
       }
     } catch (error) {

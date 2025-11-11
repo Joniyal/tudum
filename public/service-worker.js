@@ -1,10 +1,32 @@
-// Service Worker for habit reminders - v2.0
-const SW_VERSION = "2.0";
+// Service Worker for habit reminders - v2.1
+const SW_VERSION = "2.1";
 console.log("[SERVICE_WORKER] Loaded - Version:", SW_VERSION);
 
 // Store to track sent notifications and active alarms
 let notificationsSent = new Set();
-let activeAlarms = new Map(); // habitId -> { startTime, duration, snoozedUntil }
+let activeAlarms = new Map(); // habitId -> { startTime, duration, snoozedUntil, interval }
+
+// Listen for messages from the page
+self.addEventListener("message", (event) => {
+  const { type, habitId, minutes } = event.data;
+  
+  if (type === "STOP_ALARM") {
+    console.log("[SERVICE_WORKER] Received STOP_ALARM message for:", habitId);
+    const alarm = activeAlarms.get(habitId);
+    if (alarm && alarm.interval) {
+      clearInterval(alarm.interval);
+      console.log("[SERVICE_WORKER] Cleared interval for:", habitId);
+    }
+    activeAlarms.delete(habitId);
+  } else if (type === "SNOOZE_ALARM") {
+    console.log("[SERVICE_WORKER] Received SNOOZE_ALARM message for:", habitId, "minutes:", minutes);
+    const alarm = activeAlarms.get(habitId);
+    if (alarm) {
+      alarm.snoozedUntil = Date.now() + (minutes * 60000);
+      console.log("[SERVICE_WORKER] Snoozed alarm for:", minutes, "minutes");
+    }
+  }
+});
 
 // Check reminders every 5 seconds
 setInterval(async () => {
@@ -32,48 +54,6 @@ setInterval(async () => {
           // Only send if we haven't already sent it this minute
           if (!notificationsSent.has(notificationKey)) {
             console.log(`[SERVICE_WORKER] Triggering alarm for: ${reminder.title}`);
-            
-            // Store alarm info
-            activeAlarms.set(reminder.id, {
-              startTime: Date.now(),
-              duration: reminder.alarmDuration || 5, // minutes
-              habitId: reminder.id,
-              title: reminder.title,
-            });
-            
-            // Show persistent notification with actions
-            self.registration.showNotification(`⏰ ALARM: ${reminder.title}`, {
-              body: `${reminder.description || 'Complete your habit!'}\n\nAlarm will play for ${reminder.alarmDuration || 5} minutes`,
-              icon: "/favicon.ico",
-              badge: "/favicon.ico",
-              tag: reminder.id,
-              requireInteraction: true,
-              vibrate: [500, 200, 500, 200, 500, 200, 500], // Continuous vibration pattern
-              silent: false,
-              renotify: true,
-              actions: [
-                {
-                  action: "complete",
-                  title: "✓ Mark Complete",
-                },
-                {
-                  action: "snooze-1",
-                  title: "Snooze 1min",
-                },
-                {
-                  action: "snooze-2",
-                  title: "Snooze 2min",
-                },
-                {
-                  action: "dismiss",
-                  title: "Dismiss",
-                }
-              ]
-            }).catch((err) => {
-              console.error("[SERVICE_WORKER] Error showing notification:", err);
-            });
-            
-            notificationsSent.add(notificationKey);
             
             // Re-notify every 30 seconds if alarm still active
             const renotifyInterval = setInterval(() => {
@@ -128,6 +108,49 @@ setInterval(async () => {
               });
             }, 30000); // Re-notify every 30 seconds
             
+            // Store alarm info with interval reference
+            activeAlarms.set(reminder.id, {
+              startTime: Date.now(),
+              duration: reminder.alarmDuration || 5, // minutes
+              habitId: reminder.id,
+              title: reminder.title,
+              interval: renotifyInterval,
+            });
+            
+            // Show initial persistent notification with actions
+            self.registration.showNotification(`⏰ ALARM: ${reminder.title}`, {
+              body: `${reminder.description || 'Complete your habit!'}\n\nAlarm will play for ${reminder.alarmDuration || 5} minutes`,
+              icon: "/favicon.ico",
+              badge: "/favicon.ico",
+              tag: reminder.id,
+              requireInteraction: true,
+              vibrate: [500, 200, 500, 200, 500, 200, 500], // Continuous vibration pattern
+              silent: false,
+              renotify: true,
+              actions: [
+                {
+                  action: "complete",
+                  title: "✓ Mark Complete",
+                },
+                {
+                  action: "snooze-1",
+                  title: "Snooze 1min",
+                },
+                {
+                  action: "snooze-2",
+                  title: "Snooze 2min",
+                },
+                {
+                  action: "dismiss",
+                  title: "Dismiss",
+                }
+              ]
+            }).catch((err) => {
+              console.error("[SERVICE_WORKER] Error showing notification:", err);
+            });
+            
+            notificationsSent.add(notificationKey);
+            
             // Clean up old entries after duration + 2 minutes
             setTimeout(() => {
               notificationsSent.delete(notificationKey);
@@ -161,6 +184,15 @@ self.addEventListener("notificationclick", (event) => {
         .then((res) => {
           if (res.ok) {
             console.log("[SERVICE_WORKER] Habit marked complete:", habitId);
+            
+            // Clear the re-notification interval
+            const alarm = activeAlarms.get(habitId);
+            if (alarm && alarm.interval) {
+              clearInterval(alarm.interval);
+              console.log("[SERVICE_WORKER] Cleared re-notification interval");
+            }
+            
+            // Remove alarm
             activeAlarms.delete(habitId);
             
             // Show success notification
@@ -207,6 +239,11 @@ self.addEventListener("notificationclick", (event) => {
     }
   } else if (action === "dismiss") {
     // Dismiss alarm
+    const alarm = activeAlarms.get(habitId);
+    if (alarm && alarm.interval) {
+      clearInterval(alarm.interval);
+      console.log("[SERVICE_WORKER] Cleared re-notification interval");
+    }
     activeAlarms.delete(habitId);
     console.log("[SERVICE_WORKER] Alarm dismissed");
   } else {
