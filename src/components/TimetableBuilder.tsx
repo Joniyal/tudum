@@ -109,10 +109,16 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-5xl w-full my-8">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-5xl w-full my-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header - Fixed */}
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-2xl">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Daily Timetable Builder</h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Create your perfect daily routine</p>
@@ -127,7 +133,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
           {/* Preset Templates */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Start Templates</h3>
@@ -200,7 +206,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
           {/* Timeline View */}
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Your Schedule ({slots.length} activities)</h3>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
               {slots.length === 0 ? (
                 <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                   <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,8 +251,8 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          {/* Actions - Sticky Footer */}
+          <div className="sticky bottom-0 flex space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 -mx-6 px-6 -mb-6 pb-6 rounded-b-2xl">
             <button
               onClick={onClose}
               className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
