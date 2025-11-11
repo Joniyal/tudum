@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useHabitReminders } from "@/hooks/useHabitReminders";
 import AlarmModal from "@/components/AlarmModal";
+import HabitMenu from "@/components/HabitMenu";
+import EditHabitModal from "@/components/EditHabitModal";
 
 type Habit = {
   id: string;
@@ -12,6 +14,7 @@ type Habit = {
   frequency: "DAILY" | "WEEKLY" | "MONTHLY";
   reminderTime: string | null;
   reminderEnabled: boolean;
+  alarmDuration: number | null;
   completions: Array<{
     id: string;
     completedAt: string;
@@ -31,6 +34,8 @@ export default function DashboardPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
     title: "",
@@ -135,18 +140,56 @@ export default function DashboardPage() {
   };
 
   const handleDeleteHabit = async (habitId: string) => {
-    if (!confirm("Are you sure you want to delete this habit?")) return;
+    setDeletingHabitId(habitId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingHabitId) return;
 
     try {
-      const res = await fetch(`/api/habits/${habitId}`, {
+      const res = await fetch(`/api/habits/${deletingHabitId}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
         fetchHabits();
+        setDeletingHabitId(null);
       }
     } catch (error) {
       console.error("Error deleting habit:", error);
+    }
+  };
+
+  const handleEditHabit = (habit: Habit) => {
+    setEditingHabit(habit);
+  };
+
+  const handleSaveHabit = async (updatedData: Partial<Habit>) => {
+    if (!editingHabit) return;
+
+    try {
+      // Get timezone offset
+      const timezoneOffset = -new Date().getTimezoneOffset();
+
+      const res = await fetch(`/api/habits/${editingHabit.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...updatedData,
+          timezoneOffset,
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+        setEditingHabit(null);
+      } else {
+        const error = await res.json();
+        alert(error.error || "Failed to update habit");
+      }
+    } catch (error) {
+      console.error("Error updating habit:", error);
+      alert("Failed to update habit");
     }
   };
 
@@ -461,14 +504,11 @@ export default function DashboardPage() {
                       {habit.frequency}
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleDeleteHabit(habit.id)}
-                    className="text-gray-400 hover:text-red-600 transition"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <HabitMenu
+                    habitId={habit.id}
+                    onEdit={() => handleEditHabit(habit)}
+                    onDelete={() => handleDeleteHabit(habit.id)}
+                  />
                 </div>
 
                 {habit.description && (
@@ -521,6 +561,51 @@ export default function DashboardPage() {
           }}
         />
       ))}
+
+      {/* Edit Habit Modal */}
+      {editingHabit && (
+        <EditHabitModal
+          habit={editingHabit}
+          onClose={() => setEditingHabit(null)}
+          onSave={handleSaveHabit}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingHabitId && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Delete Habit</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this habit? All completion history will be permanently removed.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setDeletingHabitId(null)}
+                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,6 +10,8 @@ const habitSchema = z.object({
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]),
   reminderTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:MM format
   reminderEnabled: z.boolean().optional(),
+  alarmDuration: z.number().optional(),
+  timezoneOffset: z.number().optional(),
 });
 
 export async function PATCH(
@@ -32,7 +34,22 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { title, description, frequency, reminderTime, reminderEnabled } = habitSchema.parse(body);
+    const { title, description, frequency, reminderTime, reminderEnabled, alarmDuration, timezoneOffset } = habitSchema.parse(body);
+
+    // Convert local time to UTC if reminder time is provided
+    let reminderTimeUTC = reminderTime;
+    if (reminderEnabled && reminderTime && timezoneOffset !== undefined) {
+      const [hours, minutes] = reminderTime.split(':').map(Number);
+      const totalMinutes = hours * 60 + minutes + timezoneOffset;
+      
+      let adjustedMinutes = totalMinutes;
+      if (adjustedMinutes < 0) adjustedMinutes += 1440;
+      if (adjustedMinutes >= 1440) adjustedMinutes -= 1440;
+      
+      const utcHours = Math.floor(adjustedMinutes / 60);
+      const utcMinutes = adjustedMinutes % 60;
+      reminderTimeUTC = `${String(utcHours).padStart(2, '0')}:${String(utcMinutes).padStart(2, '0')}`;
+    }
 
     const updatedHabit = await prisma.habit.update({
       where: { id },
@@ -40,8 +57,9 @@ export async function PATCH(
         title, 
         description, 
         frequency,
-        reminderTime,
+        reminderTime: reminderEnabled ? reminderTimeUTC : null,
         reminderEnabled,
+        alarmDuration: reminderEnabled ? alarmDuration : null,
       },
     });
 
