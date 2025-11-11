@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Force Service Worker Update</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #0070f3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #0051cc;
+    }
+    .success { color: #00c853; }
+    .error { color: #d32f2f; }
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔄 Force Service Worker Update</h1>
+    <p>Click the button below to force update the Service Worker to version 2.1</p>
+    
+    <div>
+      <button onclick="forceUpdate()">Force Update Service Worker</button>
+      <button onclick="checkVersion()">Check Current Version</button>
+    </div>
+    
+    <div id="output" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+    
+    async function forceUpdate() {
+      try {
+        output.innerHTML = '<p>🔄 Forcing Service Worker update...</p>';
+        
+        // Unregister all service workers
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+          console.log('Unregistered:', registration);
+        }
+        
+        output.innerHTML += '<p class="success">✅ Unregistered old Service Worker</p>';
+        
+        // Wait a bit
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Register new service worker
+        const registration = await navigator.serviceWorker.register('/service-worker.js', {
+          updateViaCache: 'none',
+          scope: '/'
+        });
+        
+        output.innerHTML += '<p class="success">✅ Registered new Service Worker</p>';
+        
+        // Wait for it to activate
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check version
+        await checkVersion();
+        
+        output.innerHTML += '<p class="success">✅ Service Worker updated! Refresh the dashboard page.</p>';
+        
+      } catch (error) {
+        output.innerHTML += `<p class="error">❌ Error: ${error.message}</p>`;
+      }
+    }
+    
+    async function checkVersion() {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        
+        if (registrations.length === 0) {
+          output.innerHTML = '<p class="error">❌ No Service Worker registered</p>';
+          return;
+        }
+        
+        output.innerHTML = '<h3>Service Worker Status:</h3>';
+        
+        registrations.forEach((reg, index) => {
+          output.innerHTML += `<pre>Registration ${index + 1}:
+Active: ${reg.active ? 'Yes' : 'No'}
+Waiting: ${reg.waiting ? 'Yes' : 'No'}
+Installing: ${reg.installing ? 'Yes' : 'No'}
+Scope: ${reg.scope}</pre>`;
+        });
+        
+        output.innerHTML += '<p>Check browser console for version logs</p>';
+        
+      } catch (error) {
+        output.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
