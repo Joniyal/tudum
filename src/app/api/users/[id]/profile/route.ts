@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/users/[id]/profile - Get user profile with stats
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = params.id;
+    const { id: userId } = await params;
 
     // Fetch user with habits and completions
     const user = await prisma.user.findUnique({

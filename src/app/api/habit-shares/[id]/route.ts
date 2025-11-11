@@ -11,7 +11,7 @@ const updateShareSchema = z.object({
 // PATCH /api/habit-shares/[id] - Accept or reject a habit share invitation
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -30,7 +30,7 @@ export async function PATCH(
     }
 
     const { status } = validation.data;
-    const shareId = params.id;
+    const { id: shareId } = await params;
 
     // Find the habit share
     const habitShare = await prisma.habitShare.findUnique({
@@ -99,7 +99,7 @@ export async function PATCH(
 // DELETE /api/habit-shares/[id] - Cancel a sent habit share invitation
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -107,7 +107,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const shareId = params.id;
+    const { id: shareId } = await params;
 
     // Find the habit share
     const habitShare = await prisma.habitShare.findUnique({

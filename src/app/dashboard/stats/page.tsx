@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
@@ -34,9 +34,43 @@ function StatsContent() {
   const [selectedUserName, setSelectedUserName] = useState("My");
   const [loading, setLoading] = useState(true);
 
+  const fetchPartners = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections");
+      if (res.ok) {
+        const connections = await res.json();
+        const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
+        const partnersList = acceptedConnections.map((c: any) => {
+          const currentUserId = session?.user?.id;
+          return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
+        });
+        setPartners(partnersList);
+      }
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+    }
+  }, [session?.user?.id]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const url = selectedUserId
+        ? `/api/stats?userId=${selectedUserId}`
+        : "/api/stats";
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedUserId]);
+
   useEffect(() => {
     fetchPartners();
-  }, []);
+  }, [fetchPartners]);
 
   useEffect(() => {
     const userId = searchParams.get("userId");
@@ -54,41 +88,7 @@ function StatsContent() {
 
   useEffect(() => {
     fetchStats();
-  }, [selectedUserId]);
-
-  const fetchPartners = async () => {
-    try {
-      const res = await fetch("/api/connections");
-      if (res.ok) {
-        const connections = await res.json();
-        const acceptedConnections = connections.filter((c: any) => c.status === "ACCEPTED");
-        const partnersList = acceptedConnections.map((c: any) => {
-          const currentUserId = session?.user?.id;
-          return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
-        });
-        setPartners(partnersList);
-      }
-    } catch (error) {
-      console.error("Error fetching partners:", error);
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const url = selectedUserId
-        ? `/api/stats?userId=${selectedUserId}`
-        : "/api/stats";
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
-        setStats(data);
-      }
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchStats]);
 
   if (loading) {
     return (
