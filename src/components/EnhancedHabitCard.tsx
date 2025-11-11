@@ -75,7 +75,7 @@ export default function EnhancedHabitCard({
 
   return (
     <div
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden ${
+      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all duration-200 ease-out overflow-hidden ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
         completedToday ? "opacity-90" : ""

@@ -241,6 +241,9 @@ export default function DashboardPage() {
   const handleBulkArchive = async () => {
     if (selectedHabits.size === 0) return;
 
+    // Save current scroll position
+    const scrollY = window.scrollY;
+
     try {
       const res = await fetch("/api/habits/bulk", {
         method: "POST",
@@ -252,9 +255,14 @@ export default function DashboardPage() {
       });
 
       if (res.ok) {
-        fetchHabits();
+        await fetchHabits();
         setSelectedHabits(new Set());
         setSelectionMode(false);
+        
+        // Restore scroll position
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+        });
       }
     } catch (error) {
       console.error("Error archiving habits:", error);
@@ -319,6 +327,9 @@ export default function DashboardPage() {
       const habit = habits.find(h => h.id === habitId);
       if (!habit) return;
 
+      // Save current scroll position
+      const scrollY = window.scrollY;
+
       const res = await fetch("/api/habits/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -329,7 +340,12 @@ export default function DashboardPage() {
       });
 
       if (res.ok) {
-        fetchHabits();
+        await fetchHabits();
+        
+        // Restore scroll position after state update
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+        });
       }
     } catch (error) {
       console.error("Error archiving habit:", error);
@@ -343,14 +359,22 @@ export default function DashboardPage() {
   const confirmDelete = async () => {
     if (!deletingHabitId) return;
 
+    // Save current scroll position
+    const scrollY = window.scrollY;
+
     try {
       const res = await fetch(`/api/habits/${deletingHabitId}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        fetchHabits();
+        await fetchHabits();
         setDeletingHabitId(null);
+        
+        // Restore scroll position
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+        });
       }
     } catch (error) {
       console.error("Error deleting habit:", error);
