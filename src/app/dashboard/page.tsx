@@ -439,7 +439,7 @@ export default function DashboardPage() {
     if (typeof window === "undefined") return;
 
     const now = Date.now();
-    if (now - lastAutoScrollRef.current < 800) return;
+    if (now - lastAutoScrollRef.current < 400) return;
 
     const nextHabit = filteredHabits[index + 1];
     if (!nextHabit) return;
@@ -457,7 +457,7 @@ export default function DashboardPage() {
 
     window.setTimeout(() => {
       target.classList.remove("auto-scroll-highlight");
-    }, 1000);
+    }, 800);
   }, [filteredHabits]);
 
   const handleEditHabit = (habit: Habit) => {

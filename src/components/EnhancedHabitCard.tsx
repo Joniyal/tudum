@@ -85,7 +85,7 @@ export default function EnhancedHabitCard({
       clearTimeout(hoverTimeoutRef.current);
     }
     if (isLast) return;
-    hoverTimeoutRef.current = setTimeout(triggerNextHabit, 350);
+    hoverTimeoutRef.current = setTimeout(triggerNextHabit, 150);
   };
 
   const handleHoverEnd = () => {
