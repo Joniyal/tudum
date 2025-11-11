@@ -57,18 +57,34 @@ function DashboardNav() {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    // Fetch pending requests count
+    // Fetch pending requests count (connections + habit shares)
     const fetchPendingCount = async () => {
       try {
-        const res = await fetch("/api/connections");
-        if (res.ok) {
-          const connections = await res.json();
-          const pending = connections.filter(
+        const [connectionsRes, habitSharesRes] = await Promise.all([
+          fetch("/api/connections"),
+          fetch("/api/habit-shares?type=received"),
+        ]);
+        
+        let totalPending = 0;
+        
+        if (connectionsRes.ok) {
+          const connections = await connectionsRes.json();
+          const pendingConnections = connections.filter(
             (c: any) =>
               c.status === "PENDING" && c.toUserId === session?.user?.id
           );
-          setPendingCount(pending.length);
+          totalPending += pendingConnections.length;
         }
+        
+        if (habitSharesRes.ok) {
+          const habitShares = await habitSharesRes.json();
+          const pendingHabitShares = habitShares.filter(
+            (s: any) => s.status === "PENDING"
+          );
+          totalPending += pendingHabitShares.length;
+        }
+        
+        setPendingCount(totalPending);
       } catch (error) {
         console.error("Error fetching pending count:", error);
       }
@@ -96,9 +112,7 @@ function DashboardNav() {
 
   const navItems = [
     { href: "/dashboard", label: "My Habits" },
-    { href: "/dashboard/discover", label: "Discover" },
-    { href: "/dashboard/requests", label: "Requests" },
-    { href: "/dashboard/partners", label: "Partners" },
+    { href: "/dashboard/social", label: "Social" },
     { href: "/dashboard/messages", label: "Messages" },
     { href: "/dashboard/stats", label: "Stats" },
   ];
@@ -123,7 +137,7 @@ function DashboardNav() {
                   }`}
                 >
                   {item.label}
-                  {item.href === "/dashboard/requests" && pendingCount > 0 && (
+                  {item.href === "/dashboard/social" && pendingCount > 0 && (
                     <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {pendingCount}
                     </span>
