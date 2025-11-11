@@ -48,6 +48,7 @@ export async function GET(req: Request) {
         description: true,
         frequency: true,
         reminderTime: true,
+        alarmDuration: true,
       },
     });
 

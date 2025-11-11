@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 
 type Reminder = {
@@ -9,6 +9,13 @@ type Reminder = {
   description: string | null;
   frequency: string;
   reminderTime: string;
+  alarmDuration: number | null;
+};
+
+type ActiveAlarm = {
+  habit: Reminder;
+  triggeredAt: Date;
+  snoozedUntil?: Date;
 };
 
 export function useHabitReminders() {
@@ -16,6 +23,7 @@ export function useHabitReminders() {
   const notificationPermission = useRef<NotificationPermission>("default");
   const checkInterval = useRef<NodeJS.Timeout | null>(null);
   const lastNotificationTime = useRef<string>("");
+  const [activeAlarms, setActiveAlarms] = useState<ActiveAlarm[]>([]);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -50,37 +58,32 @@ export function useHabitReminders() {
           const { reminders, currentTime } = data;
           console.log("[REMINDERS-TAB] Current time:", currentTime, "| Found", reminders?.length || 0, "reminders");
 
-          // Show notification for each reminder (only if tab is focused)
-          if (reminders && reminders.length > 0 && document.hasFocus()) {
-            console.log("[REMINDERS-TAB] Tab is focused, showing notifications");
-            if (notificationPermission.current === "granted") {
-              reminders.forEach((reminder: Reminder) => {
-                const notificationKey = `${reminder.id}-${currentTime}`;
+          // Trigger alarms for each reminder
+          if (reminders && reminders.length > 0) {
+            console.log("[REMINDERS-TAB] Found reminders, checking alarms...");
+            
+            reminders.forEach((reminder: Reminder) => {
+              const notificationKey = `${reminder.id}-${currentTime}`;
+              
+              // Check if already triggered or snoozed
+              const existingAlarm = activeAlarms.find(a => a.habit.id === reminder.id);
+              const isAlreadyActive = existingAlarm !== undefined;
+              const isSnoozed = existingAlarm?.snoozedUntil && existingAlarm.snoozedUntil > new Date();
+              
+              // Only trigger if not already active and not snoozed
+              if (!isAlreadyActive && lastNotificationTime.current !== notificationKey) {
+                console.log("[REMINDERS-TAB] Triggering alarm for:", reminder.title);
                 
-                // Only show if we haven't already shown it this minute
-                if (lastNotificationTime.current !== notificationKey) {
-                  console.log("[REMINDERS-TAB] Showing notification for:", reminder.title);
-
-                  const notification = new Notification(`🎯 Time for: ${reminder.title}`, {
-                    body: reminder.description || `Don't forget your ${reminder.frequency.toLowerCase()} habit!`,
-                    tag: reminder.id,
-                    requireInteraction: true,
-                    silent: false,
-                  } as any);
-
-                  notification.onclick = () => {
-                    window.focus();
-                    notification.close();
-                    window.location.href = "/dashboard";
-                  };
-
-                  lastNotificationTime.current = notificationKey;
-                  console.log("[REMINDERS-TAB] Notification shown for:", reminder.title);
-                }
-              });
-            } else {
-              console.warn("[REMINDERS-TAB] Cannot show notifications - permission:", notificationPermission.current);
-            }
+                setActiveAlarms(prev => [...prev, {
+                  habit: reminder,
+                  triggeredAt: new Date(),
+                }]);
+                
+                lastNotificationTime.current = notificationKey;
+              } else if (isSnoozed) {
+                console.log("[REMINDERS-TAB] Alarm snoozed for:", reminder.title);
+              }
+            });
           }
         }
       } catch (error) {
@@ -99,9 +102,44 @@ export function useHabitReminders() {
         clearInterval(checkInterval.current);
       }
     };
-  }, [status]);
+  }, [status, activeAlarms]);
+
+  const handleDismiss = (habitId: string) => {
+    setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
+  };
+
+  const handleSnooze = (habitId: string, minutes: number) => {
+    setActiveAlarms(prev => prev.map(a => {
+      if (a.habit.id === habitId) {
+        return {
+          ...a,
+          snoozedUntil: new Date(Date.now() + minutes * 60 * 1000),
+        };
+      }
+      return a;
+    }));
+  };
+
+  const handleComplete = async (habitId: string) => {
+    try {
+      const res = await fetch(`/api/habits/${habitId}/complete`, {
+        method: "POST",
+      });
+      
+      if (res.ok) {
+        console.log("[REMINDERS] Habit marked complete:", habitId);
+        setActiveAlarms(prev => prev.filter(a => a.habit.id !== habitId));
+      }
+    } catch (error) {
+      console.error("[REMINDERS] Error marking habit complete:", error);
+    }
+  };
 
   return {
     notificationPermission: notificationPermission.current,
+    activeAlarms,
+    handleDismiss,
+    handleSnooze,
+    handleComplete,
   };
 }

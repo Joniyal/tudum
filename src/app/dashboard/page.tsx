@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useHabitReminders } from "@/hooks/useHabitReminders";
+import AlarmModal from "@/components/AlarmModal";
 
 type Habit = {
   id: string;
@@ -29,6 +31,7 @@ export default function DashboardPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -36,6 +39,7 @@ export default function DashboardPage() {
     reminderTime: "",
     reminderPeriod: "AM" as "AM" | "PM",
     reminderEnabled: false,
+    alarmDuration: 5,
     sharedWith: [] as string[],
   });
 
@@ -98,7 +102,8 @@ export default function DashboardPage() {
       if (res.ok) {
         setFormData({ 
           title: "", 
-          description: "", 
+          description: "",
+          alarmDuration: 5, 
           frequency: "DAILY", 
           reminderTime: "",
           reminderPeriod: "AM",
@@ -350,6 +355,34 @@ export default function DashboardPage() {
                       You&apos;ll receive a browser notification at this time
                     </p>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      ⏰ Alarm Duration
+                    </label>
+                    <select
+                      value={formData.alarmDuration || 5}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          alarmDuration: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="1">1 minute</option>
+                      <option value="2">2 minutes</option>
+                      <option value="5">5 minutes</option>
+                      <option value="10">10 minutes</option>
+                      <option value="15">15 minutes</option>
+                      <option value="30">30 minutes</option>
+                      <option value="60">1 hour</option>
+                      <option value="-1">Until completed</option>
+                    </select>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      How long should the alarm play? You can snooze or mark complete to stop it.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -472,6 +505,22 @@ export default function DashboardPage() {
           })}
         </div>
       )}
+
+      {/* Alarm Modals */}
+      {activeAlarms.map((alarm) => (
+        <AlarmModal
+          key={alarm.habit.id}
+          habit={alarm.habit}
+          triggeredAt={alarm.triggeredAt}
+          onDismiss={() => handleDismiss(alarm.habit.id)}
+          onSnooze={(minutes) => handleSnooze(alarm.habit.id, minutes)}
+          onComplete={async () => {
+            await handleComplete(alarm.habit.id);
+            // Refresh habits list
+            fetchHabits();
+          }}
+        />
+      ))}
     </div>
   );
 }

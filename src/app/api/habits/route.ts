@@ -11,6 +11,7 @@ const habitSchema = z.object({
   reminderTime: z.string().regex(/^\d{1,2}:\d{2}$/).optional(), // HH:MM or H:MM format (1-12)
   reminderPeriod: z.enum(["AM", "PM"]).optional(),
   reminderEnabled: z.boolean().optional().default(false),
+  alarmDuration: z.number().optional().default(5), // Alarm duration in minutes
   timezoneOffset: z.number().optional().default(0), // User's timezone offset in minutes, default to 0
   sharedWith: z.array(z.string()).optional(),
 });
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, frequency, reminderTime, reminderPeriod, timezoneOffset, reminderEnabled, sharedWith } = habitSchema.parse(body);
+    const { title, description, frequency, reminderTime, reminderPeriod, timezoneOffset, reminderEnabled, alarmDuration, sharedWith } = habitSchema.parse(body);
 
     // Convert local time to UTC if reminder is enabled
     let utcReminderTime = reminderTime;
@@ -110,6 +111,7 @@ export async function POST(req: Request) {
         frequency,
         reminderTime: utcReminderTime,
         reminderEnabled: reminderEnabled || false,
+        alarmDuration: alarmDuration || 5,
         userId: session.user.id,
       },
     });
@@ -123,6 +125,7 @@ export async function POST(req: Request) {
           frequency,
           reminderTime: utcReminderTime,
           reminderEnabled: reminderEnabled || false,
+          alarmDuration: alarmDuration || 5,
           userId: partnerId,
         })),
       });
