@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Worker Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔧 Service Worker Updater</h1>
+        <p>This tool helps update the Service Worker for the alarm system.</p>
+        
+        <button onclick="checkServiceWorker()">1. Check Service Worker</button>
+        <button onclick="unregisterServiceWorker()">2. Unregister Old SW</button>
+        <button onclick="registerServiceWorker()">3. Register New SW</button>
+        <button onclick="testNotification()">4. Test Notification</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const status = document.getElementById('status');
+
+        async function checkServiceWorker() {
+            status.innerHTML = 'Checking...';
+            
+            if (!('serviceWorker' in navigator)) {
+                status.innerHTML = '<p class="error">❌ Service Workers not supported</p>';
+                return;
+            }
+
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            
+            if (registrations.length === 0) {
+                status.innerHTML = '<p class="error">❌ No Service Worker registered</p>';
+            } else {
+                let html = '<p class="success">✅ Found Service Workers:</p><ul>';
+                registrations.forEach((reg, i) => {
+                    html += `<li>SW ${i+1}: ${reg.scope}</li>`;
+                    if (reg.active) html += `<li>State: ${reg.active.state}</li>`;
+                });
+                html += '</ul>';
+                status.innerHTML = html;
+            }
+        }
+
+        async function unregisterServiceWorker() {
+            status.innerHTML = 'Unregistering...';
+            
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            
+            if (registrations.length === 0) {
+                status.innerHTML = '<p class="error">❌ No Service Worker to unregister</p>';
+                return;
+            }
+
+            for (let reg of registrations) {
+                await reg.unregister();
+            }
+            
+            status.innerHTML = '<p class="success">✅ All Service Workers unregistered! Now click Register New SW.</p>';
+        }
+
+        async function registerServiceWorker() {
+            status.innerHTML = 'Registering...';
+            
+            try {
+                const registration = await navigator.serviceWorker.register('/service-worker.js', { 
+                    scope: '/',
+                    updateViaCache: 'none' // Force fresh fetch
+                });
+                
+                status.innerHTML = '<p class="success">✅ New Service Worker registered!</p><p>Scope: ' + registration.scope + '</p>';
+                
+                // Wait for SW to be active
+                if (registration.installing) {
+                    status.innerHTML += '<p>Installing...</p>';
+                    registration.installing.addEventListener('statechange', (e) => {
+                        if (e.target.state === 'activated') {
+                            status.innerHTML += '<p class="success">✅ Activated!</p>';
+                        }
+                    });
+                }
+            } catch (error) {
+                status.innerHTML = '<p class="error">❌ Registration failed: ' + error.message + '</p>';
+            }
+        }
+
+        async function testNotification() {
+            status.innerHTML = 'Testing notification...';
+            
+            const permission = await Notification.requestPermission();
+            
+            if (permission !== 'granted') {
+                status.innerHTML = '<p class="error">❌ Notification permission denied</p>';
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            
+            await registration.showNotification('🎉 Test Notification', {
+                body: 'If you see this, notifications are working!',
+                icon: '/favicon.ico',
+                requireInteraction: true,
+                vibrate: [200, 100, 200],
+                actions: [
+                    { action: 'ok', title: 'OK' }
+                ]
+            });
+            
+            status.innerHTML = '<p class="success">✅ Test notification sent! Check your notifications.</p>';
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', checkServiceWorker);
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-// Service Worker for habit reminders
-console.log("[SERVICE_WORKER] Loaded");
+// Service Worker for habit reminders - v2.0
+const SW_VERSION = "2.0";
+console.log("[SERVICE_WORKER] Loaded - Version:", SW_VERSION);
 
 // Store to track sent notifications and active alarms
 let notificationsSent = new Set();
