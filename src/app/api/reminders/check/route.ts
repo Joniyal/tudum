@@ -55,37 +55,13 @@ export async function GET(req: Request) {
 
     console.log("[REMINDERS] Found", habitsWithReminders.length, "habits with reminders");
 
-    // Check if habit was already completed today (for DAILY habits)
-    const habitsToNotify = [];
-    for (const habit of habitsWithReminders) {
-      if (habit.frequency === "DAILY") {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const todayCompletion = await prisma.completion.findFirst({
-          where: {
-            habitId: habit.id,
-            userId: session.user.id,
-            completedAt: {
-              gte: today,
-            },
-          },
-        });
-
-        // Only notify if not completed today
-        if (!todayCompletion) {
-          habitsToNotify.push(habit);
-        }
-      } else {
-        // For WEEKLY/MONTHLY, always notify (can be enhanced later)
-        habitsToNotify.push(habit);
-      }
-    }
-
-    console.log("[REMINDERS] Sending", habitsToNotify.length, "notifications");
+    // Always trigger alarms regardless of completion status
+    // The alarm modal can show if habit is already completed
+    // User can choose to dismiss or complete again for tracking
+    console.log("[REMINDERS] Sending", habitsWithReminders.length, "notifications");
 
     return NextResponse.json({
-      reminders: habitsToNotify,
+      reminders: habitsWithReminders,
       currentTime,
     });
   } catch (error: any) {
