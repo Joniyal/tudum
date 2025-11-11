@@ -102,22 +102,11 @@ body {
   }
 }
 
-/* Habit card gradient hover effect */
-[data-habit-card]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(238, 242, 255, 0), rgba(237, 233, 254, 0));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+/* Habit card auto-scroll highlight */
+[data-habit-card].auto-scroll-highlight {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.35);
 }
 
-[data-habit-card]:hover::before {
-  opacity: 1;
-  background: linear-gradient(135deg, #eef2ff, #ede9fe);
-}
-
-.dark [data-habit-card]:hover::before {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.25), rgba(99, 102, 241, 0.25));
+.dark [data-habit-card].auto-scroll-highlight {
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.35);
 }
