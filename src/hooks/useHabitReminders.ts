@@ -15,17 +15,20 @@ export function useHabitReminders() {
   const { data: session, status } = useSession();
   const notificationPermission = useRef<NotificationPermission>("default");
   const checkInterval = useRef<NodeJS.Timeout | null>(null);
+  const lastNotificationTime = useRef<string>("");
 
   // Request notification permission on mount
   useEffect(() => {
     if (status === "authenticated") {
       if ("Notification" in window) {
-        console.log("[REMINDERS] Browser supports notifications");
+        console.log("[REMINDERS] Browser supports notifications, requesting permission...");
         Notification.requestPermission().then((permission) => {
           notificationPermission.current = permission;
           console.log("[REMINDERS] Notification permission:", permission);
           if (permission === "denied") {
             console.warn("[REMINDERS] Notifications are blocked! Please enable them in browser settings.");
+          } else if (permission === "granted") {
+            console.log("[REMINDERS] Notifications enabled!");
           }
         });
       } else {
@@ -34,60 +37,67 @@ export function useHabitReminders() {
     }
   }, [status]);
 
-  // Check for reminders every minute
+  // Check for reminders every 5 seconds (for this tab)
   useEffect(() => {
     if (status !== "authenticated") return;
 
     const checkReminders = async () => {
       try {
-        console.log("[REMINDERS] Checking for reminders...");
+        console.log("[REMINDERS-TAB] Checking for reminders...");
         const res = await fetch("/api/reminders/check");
         if (res.ok) {
           const data = await res.json();
           const { reminders, currentTime } = data;
-          console.log("[REMINDERS] Current time:", currentTime, "| Found", reminders?.length || 0, "reminders");
+          console.log("[REMINDERS-TAB] Current time:", currentTime, "| Found", reminders?.length || 0, "reminders");
 
-          // Show notification for each reminder
-          if (reminders && reminders.length > 0) {
-            console.log("[REMINDERS] Permission status:", notificationPermission.current);
+          // Show notification for each reminder (only if tab is focused)
+          if (reminders && reminders.length > 0 && document.hasFocus()) {
+            console.log("[REMINDERS-TAB] Tab is focused, showing notifications");
             if (notificationPermission.current === "granted") {
               reminders.forEach((reminder: Reminder) => {
-                // Play notification sound
-                const audio = new Audio("/notification-sound.mp3");
-                audio.play().catch((err) => console.log("[REMINDERS] Audio play failed:", err));
+                const notificationKey = `${reminder.id}-${currentTime}`;
+                
+                // Only show if we haven't already shown it this minute
+                if (lastNotificationTime.current !== notificationKey) {
+                  console.log("[REMINDERS-TAB] Showing notification for:", reminder.title);
+                  
+                  // Play notification sound
+                  const audio = new Audio("/notification-sound.mp3");
+                  audio.play().catch((err) => console.log("[REMINDERS-TAB] Audio play failed:", err));
 
-                const notification = new Notification(`🎯 Time for: ${reminder.title}`, {
-                  body: reminder.description || `Don't forget your ${reminder.frequency.toLowerCase()} habit!`,
-                  icon: "/icon-192x192.png", // You can add an icon later
-                  tag: reminder.id, // Prevents duplicate notifications
-                  requireInteraction: true, // Notification stays until user interacts
-                  silent: false, // Enable system notification sound
-                });
+                  const notification = new Notification(`🎯 Time for: ${reminder.title}`, {
+                    body: reminder.description || `Don't forget your ${reminder.frequency.toLowerCase()} habit!`,
+                    icon: "/icon-192x192.png",
+                    tag: reminder.id,
+                    requireInteraction: true,
+                    silent: false,
+                  } as any);
 
-                notification.onclick = () => {
-                  window.focus();
-                  notification.close();
-                  // Navigate to dashboard
-                  window.location.href = "/dashboard";
-                };
+                  notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                    window.location.href = "/dashboard";
+                  };
 
-                console.log("[REMINDERS] Notification shown for:", reminder.title);
+                  lastNotificationTime.current = notificationKey;
+                  console.log("[REMINDERS-TAB] Notification shown for:", reminder.title);
+                }
               });
             } else {
-              console.warn("[REMINDERS] Cannot show notifications - permission:", notificationPermission.current);
+              console.warn("[REMINDERS-TAB] Cannot show notifications - permission:", notificationPermission.current);
             }
           }
         }
       } catch (error) {
-        console.error("[REMINDERS] Error checking reminders:", error);
+        console.error("[REMINDERS-TAB] Error checking reminders:", error);
       }
     };
 
     // Check immediately on mount
     checkReminders();
 
-    // Check every 10 seconds instead of every minute (to ensure we catch it)
-    checkInterval.current = setInterval(checkReminders, 10000);
+    // Check every 5 seconds
+    checkInterval.current = setInterval(checkReminders, 5000);
 
     return () => {
       if (checkInterval.current) {

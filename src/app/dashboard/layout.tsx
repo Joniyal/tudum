@@ -6,10 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useHabitReminders } from "@/hooks/useHabitReminders";
+import { useServiceWorker } from "@/hooks/useServiceWorker";
 
 function DashboardNav() {
   // Enable habit reminders
   useHabitReminders();
+  // Register service worker for background notifications
+  useServiceWorker();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);
