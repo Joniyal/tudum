@@ -28,13 +28,14 @@ function convertToUTC(timeStr: string, period: string, timezoneOffsetMinutes: nu
     hours = hours + 12; // Convert PM hours (except 12)
   }
   
-  // JavaScript's getTimezoneOffset() returns negative values for timezones ahead of UTC
-  // For India (UTC+5:30), it returns -330
-  // To convert local to UTC, we ADD the offset (subtract the negative)
-  // Local 11:32 AM India = UTC (11:32 - 5:30) = UTC 06:02
-  // Formula: UTC = Local - timezone = Local - (-330 mins for India) = Local + 330 mins
+  // JavaScript's getTimezoneOffset() returns NEGATIVE values for timezones AHEAD of UTC
+  // For India (UTC+5:30), it returns -330 minutes
+  // To convert local to UTC: UTC = Local - Timezone Difference
+  // Example: 11:32 AM India = 11:32 - 5:30 = 06:02 UTC
+  // Since getTimezoneOffset() is negative, we need to ADD it (not subtract)
+  // Formula: UTC = Local + timezoneOffset (where offset is negative for ahead-of-UTC)
   
-  const totalMinutes = hours * 60 + minutes - timezoneOffsetMinutes;
+  const totalMinutes = hours * 60 + minutes + timezoneOffsetMinutes;
   
   // Handle day wrap-around properly
   let utcHours = Math.floor(totalMinutes / 60);
