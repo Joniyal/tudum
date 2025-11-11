@@ -33,6 +33,8 @@ export default function TimetableHabitCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showUpcoming, setShowUpcoming] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [currentTime, setCurrentTime] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
 
   // Filter habits with reminder times and sort by time
   const timetableHabits = habits
@@ -42,6 +44,28 @@ export default function TimetableHabitCarousel({
       const timeB = b.reminderTime || "00:00";
       return timeA.localeCompare(timeB);
     });
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Update current time every second
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const updateTime = () => {
+      const now = new Date();
+      const hour = now.getHours() % 12 || 12;
+      const period = now.getHours() < 12 ? "AM" : "PM";
+      setCurrentTime(`${hour}:${now.getMinutes().toString().padStart(2, "0")} ${period}`);
+    };
+    
+    updateTime(); // Initial update
+    const timeInterval = setInterval(updateTime, 1000);
+    
+    return () => clearInterval(timeInterval);
+  }, [mounted]);
 
   // Auto-advance to next habit every 5 seconds
   useEffect(() => {
@@ -80,6 +104,26 @@ export default function TimetableHabitCarousel({
     return null;
   }
 
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="text-2xl">📅</span>
+            Today&apos;s Schedule
+          </h2>
+          <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+            --:-- --
+          </div>
+        </div>
+        <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-2xl p-8 animate-pulse">
+          <div className="h-32 bg-white/10 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   const currentHabit = timetableHabits[currentIndex];
   const nextHabit = timetableHabits[(currentIndex + 1) % timetableHabits.length];
   const isCompletedToday = currentHabit.completions.some(
@@ -91,13 +135,6 @@ export default function TimetableHabitCarousel({
     const hour = h % 12 || 12;
     const period = h < 12 ? "AM" : "PM";
     return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
-  };
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    const hour = now.getHours() % 12 || 12;
-    const period = now.getHours() < 12 ? "AM" : "PM";
-    return `${hour}:${now.getMinutes().toString().padStart(2, "0")} ${period}`;
   };
 
   const getTimeUntil = (time: string) => {
@@ -152,7 +189,7 @@ export default function TimetableHabitCarousel({
           Today&apos;s Schedule
         </h2>
         <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
-          {getCurrentTime()}
+          {currentTime || "--:-- --"}
         </div>
       </div>
 
