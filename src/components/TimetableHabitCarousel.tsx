@@ -67,6 +67,13 @@ export default function TimetableHabitCarousel({
     return () => clearInterval(timeInterval);
   }, [mounted]);
 
+  // Reset index if it's out of bounds (e.g., after deleting a habit)
+  useEffect(() => {
+    if (currentIndex >= timetableHabits.length && timetableHabits.length > 0) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, timetableHabits.length]);
+
   // Auto-advance to next habit every 5 seconds
   useEffect(() => {
     if (timetableHabits.length <= 1) return;
@@ -126,9 +133,15 @@ export default function TimetableHabitCarousel({
 
   const currentHabit = timetableHabits[currentIndex];
   const nextHabit = timetableHabits[(currentIndex + 1) % timetableHabits.length];
-  const isCompletedToday = currentHabit.completions.some(
+  
+  // Safety check - if habit is undefined, don't render
+  if (!currentHabit) {
+    return null;
+  }
+  
+  const isCompletedToday = currentHabit?.completions?.some(
     (c) => new Date(c.completedAt).toDateString() === new Date().toDateString()
-  );
+  ) || false;
 
   const formatTime = (time: string) => {
     const [h, m] = time.split(":").map(Number);
