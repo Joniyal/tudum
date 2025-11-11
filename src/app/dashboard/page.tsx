@@ -274,96 +274,21 @@ export default function DashboardPage() {
               
               {formData.reminderEnabled && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Reminder Time
                   </label>
-                  <div className="flex gap-2 items-center">
-                    {/* Hour Selector */}
-                    <div className="flex-1">
-                      <select
-                        value={formData.reminderTime.split(':')[0] || '00'}
-                        onChange={(e) => {
-                          const [hour, minute = '00'] = formData.reminderTime.split(':');
-                          const newHour = e.target.value;
-                          setFormData({
-                            ...formData,
-                            reminderTime: `${newHour}:${minute}`,
-                          });
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="">Hour</option>
-                        {Array.from({ length: 12 }, (_, i) => {
-                          const hour = String(i + 1).padStart(2, '0');
-                          return (
-                            <option key={hour} value={hour}>
-                              {hour}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-
-                    {/* Minute Selector */}
-                    <div className="flex-1">
-                      <select
-                        value={formData.reminderTime.split(':')[1] || '00'}
-                        onChange={(e) => {
-                          const [hour = '00'] = formData.reminderTime.split(':');
-                          const newMinute = e.target.value;
-                          setFormData({
-                            ...formData,
-                            reminderTime: `${hour}:${newMinute}`,
-                          });
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="">Min</option>
-                        {[0, 15, 30, 45].map((min) => {
-                          const minute = String(min).padStart(2, '0');
-                          return (
-                            <option key={minute} value={minute}>
-                              {minute}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-
-                    {/* AM/PM Selector */}
-                    <div className="flex-1">
-                      <select
-                        value={
-                          formData.reminderTime
-                            ? parseInt(formData.reminderTime.split(':')[0] || '0') >= 12
-                              ? 'PM'
-                              : 'AM'
-                            : 'AM'
-                        }
-                        onChange={(e) => {
-                          let [hour = '00', minute = '00'] = formData.reminderTime.split(':');
-                          let hourNum = parseInt(hour);
-                          
-                          if (e.target.value === 'PM' && hourNum < 12) {
-                            hourNum += 12;
-                          } else if (e.target.value === 'AM' && hourNum >= 12) {
-                            hourNum -= 12;
-                          }
-                          
-                          const newHour = String(hourNum).padStart(2, '0');
-                          setFormData({
-                            ...formData,
-                            reminderTime: `${newHour}:${minute}`,
-                          });
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                  
+                  <input
+                    type="time"
+                    value={formData.reminderTime}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        reminderTime: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required={formData.reminderEnabled}
+                  />
                   {formData.reminderTime && (
                     <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-2">
                       ✓ Reminder set for {formData.reminderTime}
