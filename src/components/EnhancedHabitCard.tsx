@@ -34,6 +34,7 @@ type EnhancedHabitCardProps = {
   onComplete: (id: string) => void;
   onEdit: (habit: Habit) => void;
   onDelete: (id: string) => void;
+  onArchive: (id: string) => void;
   onShare: (id: string, title: string) => void;
   streak: number;
   completedToday: boolean;
@@ -47,6 +48,7 @@ export default function EnhancedHabitCard({
   onComplete,
   onEdit,
   onDelete,
+  onArchive,
   onShare,
   streak,
   completedToday,
@@ -159,6 +161,8 @@ export default function EnhancedHabitCard({
               habitId={habit.id}
               onEdit={() => onEdit(habit)}
               onDelete={() => onDelete(habit.id)}
+              onArchive={() => onArchive(habit.id)}
+              isArchived={habit.archived}
             />
           )}
         </div>

@@ -6,9 +6,11 @@ type HabitMenuProps = {
   habitId: string;
   onEdit: () => void;
   onDelete: () => void;
+  onArchive?: () => void;
+  isArchived?: boolean;
 };
 
-export default function HabitMenu({ habitId, onEdit, onDelete }: HabitMenuProps) {
+export default function HabitMenu({ habitId, onEdit, onDelete, onArchive, isArchived }: HabitMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +70,33 @@ export default function HabitMenu({ habitId, onEdit, onDelete }: HabitMenuProps)
               </svg>
               <span>Edit Habit</span>
             </button>
+
+            {onArchive && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  onArchive();
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex items-center space-x-2"
+              >
+                {isArchived ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    <span>Unarchive</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    <span>Archive</span>
+                  </>
+                )}
+              </button>
+            )}
 
             <button
               onClick={(e) => {

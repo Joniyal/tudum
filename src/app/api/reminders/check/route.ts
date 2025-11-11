@@ -38,6 +38,7 @@ export async function GET(req: Request) {
       where: {
         userId: session.user.id,
         reminderEnabled: true,
+        archived: false, // Don't trigger alarms for archived habits
         reminderTime: {
           in: [currentTime, previousTime],
         },

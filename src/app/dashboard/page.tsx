@@ -75,6 +75,7 @@ export default function DashboardPage() {
   const [sortBy, setSortBy] = useState<"title" | "frequency" | "streak" | "completions">("title");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showArchived, setShowArchived] = useState(false);
+  const [habitsExpanded, setHabitsExpanded] = useState(true);
   
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
@@ -310,6 +311,28 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error("Error creating collection:", error);
+    }
+  };
+
+  const handleArchiveHabit = async (habitId: string) => {
+    try {
+      const habit = habits.find(h => h.id === habitId);
+      if (!habit) return;
+
+      const res = await fetch("/api/habits/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: habit.archived ? "unarchive" : "archive",
+          habitIds: [habitId],
+        }),
+      });
+
+      if (res.ok) {
+        fetchHabits();
+      }
+    } catch (error) {
+      console.error("Error archiving habit:", error);
     }
   };
 
@@ -732,19 +755,37 @@ export default function DashboardPage() {
           {/* Enhanced Toolbar */}
           <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md p-4 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              {/* Left Side - Title & Stats */}
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                  {showArchived ? "📦 Archived Habits" : "🎯 Your Habits"}
-                  <span className="text-base font-normal text-gray-500 dark:text-gray-400">
-                    ({getFilteredAndSortedHabits().length})
-                  </span>
-                </h2>
-                {collections.length > 0 && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {collections.length} collection{collections.length !== 1 ? "s" : ""}
-                  </p>
-                )}
+              {/* Left Side - Title & Stats with Collapse Button */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setHabitsExpanded(!habitsExpanded)}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
+                  title={habitsExpanded ? "Collapse habits" : "Expand habits"}
+                >
+                  <svg
+                    className={`w-6 h-6 text-gray-700 dark:text-gray-300 transition-transform duration-300 ${
+                      habitsExpanded ? "rotate-0" : "-rotate-90"
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                    {showArchived ? "📦 Archived Habits" : "🎯 Your Habits"}
+                    <span className="text-base font-normal text-gray-500 dark:text-gray-400">
+                      ({getFilteredAndSortedHabits().length})
+                    </span>
+                  </h2>
+                  {collections.length > 0 && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {collections.length} collection{collections.length !== 1 ? "s" : ""}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Right Side - Actions */}
@@ -815,36 +856,43 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Habits Display */}
-          <div className={
-            viewMode === "grid"
-              ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-              : "space-y-4"
-          }>
-            {getFilteredAndSortedHabits().map((habit) => (
-              <EnhancedHabitCard
-                key={habit.id}
-                habit={habit}
-                isSelected={selectedHabits.has(habit.id)}
-                onSelect={handleSelectHabit}
-                onComplete={handleCompleteHabit}
-                onEdit={handleEditHabit}
-                onDelete={handleDeleteHabit}
-                onShare={(id, title) => setSharingHabit({ id, title })}
-                streak={getStreak(habit.completions)}
-                completedToday={isCompletedToday(habit.completions)}
-                selectionMode={selectionMode}
-              />
-            ))}
-          </div>
-
-          {getFilteredAndSortedHabits().length === 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-              <p className="text-gray-600 dark:text-gray-400">
-                {showArchived ? "No archived habits" : "No habits match your filters"}
-              </p>
+          {/* Habits Display - Collapsible */}
+          <div
+            className={`transition-all duration-300 overflow-hidden ${
+              habitsExpanded ? "max-h-[10000px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className={
+              viewMode === "grid"
+                ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                : "space-y-4"
+            }>
+              {getFilteredAndSortedHabits().map((habit) => (
+                <EnhancedHabitCard
+                  key={habit.id}
+                  habit={habit}
+                  isSelected={selectedHabits.has(habit.id)}
+                  onSelect={handleSelectHabit}
+                  onComplete={handleCompleteHabit}
+                  onEdit={handleEditHabit}
+                  onDelete={handleDeleteHabit}
+                  onArchive={handleArchiveHabit}
+                  onShare={(id, title) => setSharingHabit({ id, title })}
+                  streak={getStreak(habit.completions)}
+                  completedToday={isCompletedToday(habit.completions)}
+                  selectionMode={selectionMode}
+                />
+              ))}
             </div>
-          )}
+
+            {getFilteredAndSortedHabits().length === 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
+                <p className="text-gray-600 dark:text-gray-400">
+                  {showArchived ? "No archived habits" : "No habits match your filters"}
+                </p>
+              </div>
+            )}
+          </div>
         </>
       )}
 
