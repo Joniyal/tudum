@@ -101,14 +101,24 @@ export default function AlarmModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-pulse">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border-4 border-red-500 animate-bounce">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center animate-ping">
-              <span className="text-2xl">⏰</span>
-            </div>
+    <>
+      <style>{`
+        @keyframes subtle-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+          50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.7), 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        }
+        .alarm-modal {
+          animation: subtle-glow 2s ease-in-out infinite;
+        }
+      `}</style>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="alarm-modal bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 border-4 border-red-500">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-2xl">⏰</span>
+              </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {habit.title}
@@ -147,7 +157,7 @@ export default function AlarmModal({
           {/* Mark Complete */}
           <button
             onClick={onComplete}
-            className="w-full px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="w-full px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition text-lg shadow-lg hover:shadow-xl"
           >
             ✓ Mark Complete
           </button>
@@ -191,7 +201,8 @@ export default function AlarmModal({
             </p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
