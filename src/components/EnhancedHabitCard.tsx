@@ -73,26 +73,27 @@ export default function EnhancedHabitCard({
     MONTHLY: "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300",
   };
 
-  // Enhanced hover: gradient background, border, and color transitions
   return (
     <div
-      className={`group relative bg-white dark:bg-gray-800 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-750 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800 ${
+      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 ease-in-out overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
         completedToday ? "opacity-90" : ""
       }`}
     >
+      {/* Gradient Overlay on Hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/0 to-purple-50/0 group-hover:from-indigo-50 group-hover:to-purple-50 dark:group-hover:from-indigo-900/20 dark:group-hover:to-purple-900/20 transition-all duration-300 ease-in-out pointer-events-none" />
       {/* Collection Badge */}
       {habit.collection && (
         <div
-          className="absolute top-0 left-0 right-0 h-2 transition-all duration-300"
+          className="absolute top-0 left-0 right-0 h-2 transition-all duration-300 z-10"
           style={{
             background: `linear-gradient(90deg, ${habit.collection.color} 0%, ${habit.collection.color}dd 100%)`,
           }}
         />
       )}
 
-      <div className="p-6 pt-4">
+      <div className="relative z-10 p-6 pt-4">
         {/* Header */}
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1 flex items-start gap-3">
