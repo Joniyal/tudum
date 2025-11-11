@@ -60,14 +60,9 @@ export function useHabitReminders() {
                 // Only show if we haven't already shown it this minute
                 if (lastNotificationTime.current !== notificationKey) {
                   console.log("[REMINDERS-TAB] Showing notification for:", reminder.title);
-                  
-                  // Play notification sound
-                  const audio = new Audio("/notification-sound.mp3");
-                  audio.play().catch((err) => console.log("[REMINDERS-TAB] Audio play failed:", err));
 
                   const notification = new Notification(`🎯 Time for: ${reminder.title}`, {
                     body: reminder.description || `Don't forget your ${reminder.frequency.toLowerCase()} habit!`,
-                    icon: "/icon-192x192.png",
                     tag: reminder.id,
                     requireInteraction: true,
                     silent: false,
