@@ -20,12 +20,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  habits            Habit[]
-  completions       Completion[]
-  connectionsFrom   Connection[] @relation("ConnectionFrom")
-  connectionsTo     Connection[] @relation("ConnectionTo")
-  messagesSent      Message[]    @relation("MessageFrom")
-  messagesReceived  Message[]    @relation("MessageTo")
+  habits              Habit[]
+  completions         Completion[]
+  connectionsFrom     Connection[]  @relation("ConnectionFrom")
+  connectionsTo       Connection[]  @relation("ConnectionTo")
+  messagesSent        Message[]     @relation("MessageFrom")
+  messagesReceived    Message[]     @relation("MessageTo")
+  habitSharesSent     HabitShare[]  @relation("ShareFrom")
+  habitSharesReceived HabitShare[]  @relation("ShareTo")
 
   @@map("users")
 }
@@ -44,6 +46,7 @@ model Habit {
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   completions Completion[]
+  shares      HabitShare[]
 
   @@index([userId])
   @@index([reminderEnabled, reminderTime]) // For efficient reminder queries
@@ -116,4 +119,30 @@ model Message {
   @@index([createdAt])
   @@index([replyToId])
   @@map("messages")
+}
+
+model HabitShare {
+  id          String              @id @default(cuid())
+  habitId     String
+  fromUserId  String
+  toUserId    String
+  status      HabitShareStatus    @default(PENDING)
+  message     String?
+  createdAt   DateTime            @default(now())
+  respondedAt DateTime?
+
+  habit       Habit               @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  fromUser    User                @relation("ShareFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser      User                @relation("ShareTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, toUserId])
+  @@index([toUserId, status])
+  @@index([fromUserId])
+  @@map("habit_shares")
+}
+
+enum HabitShareStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
