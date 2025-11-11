@@ -285,20 +285,42 @@ export default function DashboardPage() {
                       Reminder Time
                     </label>
                     <div className="flex gap-2">
-                      <div className="flex-1">
-                        <input
-                          type="time"
-                          value={formData.reminderTime}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              reminderTime: e.target.value,
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          required={formData.reminderEnabled}
-                        />
-                      </div>
+                      <select
+                        value={formData.reminderTime.split(':')[0] || "09"}
+                        onChange={(e) => {
+                          const minutes = formData.reminderTime.split(':')[1] || "00";
+                          setFormData({
+                            ...formData,
+                            reminderTime: `${e.target.value}:${minutes}`,
+                          })
+                        }}
+                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                          <option key={h} value={String(h).padStart(2, "0")}>
+                            {String(h).padStart(2, "0")}
+                          </option>
+                        ))}
+                      </select>
+                      
+                      <select
+                        value={formData.reminderTime.split(':')[1] || "00"}
+                        onChange={(e) => {
+                          const hours = formData.reminderTime.split(':')[0] || "09";
+                          setFormData({
+                            ...formData,
+                            reminderTime: `${hours}:${e.target.value}`,
+                          })
+                        }}
+                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      >
+                        {Array.from({ length: 60 }, (_, i) => i).map((m) => (
+                          <option key={m} value={String(m).padStart(2, "0")}>
+                            {String(m).padStart(2, "0")}
+                          </option>
+                        ))}
+                      </select>
+
                       <select
                         value={formData.reminderPeriod}
                         onChange={(e) =>
