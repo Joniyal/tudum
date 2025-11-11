@@ -28,13 +28,30 @@ function convertToUTC(timeStr: string, period: string, timezoneOffsetMinutes: nu
     hours = hours + 12; // Convert PM hours (except 12)
   }
   
-  // Create a date in UTC first, then adjust for the user's timezone
-  // If user is at UTC+5:30, and says 10:52 AM, we need to convert to UTC
-  // Local 10:52 = UTC (10:52 - 5:30) = UTC 05:22
+  // JavaScript's getTimezoneOffset() returns negative values for timezones ahead of UTC
+  // For India (UTC+5:30), it returns -330
+  // To convert local to UTC, we ADD the offset (subtract the negative)
+  // Local 11:32 AM India = UTC (11:32 - 5:30) = UTC 06:02
+  // Formula: UTC = Local - timezone = Local - (-330 mins for India) = Local + 330 mins
   
   const totalMinutes = hours * 60 + minutes - timezoneOffsetMinutes;
-  const utcHours = Math.floor((totalMinutes / 60 + 24) % 24); // +24 to handle negative wrap
-  const utcMinutes = ((totalMinutes % 60) + 60) % 60; // +60 to handle negative wrap
+  
+  // Handle day wrap-around properly
+  let utcHours = Math.floor(totalMinutes / 60);
+  let utcMinutes = totalMinutes % 60;
+  
+  // Normalize to 24-hour format
+  if (utcHours < 0) {
+    utcHours = (utcHours % 24) + 24;
+  } else if (utcHours >= 24) {
+    utcHours = utcHours % 24;
+  }
+  
+  if (utcMinutes < 0) {
+    utcMinutes += 60;
+    utcHours -= 1;
+    if (utcHours < 0) utcHours += 24;
+  }
   
   return `${String(utcHours).padStart(2, '0')}:${String(utcMinutes).padStart(2, '0')}`;
 }
