@@ -7,6 +7,8 @@ import AlarmModal from "@/components/AlarmModal";
 import HabitMenu from "@/components/HabitMenu";
 import EditHabitModal from "@/components/EditHabitModal";
 import TimetableBuilder from "@/components/TimetableBuilder";
+import TimetableHabitCarousel from "@/components/TimetableHabitCarousel";
+import ShareHabitModal from "@/components/ShareHabitModal";
 
 type Habit = {
   id: string;
@@ -38,6 +40,7 @@ export default function DashboardPage() {
   const [showTimetable, setShowTimetable] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
+  const [sharingHabit, setSharingHabit] = useState<{ id: string; title: string } | null>(null);
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
     title: "",
@@ -529,65 +532,104 @@ export default function DashboardPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {habits.map((habit) => {
-            const completedToday = isCompletedToday(habit.completions);
-            const streak = getStreak(habit.completions);
+        <>
+          {/* Timetable Carousel - Only show if there are habits with reminder times */}
+          <TimetableHabitCarousel
+            habits={habits}
+            onComplete={handleCompleteHabit}
+            onEdit={handleEditHabit}
+            onDelete={handleDeleteHabit}
+          />
 
-            return (
-              <div
-                key={habit.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                      {habit.title}
-                    </h3>
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
-                      {habit.frequency}
-                    </span>
-                  </div>
-                  <HabitMenu
-                    habitId={habit.id}
-                    onEdit={() => handleEditHabit(habit)}
-                    onDelete={() => handleDeleteHabit(habit.id)}
-                  />
-                </div>
+          {/* Regular Habits Grid */}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              All Habits
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {habits.map((habit) => {
+              const completedToday = isCompletedToday(habit.completions);
+              const streak = getStreak(habit.completions);
 
-                {habit.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {habit.description}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Streak: </span>
-                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                      {streak} days 🔥
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {habit.completions.length} completions
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleCompleteHabit(habit.id)}
-                  disabled={completedToday}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold transition ${
-                    completedToday
-                      ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed"
-                      : "bg-indigo-600 hover:bg-indigo-700 text-white"
-                  }`}
+              return (
+                <div
+                  key={habit.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition"
                 >
-                  {completedToday ? "✓ Completed Today" : "Mark Complete"}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          {habit.title}
+                        </h3>
+                        {habit.reminderTime && (
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+                            {(() => {
+                              const [h, m] = habit.reminderTime.split(":").map(Number);
+                              const hour = h % 12 || 12;
+                              const period = h < 12 ? "AM" : "PM";
+                              return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
+                            })()}
+                          </span>
+                        )}
+                      </div>
+                      <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                        {habit.frequency}
+                      </span>
+                    </div>
+                    <HabitMenu
+                      habitId={habit.id}
+                      onEdit={() => handleEditHabit(habit)}
+                      onDelete={() => handleDeleteHabit(habit.id)}
+                    />
+                  </div>
+
+                  {habit.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      {habit.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Streak: </span>
+                      <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                        {streak} days 🔥
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {habit.completions.length} completions
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleCompleteHabit(habit.id)}
+                      disabled={completedToday}
+                      className={`w-full py-3 px-4 rounded-lg font-semibold transition ${
+                        completedToday
+                          ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed"
+                          : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      }`}
+                    >
+                      {completedToday ? "✓ Completed Today" : "Mark Complete"}
+                    </button>
+                    
+                    {partners.length > 0 && (
+                      <button
+                        onClick={() => setSharingHabit({ id: habit.id, title: habit.title })}
+                        className="w-full py-2 px-4 rounded-lg font-medium transition bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800"
+                      >
+                        🤝 Share with Partner
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* Alarm Modals */}
@@ -620,6 +662,19 @@ export default function DashboardPage() {
           habit={editingHabit}
           onClose={() => setEditingHabit(null)}
           onSave={handleSaveHabit}
+        />
+      )}
+
+      {/* Share Habit Modal */}
+      {sharingHabit && (
+        <ShareHabitModal
+          habitId={sharingHabit.id}
+          habitTitle={sharingHabit.title}
+          onClose={() => setSharingHabit(null)}
+          onSuccess={() => {
+            fetchHabits();
+            setSharingHabit(null);
+          }}
         />
       )}
 
