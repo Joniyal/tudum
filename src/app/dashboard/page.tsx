@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 type Habit = {
@@ -39,12 +39,7 @@ export default function DashboardPage() {
     sharedWith: [] as string[],
   });
 
-  useEffect(() => {
-    fetchHabits();
-    fetchPartners();
-  }, []);
-
-  const fetchPartners = async () => {
+  const fetchPartners = useCallback(async () => {
     try {
       const res = await fetch("/api/connections");
       if (res.ok) {
@@ -62,9 +57,9 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error fetching partners:", error);
     }
-  };
+  }, [session?.user?.id]);
 
-  const fetchHabits = async () => {
+  const fetchHabits = useCallback(async () => {
     try {
       const res = await fetch("/api/habits");
       if (res.ok) {
@@ -76,7 +71,14 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchHabits();
+      fetchPartners();
+    }
+  }, [session?.user?.id, fetchHabits, fetchPartners]);
 
   const handleCreateHabit = async (e: React.FormEvent) => {
     e.preventDefault();
