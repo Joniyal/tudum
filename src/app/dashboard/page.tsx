@@ -6,6 +6,7 @@ import { useHabitReminders } from "@/hooks/useHabitReminders";
 import AlarmModal from "@/components/AlarmModal";
 import HabitMenu from "@/components/HabitMenu";
 import EditHabitModal from "@/components/EditHabitModal";
+import TimetableBuilder from "@/components/TimetableBuilder";
 
 type Habit = {
   id: string;
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showTimetable, setShowTimetable] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null);
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
@@ -193,6 +195,37 @@ export default function DashboardPage() {
     }
   };
 
+  const handleSaveTimetable = async (slots: any[]) => {
+    try {
+      const timezoneOffset = -new Date().getTimezoneOffset();
+
+      // Create habits for each time slot
+      const promises = slots.map(slot =>
+        fetch("/api/habits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: slot.title,
+            description: `Part of daily routine - ${slot.duration} minutes`,
+            frequency: "DAILY",
+            reminderEnabled: true,
+            reminderTime: slot.time,
+            alarmDuration: Math.min(slot.duration, 60), // Cap at 60 minutes
+            timezoneOffset,
+            sharedWith: [],
+          }),
+        })
+      );
+
+      await Promise.all(promises);
+      fetchHabits();
+      alert(`Successfully created ${slots.length} habits from your timetable!`);
+    } catch (error) {
+      console.error("Error creating timetable habits:", error);
+      alert("Failed to create some habits");
+    }
+  };
+
   const isCompletedToday = (completions: Array<{ completedAt: string }>) => {
     const today = new Date().toDateString();
     return completions.some(
@@ -246,12 +279,23 @@ export default function DashboardPage() {
             Track your daily, weekly, and monthly goals
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
-        >
-          {showForm ? "Cancel" : "+ New Habit"}
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => setShowTimetable(true)}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition shadow-lg hover:shadow-xl flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>📅 Build Timetable</span>
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+          >
+            {showForm ? "Cancel" : "+ New Habit"}
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -561,6 +605,14 @@ export default function DashboardPage() {
           }}
         />
       ))}
+
+      {/* Timetable Builder */}
+      {showTimetable && (
+        <TimetableBuilder
+          onClose={() => setShowTimetable(false)}
+          onSave={handleSaveTimetable}
+        />
+      )}
 
       {/* Edit Habit Modal */}
       {editingHabit && (
