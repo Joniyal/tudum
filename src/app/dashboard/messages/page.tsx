@@ -56,7 +56,13 @@ function MessagesContent() {
           const currentUserId = session?.user?.id;
           return c.fromUser.id === currentUserId ? c.toUser : c.fromUser;
         });
-        setPartners(partnersList);
+        
+        // Remove duplicates based on user ID
+        const uniquePartners = Array.from(
+          new Map(partnersList.map((p: Partner) => [p.id, p])).values()
+        ) as Partner[];
+        
+        setPartners(uniquePartners);
       }
     } catch (error) {
       console.error("Error fetching partners:", error);
