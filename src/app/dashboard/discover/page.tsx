@@ -124,43 +124,36 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Discover Users
+    <div className="font-mono">
+      <h1 className="text-3xl font-black text-white mb-8 uppercase tracking-wider">
+        DISCOVER USERS
       </h1>
-
-      {/* Debug info */}
-      {session?.user && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm">
-          <strong>Logged in as:</strong> @{session.user.name} ({session.user.email}) - ID: {session.user.id}
-        </div>
-      )}
 
       <div className="mb-8">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by username or name (min 2 characters)"
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+          placeholder="SEARCH BY USERNAME OR NAME"
+          className="w-full px-4 py-3 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none uppercase"
         />
         {searchQuery.length > 0 && searchQuery.length < 2 && (
-          <p className="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
-            Type at least 2 characters to search
+          <p className="mt-2 text-sm text-white font-bold uppercase">
+            TYPE AT LEAST 2 CHARACTERS TO SEARCH
           </p>
         )}
       </div>
 
       {loading && (
         <div className="text-center py-8">
-          <div className="text-gray-600 dark:text-gray-400">Searching...</div>
+          <div className="text-white font-bold uppercase">SEARCHING...</div>
         </div>
       )}
 
       {searchResults.length === 0 && !loading && searchQuery.length >= 2 && (
         <div className="text-center py-8">
-          <div className="text-gray-600 dark:text-gray-400">
-            No users found
+          <div className="text-white font-bold uppercase">
+            NO USERS FOUND
           </div>
         </div>
       )}
@@ -172,22 +165,23 @@ export default function DiscoverPage() {
             return (
               <div
                 key={user.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col"
+                className="bg-black border-2 border-white p-6 flex flex-col"
+                style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
               >
                 <div className="flex-1">
                   <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white break-words">
+                    <h3 className="text-lg font-black text-white break-words uppercase tracking-wider">
                       @{user.username}
                     </h3>
                     {user.name && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-white font-bold uppercase">
                         {user.name}
                       </p>
                     )}
                   </div>
 
                   {user.bio && (
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 break-words">
+                    <p className="text-sm text-white font-bold mb-4 break-words opacity-80">
                       {user.bio}
                     </p>
                   )}
@@ -196,19 +190,19 @@ export default function DiscoverPage() {
                 <button
                   onClick={() => handleAddConnection(user.id)}
                   disabled={status !== "none"}
-                  className={`w-full px-4 py-2 rounded-lg font-semibold transition ${
+                  className={`w-full px-4 py-2 font-black uppercase tracking-wider transition-all border-2 ${
                     status === "none"
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      ? "bg-white text-black border-white hover:bg-black hover:text-white"
                       : status === "pending"
-                      ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 cursor-not-allowed"
-                      : "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed"
+                      ? "bg-black text-white border-white opacity-50 cursor-not-allowed"
+                      : "bg-black text-white border-white opacity-50 cursor-not-allowed"
                   }`}
                 >
                   {status === "none"
-                    ? "🤝 Add Connection"
+                    ? "ADD CONNECTION"
                     : status === "pending"
-                    ? "⏳ Pending"
-                    : "✓ Connected"}
+                    ? "PENDING"
+                    : "CONNECTED"}
                 </button>
               </div>
             );
@@ -217,8 +211,8 @@ export default function DiscoverPage() {
       )}
 
       {searchQuery.length === 0 && (
-        <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg p-8 text-center">
-          <p className="text-gray-700 dark:text-gray-300">
+        <div className="bg-black border-2 border-white p-8 text-center">
+          <p className="text-white font-bold uppercase">
             Start typing to search for users to connect with!
           </p>
         </div>
