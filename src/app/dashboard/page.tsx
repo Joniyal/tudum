@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useHabitReminders } from "@/hooks/useHabitReminders";
 import AlarmModal from "@/components/AlarmModal";
@@ -76,7 +76,6 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showArchived, setShowArchived] = useState(false);
   const [habitsExpanded, setHabitsExpanded] = useState(true);
-  const lastAutoScrollRef = useRef<number>(0);
   
   const { activeAlarms, handleDismiss, handleSnooze, handleComplete } = useHabitReminders();
   const [formData, setFormData] = useState({
@@ -434,31 +433,6 @@ export default function DashboardPage() {
   };
 
   const filteredHabits = getFilteredAndSortedHabits();
-
-  const handleShowNextHabit = useCallback((index: number) => {
-    if (typeof window === "undefined") return;
-
-    const now = Date.now();
-    if (now - lastAutoScrollRef.current < 400) return;
-
-    const nextHabit = filteredHabits[index + 1];
-    if (!nextHabit) return;
-
-    lastAutoScrollRef.current = now;
-
-    const target = document.querySelector<HTMLElement>(
-      `[data-habit-card-id="${nextHabit.id}"]`
-    );
-
-    if (!target) return;
-
-    target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-    target.classList.add("auto-scroll-highlight");
-
-    window.setTimeout(() => {
-      target.classList.remove("auto-scroll-highlight");
-    }, 800);
-  }, [filteredHabits]);
 
   const handleEditHabit = (habit: Habit) => {
     setEditingHabit(habit);
@@ -919,7 +893,7 @@ export default function DashboardPage() {
                 ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
                 : "space-y-4"
             }>
-              {filteredHabits.map((habit, index) => (
+              {filteredHabits.map((habit) => (
                 <EnhancedHabitCard
                   key={habit.id}
                   habit={habit}
@@ -933,9 +907,6 @@ export default function DashboardPage() {
                   streak={getStreak(habit.completions)}
                   completedToday={isCompletedToday(habit.completions)}
                   selectionMode={selectionMode}
-                  index={index}
-                  isLast={index === filteredHabits.length - 1}
-                  onShowNext={handleShowNextHabit}
                 />
               ))}
             </div>
