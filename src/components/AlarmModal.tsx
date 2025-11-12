@@ -104,103 +104,103 @@ export default function AlarmModal({
     <>
       <style>{`
         @keyframes subtle-glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-          50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.7), 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+          0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 8px 8px 0px rgba(255, 255, 255, 0.3); }
+          50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 8px 8px 0px rgba(255, 255, 255, 0.5); }
         }
         .alarm-modal {
           animation: subtle-glow 2s ease-in-out infinite;
         }
       `}</style>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="alarm-modal bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 border-4 border-red-500">
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div className="alarm-modal bg-black border-4 border-white max-w-md w-full p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-white border-2 border-white rounded-full flex items-center justify-center">
                 <span className="text-2xl">⏰</span>
               </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {habit.title}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Time to complete your habit!
-              </p>
+              <div>
+                <h2 className="text-xl font-black text-white uppercase tracking-wider">
+                  {habit.title}
+                </h2>
+                <p className="text-sm text-white font-bold uppercase tracking-wide">
+                  TIME TO COMPLETE!
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Description */}
-        {habit.description && (
-          <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              {habit.description}
+          {/* Description */}
+          {habit.description && (
+            <div className="mb-4 p-3 bg-black border-2 border-white">
+              <p className="text-sm text-white font-bold">
+                {habit.description}
+              </p>
+            </div>
+          )}
+
+          {/* Timer */}
+          <div className="mb-6 text-center">
+            <div className="text-6xl font-mono font-black text-white mb-2 tracking-widest">
+              {formatTime(timeElapsed)}
+            </div>
+            <p className="text-xs text-white font-bold uppercase tracking-wide">
+              {habit.alarmDuration === -1 
+                ? "ALARM PLAYS UNTIL COMPLETED"
+                : `STOPS IN ${formatTime(alarmDurationMs - timeElapsed)}`
+              }
             </p>
           </div>
-        )}
 
-        {/* Timer */}
-        <div className="mb-6 text-center">
-          <div className="text-4xl font-mono font-bold text-red-600 dark:text-red-400 mb-2">
-            {formatTime(timeElapsed)}
-          </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            {habit.alarmDuration === -1 
-              ? "Alarm will play until completed"
-              : `Stops in ${formatTime(alarmDurationMs - timeElapsed)}`
-            }
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          {/* Mark Complete */}
-          <button
-            onClick={onComplete}
-            className="w-full px-6 py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition text-lg shadow-lg hover:shadow-xl"
-          >
-            ✓ Mark Complete
-          </button>
-
-          {/* Snooze Options */}
-          <div className="flex gap-2">
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            {/* Mark Complete */}
             <button
-              onClick={() => handleSnooze(1)}
-              className="flex-1 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              onClick={onComplete}
+              className="w-full px-6 py-4 bg-white text-black font-black uppercase border-2 border-white hover:bg-black hover:text-white hover:border-white transition text-lg tracking-wider"
             >
-              Snooze 1m
+              ✓ MARK COMPLETE
             </button>
+
+            {/* Snooze Options */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleSnooze(1)}
+                className="flex-1 px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
+              >
+                SNOOZE 1M
+              </button>
+              <button
+                onClick={() => handleSnooze(2)}
+                className="flex-1 px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
+              >
+                SNOOZE 2M
+              </button>
+              <button
+                onClick={() => handleSnooze(5)}
+                className="flex-1 px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
+              >
+                SNOOZE 5M
+              </button>
+            </div>
+
+            {/* Dismiss */}
             <button
-              onClick={() => handleSnooze(2)}
-              className="flex-1 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
+              onClick={onDismiss}
+              className="w-full px-6 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
             >
-              Snooze 2m
-            </button>
-            <button
-              onClick={() => handleSnooze(5)}
-              className="flex-1 px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition shadow-md hover:shadow-lg"
-            >
-              Snooze 5m
+              DISMISS
             </button>
           </div>
 
-          {/* Dismiss */}
-          <button
-            onClick={onDismiss}
-            className="w-full px-6 py-3 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg transition"
-          >
-            Dismiss
-          </button>
-        </div>
-
-        {/* Warning for "Until completed" */}
-        {habit.alarmDuration === -1 && (
-          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-xs text-red-700 dark:text-red-300 text-center font-medium">
-              ⚠️ This alarm will keep playing until you mark it complete!
-            </p>
-          </div>
-        )}
+          {/* Warning for "Until completed" */}
+          {habit.alarmDuration === -1 && (
+            <div className="mt-4 p-3 bg-black border-2 border-white">
+              <p className="text-xs text-white text-center font-black uppercase tracking-wider">
+                ⚠️ ALARM PLAYS UNTIL COMPLETED!
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </>

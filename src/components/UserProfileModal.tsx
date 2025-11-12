@@ -68,46 +68,47 @@ export default function UserProfileModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-black border-4 border-white max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}
       >
         {loading ? (
           <div className="p-12 text-center">
-            <div className="text-gray-600 dark:text-gray-400">Loading profile...</div>
+            <div className="text-white font-bold uppercase tracking-wide">LOADING PROFILE...</div>
           </div>
         ) : error ? (
           <div className="p-12 text-center">
-            <div className="text-red-600 dark:text-red-400">{error}</div>
+            <div className="text-white font-bold">{error}</div>
             <button
               onClick={onClose}
-              className="mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition"
+              className="mt-4 px-4 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition"
             >
-              Close
+              CLOSE
             </button>
           </div>
         ) : profile ? (
           <>
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 rounded-t-lg">
+            <div className="bg-black border-b-4 border-white p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl font-bold text-indigo-600 mb-3">
+                  <div className="w-20 h-20 bg-white border-2 border-white flex items-center justify-center text-3xl font-black text-black mb-3">
                     {(profile.name || profile.username)?.[0]?.toUpperCase()}
                   </div>
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className="text-2xl font-black text-white uppercase tracking-wider">
                     {profile.name || profile.username}
                   </h2>
-                  <p className="text-indigo-100">@{profile.username}</p>
+                  <p className="text-white font-bold uppercase tracking-wide">@{profile.username}</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="text-white hover:text-indigo-200 text-3xl"
+                  className="text-white hover:bg-white hover:text-black text-3xl font-black p-2"
                 >
-                  ×
+                  ✕
                 </button>
               </div>
             </div>
@@ -116,78 +117,78 @@ export default function UserProfileModal({
               {/* Bio */}
               {profile.bio && (
                 <div className="mb-6">
-                  <p className="text-gray-700 dark:text-gray-300">{profile.bio}</p>
+                  <p className="text-white font-bold">{profile.bio}</p>
                 </div>
               )}
 
               {/* Member Since */}
-              <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-                📅 Member since {memberSince}
+              <div className="mb-6 text-sm text-white font-bold uppercase tracking-wide">
+                📅 MEMBER SINCE {memberSince.toUpperCase()}
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                <div className="bg-black border-2 border-white p-4 text-center">
+                  <div className="text-2xl font-black text-white">
                     {profile.stats.totalHabits}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Habits
+                  <div className="text-sm text-white font-bold uppercase">
+                    HABITS
                   </div>
                 </div>
-                <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <div className="bg-black border-2 border-white p-4 text-center">
+                  <div className="text-2xl font-black text-white">
                     {profile.stats.totalCompletions}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Completions
+                  <div className="text-sm text-white font-bold uppercase">
+                    COMPLETIONS
                   </div>
                 </div>
-                <div className="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <div className="bg-black border-2 border-white p-4 text-center">
+                  <div className="text-2xl font-black text-white">
                     {profile.stats.currentStreak}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Current Streak
+                  <div className="text-sm text-white font-bold uppercase">
+                    CURRENT
                   </div>
                 </div>
-                <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                <div className="bg-black border-2 border-white p-4 text-center">
+                  <div className="text-2xl font-black text-white">
                     {profile.stats.longestStreak}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Longest Streak
+                  <div className="text-sm text-white font-bold uppercase">
+                    LONGEST
                   </div>
                 </div>
               </div>
 
               {/* Current Habits */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  Current Habits
+                <h3 className="text-lg font-black text-white mb-3 uppercase tracking-wider">
+                  CURRENT HABITS
                 </h3>
                 {profile.habits.length === 0 ? (
-                  <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    No habits yet
+                  <p className="text-white text-sm font-bold">
+                    NO HABITS YET
                   </p>
                 ) : (
                   <div className="space-y-2">
                     {profile.habits.slice(0, 5).map((habit) => (
                       <div
                         key={habit.id}
-                        className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"
+                        className="flex items-center justify-between bg-black border-2 border-white p-3"
                       >
-                        <span className="text-gray-900 dark:text-white">
+                        <span className="text-white font-bold">
                           {habit.title}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                        <span className="text-xs px-2 py-1 bg-white text-black border-2 border-white font-black uppercase">
                           {habit.frequency}
                         </span>
                       </div>
                     ))}
                     {profile.habits.length > 5 && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 text-center pt-2">
-                        +{profile.habits.length - 5} more habits
+                      <p className="text-sm text-white text-center pt-2 font-bold">
+                        +{profile.habits.length - 5} MORE HABITS
                       </p>
                     )}
                   </div>
@@ -201,15 +202,15 @@ export default function UserProfileModal({
                     onClose();
                     window.location.href = `/dashboard/messages?partnerId=${userId}`;
                   }}
-                  className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
+                  className="flex-1 px-4 py-3 bg-white text-black font-black uppercase border-2 border-white hover:bg-black hover:text-white hover:border-white transition tracking-wider"
                 >
-                  💬 Send Message
+                  💬 MESSAGE
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition"
+                  className="px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
                 >
-                  Close
+                  CLOSE
                 </button>
               </div>
             </div>
