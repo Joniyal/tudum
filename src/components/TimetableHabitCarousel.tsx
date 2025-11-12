@@ -273,7 +273,7 @@ export default function TimetableHabitCarousel({
                 {isHabitTimeWindowActive(currentHabit) ? (
                   <button
                     onClick={() => onComplete(currentHabit.id)}
-                    className="w-full bg-white hover:bg-gray-100 text-indigo-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105"
+                    className="w-full bg-white text-indigo-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200"
                   >
                     ✓ Mark Complete
                   </button>
