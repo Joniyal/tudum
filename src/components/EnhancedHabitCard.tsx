@@ -77,7 +77,8 @@ export default function EnhancedHabitCard({
     <div
       data-habit-card="true"
       data-habit-card-id={habit.id}
-      className="retro-card group relative bg-black border-2 border-white"
+      className="retro-card group relative bg-black border-2 border-white hover-lift animate-fade-in hover:shadow-lg hover:shadow-white/30"
+      style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
     >
       {/* Collection Badge */}
       {habit.collection && (
@@ -167,10 +168,10 @@ export default function EnhancedHabitCard({
           <button
             onClick={handleComplete}
             disabled={completedToday}
-            className={`w-full py-3 px-4 font-black uppercase tracking-wider border-2 transition-colors ${
+            className={`w-full py-3 px-4 font-black uppercase tracking-wider border-2 smooth-transition ${
               completedToday
                 ? "bg-black border-white text-white opacity-50 cursor-default"
-                : "bg-black border-white text-white hover:bg-white hover:text-black"
+                : "bg-black border-white text-white hover:bg-white hover:text-black active:scale-95"
             }`}
           >
             {completedToday ? "✓ DONE TODAY" : "✓ MARK COMPLETE"}

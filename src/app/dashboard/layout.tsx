@@ -99,15 +99,10 @@ function DashboardNav() {
   }, [session?.user?.id]);
 
   const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    localStorage.setItem('theme', newIsDark ? 'dark' : 'light');
-    
-    if (newIsDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    // Theme is always retro black/white, but button provides visual feedback
+    // This is kept for UI consistency - the actual theme is fixed
+    const elem = document.activeElement as HTMLElement;
+    if (elem) elem.blur();
   };
 
   const navItems = [
@@ -150,10 +145,11 @@ function DashboardNav() {
           <div className="flex items-center space-x-4">
             <button
               onClick={toggleTheme}
-              className="p-2 border-2 border-white text-white font-black uppercase text-xs hover:bg-white hover:text-black transition-all duration-200"
-              aria-label="Toggle theme"
+              className="p-2 border-2 border-white text-white font-black uppercase text-xs hover:bg-white hover:text-black transition-all duration-200 hover:scale-110 active:scale-95"
+              aria-label="Theme button"
+              title="Retro mode activated"
             >
-              {isDark ? "☀️" : "🌙"}
+              <span className="inline-block transition-transform duration-300 hover:rotate-12">RETRO</span>
             </button>
 
             {/* Profile Dropdown */}

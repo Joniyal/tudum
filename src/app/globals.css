@@ -29,9 +29,26 @@ body {
 
 @layer base {
   * {
-    transition-property: color, background-color, border-color;
+    transition-property: color, background-color, border-color, box-shadow, transform;
     transition-duration: 200ms;
-    transition-timing-function: ease-out;
+    transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  button {
+    transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  input, textarea, select {
+    transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  input:focus, textarea:focus, select:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -98,6 +115,63 @@ body {
 
   .animate-slide-in-right {
     animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Smooth hover effects */
+  .hover-lift {
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0px rgba(255, 255, 255, 0.3);
+  }
+
+  .hover-glow {
+    transition: box-shadow 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.1);
+  }
+
+  .smooth-transition {
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .smooth-transform {
+    transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background-size: 200% 100%;
+  }
+
+  .animate-rotate {
+    animation: rotate360 1s linear infinite;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  }
+
+  .animate-wiggle {
+    animation: wiggle 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-slide-left {
+    animation: slideLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-expand {
+    animation: expand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .line-clamp-2 {
@@ -184,6 +258,78 @@ body {
   100% {
     transform: scale(2);
     opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes rotate360 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes expand {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
