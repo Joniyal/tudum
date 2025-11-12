@@ -86,7 +86,7 @@ export default function EnhancedHabitCard({
       {/* Collection Badge */}
       {habit.collection && (
         <div
-          className="absolute top-0 left-0 right-0 h-2 transition-all duration-300 z-10"
+          className="absolute top-0 left-0 right-0 h-2 z-10"
           style={{
             background: `linear-gradient(90deg, ${habit.collection.color} 0%, ${habit.collection.color}dd 100%)`,
           }}
@@ -117,7 +117,7 @@ export default function EnhancedHabitCard({
             <div className="flex-1 min-w-0">
               {/* Title */}
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors duration-300">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                   {habit.title}
                 </h3>
                 {habit.reminderTime && (
@@ -199,10 +199,10 @@ export default function EnhancedHabitCard({
             <button
               onClick={handleComplete}
               disabled={completedToday}
-              className={`px-4 py-2 rounded-lg font-medium transition-all transform ${
+              className={`px-4 py-2 rounded-lg font-medium ${
                 completedToday
                   ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-default"
-                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white hover:scale-105 active:scale-95"
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
               }`}
             >
               {completedToday ? "✓ Done" : "Mark Complete"}
@@ -210,11 +210,11 @@ export default function EnhancedHabitCard({
           )}
         </div>
 
-        {/* Share Button (visible on hover when not in selection mode) */}
+        {/* Share Button */}
         {!selectionMode && (
           <button
             onClick={() => onShare(habit.id, habit.title)}
-            className="absolute top-4 right-14 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg text-sm font-medium"
+            className="absolute top-4 right-14 bg-blue-500 text-white p-2 rounded-lg text-sm font-medium"
             title="Share this habit"
           >
             📤
