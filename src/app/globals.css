@@ -7,10 +7,9 @@
   --foreground: #ffffff;
 }
 
-
-
 html {
   background-color: #000000;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -25,23 +24,80 @@ body {
       transparent 1px,
       transparent 2px
     );
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@layer base {
+  * {
+    transition-property: color, background-color, border-color;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+  }
+}
+
+@layer components {
+  /* Retro button styling */
+  .retro-button {
+    padding: 0.75rem 1.5rem;
+    background-color: black;
+    border: 2px solid white;
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.125em;
+    transition: all 200ms ease-out;
+    cursor: pointer;
+  }
+
+  .retro-button:hover {
+    background-color: white;
+    color: black;
+  }
+
+  .retro-button:active {
+    transform: scale(0.95);
+  }
+
+  /* Retro card styling */
+  .retro-card {
+    background-color: black;
+    border: 2px solid white;
+    transition: all 300ms ease-out;
+  }
+
+  .retro-border {
+    border: 2px solid white;
+  }
 }
 
 @layer utilities {
+  /* Smooth animations */
   .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-bounce-subtle {
-    animation: bounceSubtle 0.6s ease-in-out;
+    animation: bounceSubtle 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-ping-once {
     animation: pingOnce 1s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .line-clamp-2 {
@@ -53,14 +109,46 @@ body {
   }
 }
 
+/* Smooth animations - silk-like easing */
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translate(-50%, 20px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -80,7 +168,7 @@ body {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
 }
 

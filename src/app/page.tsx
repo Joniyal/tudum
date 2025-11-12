@@ -2,62 +2,61 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-center p-8">
       <div className="text-center max-w-3xl">
-        <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          Tudum
+        <h1 className="text-6xl font-black mb-6 uppercase tracking-widest" style={{textShadow: '4px 4px 0px rgba(255,255,255,0.3)'}}>
+          TUDUM
         </h1>
-        <p className="text-2xl text-gray-700 dark:text-gray-300 mb-4">
-          Collaborative Habit Tracker
+        <p className="text-2xl font-bold mb-4 uppercase tracking-wider">
+          COLLABORATIVE HABIT TRACKER
         </p>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-          Build better habits together. Track your daily, weekly, and monthly goals
-          with accountability partners who keep you motivated and on track.
+        <p className="text-lg font-bold mb-12 max-w-2xl mx-auto uppercase opacity-80">
+          BUILD BETTER HABITS TOGETHER. TRACK YOUR DAILY, WEEKLY, AND MONTHLY GOALS WITH ACCOUNTABILITY PARTNERS WHO KEEP YOU MOTIVATED AND ON TRACK.
         </p>
 
-        <div className="flex gap-4 justify-center mb-16">
+        <div className="flex gap-4 justify-center mb-16 animate-fade-in">
           <Link
             href="/register"
-            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-lg transition shadow-lg hover:shadow-xl"
+            className="px-8 py-4 bg-white text-black font-black border-2 border-white uppercase tracking-wider text-lg hover:bg-black hover:text-white transition-all duration-200"
           >
-            Get Started
+            GET STARTED
           </Link>
           <Link
             href="/login"
-            className="px-8 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg text-lg transition shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700"
+            className="px-8 py-4 bg-black text-white font-black border-2 border-white uppercase tracking-wider text-lg hover:bg-white hover:text-black transition-all duration-200"
           >
-            Sign In
+            SIGN IN
           </Link>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+          <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
             <div className="text-4xl mb-4">✅</div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-              Track Your Habits
+            <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
+              TRACK YOUR HABITS
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Create daily, weekly, or monthly habits and mark them complete as you go
+            <p className="text-white font-bold uppercase opacity-80">
+              CREATE DAILY, WEEKLY, OR MONTHLY HABITS AND MARK THEM COMPLETE AS YOU GO
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+          <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
             <div className="text-4xl mb-4">👥</div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-              Connect with Partners
+            <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
+              CONNECT WITH PARTNERS
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Add accountability partners and see each other&apos;s progress in real-time
+            <p className="text-white font-bold uppercase opacity-80">
+              ADD ACCOUNTABILITY PARTNERS AND SEE EACH OTHER&apos;S PROGRESS IN REAL-TIME
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+          <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
             <div className="text-4xl mb-4">🔥</div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-              Build Streaks
+            <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
+              BUILD STREAKS
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Stay consistent and watch your streak grow day by day
+            <p className="text-white font-bold uppercase opacity-80">
+              STAY CONSISTENT AND WATCH YOUR STREAK GROW DAY BY DAY
             </p>
           </div>
         </div>
