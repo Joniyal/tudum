@@ -14,11 +14,7 @@
   }
 }
 
-* {
-  transition-property: background-color, border-color, color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
+
 
 html {
   transition: background-color 300ms ease-in-out;
@@ -102,11 +98,4 @@ body {
   }
 }
 
-/* Habit card auto-scroll highlight */
-[data-habit-card].auto-scroll-highlight {
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.35);
-}
 
-.dark [data-habit-card].auto-scroll-highlight {
-  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.35);
-}

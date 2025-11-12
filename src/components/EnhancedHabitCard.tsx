@@ -77,7 +77,7 @@ export default function EnhancedHabitCard({
     <div
       data-habit-card="true"
       data-habit-card-id={habit.id}
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden border border-gray-100 dark:border-gray-700 ${
+      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 ${
         isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
       } ${isAnimating ? "animate-bounce-subtle" : ""} ${
         completedToday ? "opacity-90" : ""
