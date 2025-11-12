@@ -6,7 +6,6 @@ import { useHabitReminders } from "@/hooks/useHabitReminders";
 import AlarmModal from "@/components/AlarmModal";
 import EditHabitModal from "@/components/EditHabitModal";
 import TimetableBuilder from "@/components/TimetableBuilder";
-import TimetableHabitCarousel from "@/components/TimetableHabitCarousel";
 import ShareHabitModal from "@/components/ShareHabitModal";
 import EnhancedHabitCard from "@/components/EnhancedHabitCard";
 import BulkActionsToolbar from "@/components/BulkActionsToolbar";
@@ -768,15 +767,6 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          {/* Timetable Carousel - Only show active habits with reminder times */}
-          {!showArchived && (
-            <TimetableHabitCarousel
-              habits={habits.filter(h => !h.archived)}
-              onComplete={handleCompleteHabit}
-              onEdit={handleEditHabit}
-              onDelete={handleDeleteHabit}
-            />
-          )}
 
           {/* Enhanced Toolbar */}
           <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md p-4 mb-6">
