@@ -34,14 +34,14 @@ export default function BulkActionsToolbar({
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-slide-up">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-4 backdrop-blur-lg border border-white/20">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="bg-black border-4 border-white text-white px-6 py-4 flex items-center gap-4 shadow-lg" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
         {/* Selection Info */}
-        <div className="flex items-center gap-2 border-r border-white/30 pr-4">
-          <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold">
+        <div className="flex items-center gap-2 border-r-2 border-white pr-4">
+          <div className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-black text-lg">
             {selectedCount}
           </div>
-          <span className="font-medium">selected</span>
+          <span className="font-black uppercase tracking-wide">SELECTED</span>
         </div>
 
         {/* Actions */}
@@ -49,28 +49,28 @@ export default function BulkActionsToolbar({
           {/* Select All/None */}
           <button
             onClick={selectedCount === totalCount ? onDeselectAll : onSelectAll}
-            className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
             title={selectedCount === totalCount ? "Deselect All" : "Select All"}
           >
-            {selectedCount === totalCount ? "✕ Clear" : "✓ All"}
+            {selectedCount === totalCount ? "✕ CLEAR" : "✓ ALL"}
           </button>
 
           {/* Mark Complete */}
           <button
             onClick={onComplete}
-            className="px-3 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
             title="Mark all selected as complete"
           >
-            ✓ Complete
+            ✓ COMPLETE
           </button>
 
           {/* Create Collection */}
           <button
             onClick={onCreateCollection}
-            className="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
             title="Create collection from selected"
           >
-            📁 Group
+            📁 GROUP
           </button>
 
           {/* Add to Collection */}
@@ -78,13 +78,13 @@ export default function BulkActionsToolbar({
             <div className="relative">
               <button
                 onClick={() => setShowCollectionMenu(!showCollectionMenu)}
-                className="px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+                className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
                 title="Add to existing collection"
               >
-                ➕ Add to
+                ➕ ADD TO
               </button>
               {showCollectionMenu && (
-                <div className="absolute bottom-full mb-2 left-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-2 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute bottom-full mb-2 left-0 bg-black border-2 border-white py-0 min-w-[200px] max-h-[300px] overflow-y-auto">
                   {collections.map((collection) => (
                     <button
                       key={collection.id}
@@ -92,10 +92,10 @@ export default function BulkActionsToolbar({
                         onAddToCollection();
                         setShowCollectionMenu(false);
                       }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left hover:bg-white hover:text-black text-white font-bold uppercase text-sm flex items-center gap-2 border-b border-white last:border-b-0"
                     >
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-3 h-3 border border-white"
                         style={{ backgroundColor: collection.color }}
                       />
                       {collection.name}
@@ -109,19 +109,19 @@ export default function BulkActionsToolbar({
           {/* Archive */}
           <button
             onClick={onArchive}
-            className="px-3 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
             title="Archive selected habits"
           >
-            📦 Archive
+            📦 ARCHIVE
           </button>
 
           {/* Delete */}
           <button
             onClick={onDelete}
-            className="px-3 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-all text-sm font-medium flex items-center gap-2"
+            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
             title="Delete selected habits permanently"
           >
-            🗑️ Delete
+            🗑️ DELETE
           </button>
         </div>
       </div>

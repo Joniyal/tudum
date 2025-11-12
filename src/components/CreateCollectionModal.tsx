@@ -60,35 +60,22 @@ export default function CreateCollectionModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-        <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-black border-4 border-white max-w-md w-full max-h-[90vh] overflow-y-auto" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
+        <div className="bg-black border-b-4 border-white text-white p-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold">Create Collection</h2>
-              <p className="text-indigo-100 text-sm mt-1">
-                Group {selectedHabitIds.length} habit{selectedHabitIds.length !== 1 ? "s" : ""}{" "}
-                together
+              <h2 className="text-2xl font-black uppercase tracking-wider">CREATE COLLECTION</h2>
+              <p className="text-white text-sm mt-1 font-bold uppercase tracking-wide">
+                GROUP {selectedHabitIds.length} HABIT{selectedHabitIds.length !== 1 ? "S" : ""}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white transition"
+              className="text-white hover:bg-white hover:text-black transition p-2 font-black text-xl"
               aria-label="Close"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              ✕
             </button>
           </div>
         </div>
@@ -96,37 +83,37 @@ export default function CreateCollectionModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Collection Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Collection Name *
+            <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+              COLLECTION NAME *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g., Morning Routine, Workout Days"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-3 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none"
               required
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description (optional)
+            <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+              DESCRIPTION (OPTIONAL)
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="What's this collection about?"
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+              className="w-full px-4 py-3 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none resize-none"
             />
           </div>
 
           {/* Icon Picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Choose Icon
+            <label className="block text-sm font-black text-white mb-3 uppercase tracking-wide">
+              CHOOSE ICON
             </label>
             <div className="grid grid-cols-10 gap-2">
               {PRESET_ICONS.map((icon) => (
@@ -134,10 +121,10 @@ export default function CreateCollectionModal({
                   key={icon}
                   type="button"
                   onClick={() => setFormData({ ...formData, icon })}
-                  className={`text-2xl p-2 rounded-lg transition-all ${
+                  className={`text-2xl p-2 border-2 transition-all ${
                     formData.icon === icon
-                      ? "bg-indigo-100 dark:bg-indigo-900 ring-2 ring-indigo-500 scale-110"
-                      : "bg-gray-100 dark:bg-gray-700 hover:scale-105"
+                      ? "border-white bg-white"
+                      : "border-white hover:bg-white/10"
                   }`}
                 >
                   {icon}
@@ -148,8 +135,8 @@ export default function CreateCollectionModal({
 
           {/* Color Picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Choose Color
+            <label className="block text-sm font-black text-white mb-3 uppercase tracking-wide">
+              CHOOSE COLOR
             </label>
             <div className="grid grid-cols-10 gap-2">
               {PRESET_COLORS.map((color) => (
@@ -157,10 +144,10 @@ export default function CreateCollectionModal({
                   key={color}
                   type="button"
                   onClick={() => setFormData({ ...formData, color })}
-                  className={`w-10 h-10 rounded-lg transition-all ${
+                  className={`w-10 h-10 transition-all border-2 ${
                     formData.color === color
-                      ? "ring-2 ring-offset-2 ring-gray-400 scale-110"
-                      : "hover:scale-105"
+                      ? "border-white scale-110"
+                      : "border-white/50 hover:border-white"
                   }`}
                   style={{ backgroundColor: color }}
                   aria-label={`Select color ${color}`}
@@ -171,8 +158,8 @@ export default function CreateCollectionModal({
 
           {/* Day Selector */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Assign to Day (optional)
+            <label className="block text-sm font-black text-white mb-3 uppercase tracking-wide">
+              ASSIGN TO DAY (OPTIONAL)
             </label>
             <div className="grid grid-cols-4 gap-2">
               {DAYS.map((day) => (
@@ -182,34 +169,34 @@ export default function CreateCollectionModal({
                   onClick={() =>
                     setFormData({ ...formData, dayOfWeek: day === "All Days" ? null : day })
                   }
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 py-2 text-sm font-black uppercase tracking-wide transition-all border-2 ${
                     (day === "All Days" && formData.dayOfWeek === null) ||
                     formData.dayOfWeek === day
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      ? "bg-white text-black border-white"
+                      : "bg-black text-white border-white hover:bg-white/10"
                   }`}
                 >
-                  {day === "All Days" ? "All" : day.slice(0, 3)}
+                  {day === "All Days" ? "ALL" : day.slice(0, 3)}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Preview */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg p-4">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview</p>
+          <div className="border-2 border-white bg-black p-4">
+            <p className="text-xs text-white mb-2 font-bold uppercase">PREVIEW</p>
             <div
-              className="rounded-lg p-4 text-white"
-              style={{ backgroundColor: formData.color }}
+              className="border-2 border-white p-4 text-white"
+              style={{ backgroundColor: formData.color, borderColor: 'white' }}
             >
               <div className="flex items-center gap-3">
                 <span className="text-3xl">{formData.icon}</span>
                 <div>
-                  <h3 className="font-bold text-lg">
-                    {formData.name || "Collection Name"}
+                  <h3 className="font-black text-lg uppercase tracking-wider">
+                    {formData.name || "COLLECTION NAME"}
                   </h3>
                   {formData.dayOfWeek && (
-                    <p className="text-sm opacity-90">{formData.dayOfWeek}</p>
+                    <p className="text-sm font-bold uppercase">{formData.dayOfWeek}</p>
                   )}
                 </div>
               </div>
@@ -221,16 +208,16 @@ export default function CreateCollectionModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg transition"
+              className="flex-1 px-6 py-3 bg-black border-2 border-white text-white font-black uppercase tracking-wide hover:bg-white hover:text-black transition"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={!formData.name.trim()}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-white text-black font-black uppercase tracking-wide border-2 border-white hover:bg-black hover:text-white hover:border-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Collection
+              CREATE
             </button>
           </div>
         </form>

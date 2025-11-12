@@ -499,14 +499,39 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center font-mono">
+        <div className="text-2xl uppercase tracking-widest animate-pulse">LOADING...</div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-black text-white font-mono">
+      {/* Retro Header */}
+      <div className="border-b-4 border-white bg-black p-8">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-5xl font-black uppercase tracking-wider" style={{textShadow: '4px 4px 0px rgba(255,255,255,0.3)'}}>
+              TUDUM
+            </h1>
+            <p className="text-sm uppercase tracking-widest mt-2 opacity-70">Collaborative Habit Tracker</p>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="retro-button"
+            >
+              {showForm ? "CLOSE" : "+ NEW HABIT"}
+            </button>
+            <button
+              onClick={() => setShowTimetable(true)}
+              className="retro-button"
+            >
+              BUILD TIMETABLE
+            </button>
+          </div>
+        </div>
+      </div>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

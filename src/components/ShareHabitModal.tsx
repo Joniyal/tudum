@@ -107,29 +107,30 @@ export default function ShareHabitModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full shadow-xl"
+        className="bg-black border-4 border-white max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
+        style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}
       >
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b-4 border-white">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Share Habit
+              <h2 className="text-xl font-black text-white uppercase tracking-wider">
+                SHARE HABIT
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-white mt-1 font-bold uppercase tracking-wide">
                 {habitTitle}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl"
+              className="text-white hover:bg-white hover:text-black text-2xl font-black p-2"
             >
-              ×
+              ✕
             </button>
           </div>
         </div>
@@ -137,13 +138,13 @@ export default function ShareHabitModal({
         {/* Body */}
         <form onSubmit={handleShare} className="p-6 space-y-4">
           {loading ? (
-            <div className="text-center py-8 text-gray-600 dark:text-gray-400">
-              Loading partners...
+            <div className="text-center py-8 text-white font-bold uppercase">
+              LOADING PARTNERS...
             </div>
           ) : partners.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                You don&apos;t have any connected partners yet.
+              <p className="text-white mb-4 font-bold uppercase">
+                NO CONNECTED PARTNERS YET
               </p>
               <button
                 type="button"
@@ -151,24 +152,24 @@ export default function ShareHabitModal({
                   onClose();
                   window.location.href = "/dashboard/social";
                 }}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                className="px-4 py-2 bg-white text-black border-2 border-white font-black uppercase hover:bg-black hover:text-white transition"
               >
-                Find Partners
+                FIND PARTNERS
               </button>
             </div>
           ) : (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Select Partner
+                <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                  SELECT PARTNER
                 </label>
                 <select
                   value={selectedPartner}
                   onChange={(e) => setSelectedPartner(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
                 >
-                  <option value="">Choose a partner...</option>
+                  <option value="">CHOOSE A PARTNER...</option>
                   {partners.map((partner) => (
                     <option key={partner.id} value={partner.id}>
                       {partner.name || partner.email}
@@ -178,31 +179,31 @@ export default function ShareHabitModal({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Personal Message (Optional)
+                <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                  PERSONAL MESSAGE (OPTIONAL)
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none resize-none"
                   placeholder="Add a personal note to encourage your partner..."
                   rows={3}
                   maxLength={500}
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {message.length}/500 characters
+                <p className="text-xs text-white mt-1 font-bold">
+                  {message.length}/500 CHARS
                 </p>
               </div>
 
               {error && (
-                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <div className="bg-black border-2 border-white rounded-lg p-3">
+                  <p className="text-sm text-white font-bold uppercase">{error}</p>
                 </div>
               )}
 
-              <div className="bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg p-3">
-                <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                  💡 Your partner will receive an invitation to add this habit to their list.
+              <div className="bg-black border-2 border-white rounded-lg p-3">
+                <p className="text-sm text-white font-bold">
+                  💡 YOUR PARTNER WILL RECEIVE AN INVITATION
                 </p>
               </div>
 
@@ -210,16 +211,16 @@ export default function ShareHabitModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition"
+                  className="flex-1 px-4 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !selectedPartner}
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-white text-black border-2 border-white font-black uppercase hover:bg-black hover:text-white hover:border-white transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitting ? "Sending..." : "Send Invitation"}
+                  {submitting ? "SENDING..." : "SEND"}
                 </button>
               </div>
             </>

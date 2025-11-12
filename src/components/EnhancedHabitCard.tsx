@@ -77,11 +77,7 @@ export default function EnhancedHabitCard({
     <div
       data-habit-card="true"
       data-habit-card-id={habit.id}
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 ${
-        isSelected ? "ring-4 ring-indigo-500 scale-105" : ""
-      } ${isAnimating ? "animate-bounce-subtle" : ""} ${
-        completedToday ? "opacity-90" : ""
-      }`}
+      className="retro-card group relative bg-black border-2 border-white"
     >
       {/* Collection Badge */}
       {habit.collection && (
@@ -104,56 +100,27 @@ export default function EnhancedHabitCard({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => onSelect(habit.id)}
-                  className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+                  className="w-5 h-5 bg-black border-2 border-white cursor-pointer"
+                  style={{accentColor: '#ffffff'}}
                 />
               </div>
             )}
 
-            {/* Collection Icon */}
-            {habit.collection?.icon && (
-              <span className="text-2xl flex-shrink-0">{habit.collection.icon}</span>
-            )}
-
             <div className="flex-1 min-w-0">
               {/* Title */}
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
-                  {habit.title}
-                </h3>
-                {habit.reminderTime && (
-                  <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full font-medium">
-                    ⏰{" "}
-                    {(() => {
-                      const [h, m] = habit.reminderTime.split(":").map(Number);
-                      const hour = h % 12 || 12;
-                      const period = h < 12 ? "AM" : "PM";
-                      return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
-                    })()}
-                  </span>
-                )}
-              </div>
-
-              {/* Collection Name & Frequency */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {habit.collection && (
-                  <span
-                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full"
-                    style={{
-                      backgroundColor: `${habit.collection.color}20`,
-                      color: habit.collection.color,
-                    }}
-                  >
-                    {habit.collection.name}
-                  </span>
-                )}
-                <span
-                  className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                    frequencyColors[habit.frequency]
-                  }`}
-                >
-                  {habit.frequency}
+              <h3 className="text-lg font-black text-white uppercase tracking-wide mb-1">
+                {habit.title}
+              </h3>
+              {habit.reminderTime && (
+                <span className="text-xs bg-white text-black px-2 py-1 font-bold uppercase inline-block">
+                  ⏰ {(() => {
+                    const [h, m] = habit.reminderTime.split(":").map(Number);
+                    const hour = h % 12 || 12;
+                    const period = h < 12 ? "AM" : "PM";
+                    return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
+                  })()}
                 </span>
-              </div>
+              )}
             </div>
           </div>
 
@@ -171,60 +138,49 @@ export default function EnhancedHabitCard({
 
         {/* Description */}
         {habit.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+          <p className="text-sm text-white mb-4 line-clamp-2 uppercase font-bold tracking-wide">
             {habit.description}
           </p>
         )}
 
         {/* Stats & Action */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 mb-4">
           {/* Streak */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Streak: </span>
-              <span className="font-bold text-indigo-600 dark:text-indigo-400">
-                {streak} {streak === 1 ? "day" : "days"}
+              <span className="text-white font-bold uppercase">Streak: </span>
+              <span className="font-black text-white text-lg">
+                {streak}
               </span>
-              {streak > 0 && <span className="ml-1">🔥</span>}
+              {streak > 0 && <span className="ml-2">🔥</span>}
             </div>
 
             {/* Total Completions */}
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {habit.completions.length} total
+            <div className="text-xs text-white font-bold uppercase border-l-2 border-white pl-3">
+              {habit.completions.length} TOTAL
             </div>
           </div>
-
-          {/* Complete Button */}
-          {!selectionMode && (
-            <button
-              onClick={handleComplete}
-              disabled={completedToday}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                completedToday
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-default"
-                  : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
-              }`}
-            >
-              {completedToday ? "✓ Done" : "Mark Complete"}
-            </button>
-          )}
         </div>
 
-        {/* Share Button */}
+        {/* Mark Complete Button */}
         {!selectionMode && (
           <button
-            onClick={() => onShare(habit.id, habit.title)}
-            className="absolute top-4 right-14 bg-blue-500 text-white p-2 rounded-lg text-sm font-medium"
-            title="Share this habit"
+            onClick={handleComplete}
+            disabled={completedToday}
+            className={`w-full py-3 px-4 font-black uppercase tracking-wider border-2 transition-colors ${
+              completedToday
+                ? "bg-black border-white text-white opacity-50 cursor-default"
+                : "bg-black border-white text-white hover:bg-white hover:text-black"
+            }`}
           >
-            📤
+            {completedToday ? "✓ DONE TODAY" : "✓ MARK COMPLETE"}
           </button>
         )}
       </div>
 
       {/* Completion Celebration Overlay */}
       {isAnimating && (
-        <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-blue-400/20 pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 bg-white/10 pointer-events-none flex items-center justify-center">
           <div className="text-6xl animate-ping-once">✨</div>
         </div>
       )}

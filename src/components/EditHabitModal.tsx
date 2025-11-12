@@ -45,18 +45,16 @@ export default function EditHabitModal({ habit, onClose, onSave }: EditHabitModa
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+      <div className="bg-black border-4 border-white max-w-md w-full p-6" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Habit</h2>
+          <h2 className="text-2xl font-black text-white uppercase tracking-wider">EDIT HABIT</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
+            className="p-2 hover:bg-white hover:text-black rounded transition font-black text-xl"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ✕
           </button>
         </div>
 
@@ -64,46 +62,46 @@ export default function EditHabitModal({ habit, onClose, onSave }: EditHabitModa
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Habit Name *
+            <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+              HABIT NAME *
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none"
               placeholder="e.g., Morning Exercise"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description
+            <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+              DESCRIPTION
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none resize-none"
               placeholder="What does this habit involve?"
             />
           </div>
 
           {/* Frequency */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Frequency *
+            <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+              FREQUENCY *
             </label>
             <select
               value={formData.frequency}
               onChange={(e) => setFormData({ ...formData, frequency: e.target.value as "DAILY" | "WEEKLY" | "MONTHLY" })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
             >
-              <option value="DAILY">Daily</option>
-              <option value="WEEKLY">Weekly</option>
-              <option value="MONTHLY">Monthly</option>
+              <option value="DAILY">DAILY</option>
+              <option value="WEEKLY">WEEKLY</option>
+              <option value="MONTHLY">MONTHLY</option>
             </select>
           </div>
 
@@ -114,10 +112,10 @@ export default function EditHabitModal({ habit, onClose, onSave }: EditHabitModa
               id="reminderEnabled"
               checked={formData.reminderEnabled}
               onChange={(e) => setFormData({ ...formData, reminderEnabled: e.target.checked })}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              className="w-4 h-4 bg-black border-2 border-white accent-white"
             />
-            <label htmlFor="reminderEnabled" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Enable reminder alarm
+            <label htmlFor="reminderEnabled" className="text-sm font-black text-white uppercase tracking-wide">
+              ENABLE REMINDER ALARM
             </label>
           </div>
 
@@ -125,35 +123,35 @@ export default function EditHabitModal({ habit, onClose, onSave }: EditHabitModa
           {formData.reminderEnabled && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Reminder Time
+                <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                  REMINDER TIME
                 </label>
                 <input
                   type="time"
                   value={formData.reminderTime}
                   onChange={(e) => setFormData({ ...formData, reminderTime: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
                 />
               </div>
 
               {/* Alarm Duration */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Alarm Duration
+                <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                  ALARM DURATION
                 </label>
                 <select
                   value={formData.alarmDuration}
                   onChange={(e) => setFormData({ ...formData, alarmDuration: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
                 >
-                  <option value="1">1 minute</option>
-                  <option value="2">2 minutes</option>
-                  <option value="5">5 minutes</option>
-                  <option value="10">10 minutes</option>
-                  <option value="15">15 minutes</option>
-                  <option value="30">30 minutes</option>
-                  <option value="60">1 hour</option>
-                  <option value="-1">Until completed</option>
+                  <option value="1">1 MINUTE</option>
+                  <option value="2">2 MINUTES</option>
+                  <option value="5">5 MINUTES</option>
+                  <option value="10">10 MINUTES</option>
+                  <option value="15">15 MINUTES</option>
+                  <option value="30">30 MINUTES</option>
+                  <option value="60">1 HOUR</option>
+                  <option value="-1">UNTIL COMPLETED</option>
                 </select>
               </div>
             </>
@@ -164,16 +162,16 @@ export default function EditHabitModal({ habit, onClose, onSave }: EditHabitModa
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+              className="flex-1 px-4 py-3 bg-black border-2 border-white text-white font-black uppercase tracking-wide hover:bg-white hover:text-black transition"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-white text-black font-black uppercase tracking-wide border-2 border-white hover:bg-black hover:text-white hover:border-white transition disabled:opacity-50"
             >
-              {isSaving ? "Saving..." : "Save Changes"}
+              {isSaving ? "SAVING..." : "SAVE"}
             </button>
           </div>
         </form>
