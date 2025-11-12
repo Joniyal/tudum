@@ -561,14 +561,14 @@ export default function DashboardPage() {
       </div>
 
       {showForm && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Create New Habit
+        <div className="bg-black border-4 border-white p-6 mb-8 mx-6 mt-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
+          <h2 className="text-xl font-black mb-4 text-white uppercase tracking-wider">
+            CREATE NEW HABIT
           </h2>
           <form onSubmit={handleCreateHabit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Title
+              <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                TITLE
               </label>
               <input
                 type="text"
@@ -577,29 +577,29 @@ export default function DashboardPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none"
                 placeholder="e.g., Morning Exercise"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Description (optional)
+              <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                DESCRIPTION (OPTIONAL)
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none resize-none"
                 placeholder="Add more details..."
                 rows={3}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Frequency
+              <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                FREQUENCY
               </label>
               <select
                 value={formData.frequency}
@@ -609,16 +609,16 @@ export default function DashboardPage() {
                     frequency: e.target.value as "DAILY" | "WEEKLY" | "MONTHLY",
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
               >
-                <option value="DAILY">Daily</option>
-                <option value="WEEKLY">Weekly</option>
-                <option value="MONTHLY">Monthly</option>
+                <option value="DAILY">DAILY</option>
+                <option value="WEEKLY">WEEKLY</option>
+                <option value="MONTHLY">MONTHLY</option>
               </select>
             </div>
 
             {/* Reminder Settings */}
-            <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+            <div className="border-2 border-white bg-black p-4">
               <div className="flex items-center justify-between mb-3">
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
@@ -630,10 +630,10 @@ export default function DashboardPage() {
                         reminderEnabled: e.target.checked,
                       })
                     }
-                    className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                    className="w-4 h-4 border-2 border-white accent-white"
                   />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    🔔 Set Reminder
+                  <span className="text-sm font-black text-white uppercase">
+                    🔔 SET REMINDER
                   </span>
                 </label>
               </div>
@@ -641,8 +641,8 @@ export default function DashboardPage() {
               {formData.reminderEnabled && (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Reminder Time
+                    <label className="block text-sm font-black text-white mb-2 uppercase tracking-wide">
+                      REMINDER TIME
                     </label>
                     <div className="flex gap-2">
                       <select
@@ -654,7 +654,7 @@ export default function DashboardPage() {
                             reminderTime: `${e.target.value}:${minutes}`,
                           })
                         }}
-                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="flex-1 px-4 py-2 border-2 border-white bg-black text-white font-bold focus:outline-none"
                       >
                         {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
                           <option key={h} value={String(h).padStart(2, "0")}>
@@ -927,9 +927,9 @@ export default function DashboardPage() {
             </div>
 
             {filteredHabits.length === 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
-                  {showArchived ? "No archived habits" : "No habits match your filters"}
+              <div className="bg-black border-4 border-white p-12 text-center" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
+                <p className="text-white font-bold uppercase tracking-wide">
+                  {showArchived ? "NO ARCHIVED HABITS" : "NO HABITS MATCH YOUR FILTERS"}
                 </p>
               </div>
             )}
@@ -1008,34 +1008,32 @@ export default function DashboardPage() {
 
       {/* Delete Confirmation Modal */}
       {deletingHabitId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-black border-4 border-white max-w-md w-full p-6" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+              <div className="w-12 h-12 bg-white border-2 border-white flex items-center justify-center font-black text-black">
+                ⚠️
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Delete Habit</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">This action cannot be undone</p>
+                <h3 className="text-lg font-black text-white uppercase tracking-wider">DELETE HABIT</h3>
+                <p className="text-sm text-white font-bold uppercase">ACTION CANNOT BE UNDONE</p>
               </div>
             </div>
-            <p className="text-gray-700 dark:text-gray-300 mb-6">
-              Are you sure you want to delete this habit? All completion history will be permanently removed.
+            <p className="text-white font-bold mb-6 uppercase">
+              ARE YOU SURE YOU WANT TO DELETE THIS HABIT? ALL COMPLETION HISTORY WILL BE PERMANENTLY REMOVED.
             </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setDeletingHabitId(null)}
-                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                className="flex-1 px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
               >
-                Cancel
+                CANCEL
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+                className="flex-1 px-4 py-3 bg-white text-black border-2 border-white font-black uppercase hover:bg-black hover:text-white hover:border-white transition tracking-wider"
               >
-                Delete
+                DELETE
               </button>
             </div>
           </div>
