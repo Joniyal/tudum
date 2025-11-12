@@ -544,18 +544,18 @@ export default function DashboardPage() {
         <div className="flex space-x-3">
           <button
             onClick={() => setShowTimetable(true)}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition shadow-lg hover:shadow-xl flex items-center space-x-2"
+            className="px-6 py-3 bg-white text-black font-black border-2 border-white uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-200 flex items-center space-x-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>📅 Build Timetable</span>
+            <span>BUILD TIMETABLE</span>
           </button>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+            className="px-6 py-3 bg-white text-black font-black border-2 border-white uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-200"
           >
-            {showForm ? "Cancel" : "+ New Habit"}
+            {showForm ? "CANCEL" : "+ NEW HABIT"}
           </button>
         </div>
       </div>
@@ -776,9 +776,9 @@ export default function DashboardPage() {
 
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+              className="w-full px-6 py-3 bg-white text-black font-black border-2 border-white uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-200"
             >
-              Create Habit
+              CREATE HABIT
             </button>
           </form>
         </div>
