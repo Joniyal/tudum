@@ -222,7 +222,7 @@ export default function TimetableHabitCarousel({
       >
         {/* Main Habit Card */}
         <div
-          className={`relative bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-2xl p-8 transition-all duration-300 ${
+          className={`relative bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-2xl p-8 ${
             transitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
           }`}
         >
@@ -273,7 +273,7 @@ export default function TimetableHabitCarousel({
                 {isHabitTimeWindowActive(currentHabit) ? (
                   <button
                     onClick={() => onComplete(currentHabit.id)}
-                    className="w-full bg-white text-indigo-600 font-semibold py-3 px-6 rounded-xl transition-all duration-200"
+                    className="w-full bg-white text-indigo-600 font-semibold py-3 px-6 rounded-xl"
                   >
                     ✓ Mark Complete
                   </button>
@@ -312,7 +312,7 @@ export default function TimetableHabitCarousel({
             <>
               <button
                 onClick={goToPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full p-3 transition-all duration-200 border border-white/30"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md rounded-full p-3 border border-white/30"
               >
                 <svg
                   className="w-6 h-6 text-white"
@@ -330,7 +330,7 @@ export default function TimetableHabitCarousel({
               </button>
               <button
                 onClick={goToNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full p-3 transition-all duration-200 border border-white/30"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md rounded-full p-3 border border-white/30"
               >
                 <svg
                   className="w-6 h-6 text-white"
