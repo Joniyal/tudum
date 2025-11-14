@@ -213,9 +213,6 @@ function MessagesContent() {
                   }`}
                 >
                   <div className="font-black">{partner.name || "Partner"}</div>
-                  <div className="retro-text-muted text-[0.65rem] truncate mt-1">
-                    {partner.email}
-                  </div>
                 </button>
               ))}
             </div>
@@ -228,7 +225,7 @@ function MessagesContent() {
                 {/* Header */}
                 <div className="p-4 border-b-2 border-[color:var(--border)] flex-shrink-0">
                   <h3 className="retro-subheading text-sm">
-                    {selectedPartner.name || selectedPartner.email}
+                    {selectedPartner.name || "Partner"}
                   </h3>
                 </div>
 
