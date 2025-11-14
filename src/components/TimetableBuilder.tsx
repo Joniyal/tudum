@@ -263,10 +263,10 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
           </div>
 
           {/* Actions - Sticky Footer */}
-          <div className="sticky bottom-0 flex space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 -mx-6 px-6 -mb-6 pb-6 rounded-b-2xl">
+          <div className="sticky bottom-0 flex space-x-3 pt-4 border-t-2 border-[color:var(--border)] bg-[color:var(--surface)] -mx-6 px-6 -mb-6 pb-6">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+              className="flex-1 retro-button-outline text-xs hover-lift"
             >
               Cancel
             </button>
@@ -280,7 +280,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
                 onClose();
               }}
               disabled={slots.length === 0}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              className="flex-1 retro-button text-xs hover-lift disabled:opacity-50"
             >
               Create {slots.length} Habits
             </button>
