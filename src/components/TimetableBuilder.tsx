@@ -163,19 +163,19 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
                 type="time"
                 value={newSlot.time}
                 onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
-                className="col-span-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                className="col-span-2 retro-input text-xs"
               />
               <input
                 type="text"
                 placeholder="Activity name"
                 value={newSlot.title}
                 onChange={(e) => setNewSlot({ ...newSlot, title: e.target.value })}
-                className="col-span-4 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                className="col-span-4 retro-input text-xs"
               />
               <select
                 value={newSlot.duration}
                 onChange={(e) => setNewSlot({ ...newSlot, duration: parseInt(e.target.value) })}
-                className="col-span-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                className="col-span-2 retro-input text-xs"
               >
                 <option value="15">15 min</option>
                 <option value="30">30 min</option>
@@ -188,7 +188,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
               <select
                 value={newSlot.category}
                 onChange={(e) => setNewSlot({ ...newSlot, category: e.target.value })}
-                className="col-span-3 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white text-sm"
+                className="col-span-3 retro-input text-xs"
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.icon} {cat.label}</option>
@@ -196,7 +196,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
               </select>
               <button
                 onClick={addSlot}
-                className="col-span-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
+                className="col-span-1 retro-button text-xs hover-lift"
               >
                 +
               </button>
@@ -205,14 +205,14 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
 
           {/* Timeline View */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Your Schedule ({slots.length} activities)</h3>
+            <h3 className="retro-subheading text-sm mb-3">YOUR SCHEDULE <span className="retro-badge text-xs">{slots.length}</span></h3>
             <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
               {slots.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-12 retro-text-muted">
                   <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p>No activities yet. Add some or try a template!</p>
+                  <p className="uppercase tracking-wider text-xs">No activities yet. Add some or try a template!</p>
                 </div>
               ) : (
                 slots.map((slot, index) => {
@@ -220,18 +220,18 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
                   return (
                     <div
                       key={slot.id}
-                      className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="flex items-center space-x-3 p-3 retro-panel-flat border-2 border-[color:var(--border)] hover-lift"
                     >
-                      <div className={`w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-2xl`}>
+                      <div className="w-12 h-12 retro-panel-flat border-2 border-[color:var(--border)] flex items-center justify-center text-2xl">
                         {category.icon}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-mono font-semibold text-gray-900 dark:text-white">
+                          <span className="text-xs font-mono font-bold">
                             {formatTime(slot.time)}
                           </span>
-                          <span className="text-gray-400">→</span>
-                          <span className="text-sm font-mono font-semibold text-gray-900 dark:text-white">
+                          <span className="retro-text-muted">→</span>
+                          <span className="text-xs font-mono font-bold">
                             {(() => {
                               const [h, m] = slot.time.split(":").map(Number);
                               const endTime = new Date();
@@ -242,14 +242,14 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
                               return formatTime(`${endHour.toString().padStart(2, "0")}:${endMin.toString().padStart(2, "0")}`);
                             })()}
                           </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">({slot.duration} min)</span>
+                          <span className="retro-tag text-[0.65rem]">{slot.duration} MIN</span>
                         </div>
-                        <div className="font-semibold text-gray-900 dark:text-white">{slot.title}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{category.label}</div>
+                        <div className="font-bold">{slot.title}</div>
+                        <div className="retro-text-muted text-[0.65rem] uppercase tracking-wider">{category.label}</div>
                       </div>
                       <button
                         onClick={() => removeSlot(slot.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                        className="retro-button-outline p-2 hover-lift"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
