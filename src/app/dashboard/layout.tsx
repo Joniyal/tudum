@@ -135,7 +135,15 @@ function DashboardNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="retro-heading text-xl tracking-[0.24em]">
+            <Link href="/dashboard" className="retro-heading text-xl tracking-[0.24em] flex items-center gap-3 hover-lift">
+              <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2">
+                {/* Retro checkmark in box */}
+                <rect x="8" y="8" width="48" height="48" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="20,32 28,40 44,24" strokeLinecap="round" strokeLinejoin="round"/>
+                {/* Decorative dots */}
+                <circle cx="56" cy="12" r="2" fill="currentColor"/>
+                <circle cx="12" cy="56" r="2" fill="currentColor"/>
+              </svg>
               TUDUM
             </Link>
             <div className="hidden md:flex items-center gap-2">
