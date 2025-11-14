@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useHabitReminders } from "@/hooks/useHabitReminders";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 
@@ -15,23 +15,39 @@ function DashboardNav() {
   useServiceWorker();
   const { data: session } = useSession();
   const pathname = usePathname();
-  const [isDark, setIsDark] = useState(false);
+  const [isNight, setIsNight] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [showStaleSessionModal, setShowStaleSessionModal] = useState(false);
 
-  useEffect(() => {
-    // Check system preference on mount
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const stored = localStorage.getItem('theme');
-    const shouldBeDark = stored === 'dark' || (!stored && isDarkMode);
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+  const applyTheme = useCallback((nightMode: boolean) => {
+    const root = document.documentElement;
+    root.classList.remove("theme-day", "theme-night");
+    root.classList.add(nightMode ? "theme-night" : "theme-day");
   }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const storedTheme = localStorage.getItem("theme");
+    const initialNight = storedTheme ? storedTheme === "night" : mediaQuery.matches;
+    setIsNight(initialNight);
+    applyTheme(initialNight);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      const stored = localStorage.getItem("theme");
+      const nextNight = stored ? stored === "night" : event.matches;
+      setIsNight(nextNight);
+      applyTheme(nextNight);
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
+  }, [applyTheme]);
 
   // Validate session on component mount
   useEffect(() => {
@@ -99,10 +115,12 @@ function DashboardNav() {
   }, [session?.user?.id]);
 
   const toggleTheme = () => {
-    // Theme is always retro black/white, but button provides visual feedback
-    // This is kept for UI consistency - the actual theme is fixed
-    const elem = document.activeElement as HTMLElement;
-    if (elem) elem.blur();
+    setIsNight((prev) => {
+      const next = !prev;
+      applyTheme(next);
+      localStorage.setItem("theme", next ? "night" : "day");
+      return next;
+    });
   };
 
   const navItems = [
@@ -113,97 +131,87 @@ function DashboardNav() {
   ];
 
   return (
-    <nav className="bg-black border-b-4 border-white font-mono">
+    <nav className="retro-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link href="/dashboard" className="text-2xl font-black text-white uppercase tracking-widest" style={{textShadow: '2px 2px 0px rgba(255,255,255,0.5)'}}>
-              Tudum
+        <div className="flex h-20 items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/dashboard" className="retro-heading text-xl tracking-[0.24em]">
+              TUDUM
             </Link>
-            <div className="hidden md:flex space-x-4">
+            <div className="hidden md:flex items-center gap-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-2 text-sm font-black uppercase tracking-wider transition-all duration-200 border-2 ${
-                    pathname === item.href
-                      ? "bg-white text-black border-white"
-                      : "text-white border-white hover:bg-white hover:text-black"
-                  }`}
+                  className={`retro-nav-link ${pathname === item.href ? "is-active" : ""}`}
                 >
                   {item.label}
                   {item.href === "/dashboard/social" && pendingCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-white text-black text-xs font-black w-5 h-5 flex items-center justify-center border-2 border-white">
-                      {pendingCount}
-                    </span>
+                    <span className="retro-badge ml-2">{pendingCount}</span>
                   )}
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
-              className="p-2 border-2 border-white text-white font-black uppercase text-xs hover:bg-white hover:text-black transition-all duration-200 hover:scale-110 active:scale-95"
-              aria-label="Theme button"
-              title="Retro mode activated"
+              className="retro-switch hover-lift"
+              aria-pressed={isNight}
+              title={isNight ? "Switch to Day Mode" : "Switch to Night Mode"}
             >
-              <span className="inline-block transition-transform duration-300 hover:rotate-12">RETRO</span>
+              <span className={`retro-switch__indicator ${isNight ? "is-night" : ""}`}></span>
+              <span className="text-[0.68rem]">{isNight ? "Night" : "Day"}</span>
             </button>
 
-            {/* Profile Dropdown */}
             <div className="relative">
               <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center space-x-2 px-4 py-2 border-2 border-white text-white font-black uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-200"
+                onClick={() => setShowProfileMenu((prev) => !prev)}
+                className="retro-button-outline px-4 py-2 text-xs"
               >
-                <div className="w-8 h-8 bg-white text-black border-2 border-white rounded-none flex items-center justify-center font-black text-sm">
-                  {(session?.user?.name || session?.user?.email)?.[0]?.toUpperCase()}
-                </div>
-                <span className="text-sm font-black hidden sm:inline">
-                  {session?.user?.name || session?.user?.email}
+                <span className="flex items-center gap-3">
+                  <span className="retro-avatar text-sm">
+                    {(session?.user?.name || session?.user?.email)?.[0]?.toUpperCase()}
+                  </span>
+                  <span className="hidden sm:block tracking-[0.16em]">
+                    {session?.user?.name || session?.user?.email}
+                  </span>
+                  <svg
+                    className={`h-4 w-4 transition-transform ${showProfileMenu ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  </svg>
                 </span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showProfileMenu ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
               </button>
 
-              {/* Dropdown Menu */}
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-black border-2 border-white z-50" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.3)'}}>
-                  <Link
-                    href="/dashboard/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="block px-4 py-2 text-sm text-white font-black uppercase tracking-wide hover:bg-white hover:text-black transition-all border-b-2 border-white"
-                  >
-                    VIEW PROFILE
-                  </Link>
-                  <Link
-                    href="/dashboard/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="block px-4 py-2 text-sm text-white font-black uppercase tracking-wide hover:bg-white hover:text-black transition-all border-b-2 border-white"
-                  >
-                    EDIT PROFILE
-                  </Link>
-                  <button
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="w-full text-left px-4 py-2 text-sm text-white font-black uppercase tracking-wide hover:bg-white hover:text-black transition-all"
-                  >
-                    SIGN OUT
-                  </button>
+                <div className="absolute right-0 mt-3 w-56 retro-panel animate-slide-down">
+                  <div className="flex flex-col divide-y-2 divide-[color:var(--border)]">
+                    <Link
+                      href="/dashboard/profile"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="px-5 py-3 text-sm tracking-[0.14em] uppercase hover:bg-[color:var(--background)]"
+                    >
+                      View Profile
+                    </Link>
+                    <Link
+                      href="/dashboard/profile"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="px-5 py-3 text-sm tracking-[0.14em] uppercase hover:bg-[color:var(--background)]"
+                    >
+                      Edit Profile
+                    </Link>
+                    <button
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="px-5 py-3 text-left text-sm tracking-[0.14em] uppercase hover:bg-[color:var(--background)]"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -211,24 +219,22 @@ function DashboardNav() {
         </div>
       </div>
 
-      {/* Stale Session Modal */}
       {showStaleSessionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 font-mono">
-          <div className="bg-black border-4 border-white p-6 max-w-md" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
-            <h2 className="text-lg font-black text-white mb-2 uppercase tracking-wider">
-              SESSION EXPIRED
-            </h2>
-            <p className="text-white font-bold mb-4 uppercase tracking-wide opacity-90">
-              Your session has expired. This can happen after a database update or if you logged in from another device.
+        <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="retro-panel max-w-md w-full p-8 space-y-4 animate-expand">
+            <h2 className="retro-heading text-lg">Session Expired</h2>
+            <p className="retro-text-muted text-sm leading-relaxed">
+              Your authentication session is no longer valid. This can happen after security
+              changes or when you log in from another device.
             </p>
-            <p className="text-sm text-white font-bold mb-4 uppercase opacity-75">
-              Please log out and log back in to continue.
+            <p className="retro-text-muted text-xs uppercase tracking-[0.16em]">
+              Please sign in again to continue.
             </p>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="w-full bg-white text-black font-black py-2 px-4 uppercase tracking-wider hover:bg-black hover:text-white hover:border-2 hover:border-white transition-all border-2 border-white"
+              className="retro-button w-full"
             >
-              LOG OUT
+              Log Out
             </button>
           </div>
         </div>
@@ -247,10 +253,12 @@ export default function DashboardLayout({
 
   return (
     <SessionProvider>
-      <div className={`${isMessagesPage ? "h-screen overflow-hidden" : "min-h-screen"} bg-black flex flex-col font-mono`}>
+      <div className={`${isMessagesPage ? "h-screen overflow-hidden" : "min-h-screen"} retro-app flex flex-col`}>
         <DashboardNav />
-        <main className={`${isMessagesPage ? "flex-1 overflow-hidden" : "flex-1 overflow-auto"} max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 ${isMessagesPage ? "py-8" : "py-8"}`}>
-          {children}
+        <main className={`${isMessagesPage ? "flex-1 overflow-hidden" : "flex-1 overflow-auto"}`}>
+          <div className={`retro-container px-4 sm:px-6 lg:px-8 ${isMessagesPage ? "h-full py-6" : "py-10"}`}>
+            {children}
+          </div>
         </main>
       </div>
     </SessionProvider>

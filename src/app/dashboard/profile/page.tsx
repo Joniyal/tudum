@@ -77,52 +77,52 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted">LOADING...</div>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        My Profile
+      <h1 className="retro-heading text-2xl mb-8">
+        👤 MY PROFILE
       </h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg">
-          {error}
+        <div className="mb-6 retro-panel p-4 border-2 border-[color:var(--text)]">
+          <p className="retro-text-muted text-xs uppercase tracking-wide">{error}</p>
         </div>
       )}
 
       {profile && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 max-w-md">
+        <div className="retro-panel p-8 max-w-md hover-lift">
           {!isEditing ? (
             <>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Username
+                  <label className="retro-subheading text-xs mb-2 block">
+                    USERNAME
                   </label>
-                  <p className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                  <p className="text-lg font-bold">
                     @{profile.username}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Email
+                  <label className="retro-subheading text-xs mb-2 block">
+                    EMAIL
                   </label>
-                  <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  <p className="retro-text-muted text-sm">
                     {profile.email}
                   </p>
                 </div>
 
                 {profile.name && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Name
+                    <label className="retro-subheading text-xs mb-2 block">
+                      NAME
                     </label>
-                    <p className="mt-2 text-gray-900 dark:text-white">
+                    <p className="font-semibold">
                       {profile.name}
                     </p>
                   </div>
@@ -130,33 +130,32 @@ export default function ProfilePage() {
 
                 {profile.bio && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Bio
+                    <label className="retro-subheading text-xs mb-2 block">
+                      BIO
                     </label>
-                    <p className="mt-2 text-gray-700 dark:text-gray-300">
+                    <p className="text-sm">
                       {profile.bio}
                     </p>
                   </div>
                 )}
 
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Member since{" "}
-                  {new Date(profile.createdAt).toLocaleDateString()}
+                <div className="retro-text-muted text-xs uppercase tracking-wider border-t-2 border-[color:var(--border)] pt-4">
+                  Member since {new Date(profile.createdAt).toLocaleDateString()}
                 </div>
               </div>
 
               <button
                 onClick={() => setIsEditing(true)}
-                className="mt-8 w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+                className="mt-8 w-full retro-button hover-lift"
               >
-                Edit Profile
+                ✏️ EDIT PROFILE
               </button>
             </>
           ) : (
             <form onSubmit={handleSaveProfile} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Username *
+                <label className="retro-subheading text-xs mb-2 block">
+                  USERNAME *
                 </label>
                 <input
                   type="text"
@@ -165,17 +164,17 @@ export default function ProfilePage() {
                     setFormData({ ...formData, username: e.target.value })
                   }
                   placeholder="e.g., john_doe"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="retro-input w-full"
                   required
                 />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-2 retro-text-muted text-[0.65rem] uppercase tracking-wider">
                   Only letters, numbers, dash and underscore allowed
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Name
+                <label className="retro-subheading text-xs mb-2 block">
+                  NAME
                 </label>
                 <input
                   type="text"
@@ -185,13 +184,13 @@ export default function ProfilePage() {
                   }
                   placeholder="Your full name"
                   maxLength={50}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="retro-input w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Bio
+                <label className="retro-subheading text-xs mb-2 block">
+                  BIO
                 </label>
                 <textarea
                   value={formData.bio}
@@ -201,23 +200,23 @@ export default function ProfilePage() {
                   placeholder="Tell us about yourself"
                   maxLength={500}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                  className="retro-textarea w-full"
                 />
               </div>
 
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+                  className="flex-1 retro-button hover-lift"
                 >
-                  Save Changes
+                  ✓ SAVE
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg transition"
+                  className="flex-1 retro-button-outline hover-lift"
                 >
-                  Cancel
+                  ✕ CANCEL
                 </button>
               </div>
             </form>

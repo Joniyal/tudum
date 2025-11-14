@@ -93,7 +93,7 @@ function StatsContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted uppercase tracking-widest animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -101,7 +101,7 @@ function StatsContent() {
   if (!stats) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">No stats available</div>
+        <div className="retro-text-muted uppercase tracking-widest">No stats available</div>
       </div>
     );
   }
@@ -110,8 +110,8 @@ function StatsContent() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="retro-heading text-2xl">
           {selectedUserName} Statistics
         </h1>
         {partners.length > 0 && (
@@ -125,7 +125,7 @@ function StatsContent() {
                 window.location.href = "/dashboard/stats";
               }
             }}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="retro-input px-4 py-2 text-xs w-auto"
           >
             <option value="">My Stats</option>
             {partners.map((partner) => (
@@ -139,40 +139,40 @@ function StatsContent() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+        <div className="retro-panel p-6 hover-lift">
+          <h3 className="retro-subheading text-xs mb-3">
             Total Habits
           </h3>
-          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+          <p className="text-4xl font-black">
             {stats.totalHabits}
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+        <div className="retro-panel p-6 hover-lift">
+          <h3 className="retro-subheading text-xs mb-3">
             Total Completions
           </h3>
-          <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+          <p className="text-4xl font-black">
             {stats.totalCompletions}
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+        <div className="retro-panel p-6 hover-lift">
+          <h3 className="retro-subheading text-xs mb-3">
             Avg. Per Day (30d)
           </h3>
-          <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+          <p className="text-4xl font-black">
             {stats.averageCompletionsPerDay}
           </p>
         </div>
       </div>
 
       {/* Activity Chart */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="retro-panel p-6 mb-8">
+        <h2 className="retro-subheading text-base mb-6">
           Activity (Last 30 Days)
         </h2>
-        <div className="flex items-end justify-between gap-1 h-48">
+        <div className="flex items-end justify-between gap-1 h-48 border-b-2 border-[color:var(--border)]">
           {stats.completionsByDate.map((day) => {
             const height = (day.count / maxCount) * 100;
             return (
@@ -181,64 +181,64 @@ function StatsContent() {
                 className="flex-1 flex flex-col items-center group"
               >
                 <div
-                  className="w-full bg-indigo-600 dark:bg-indigo-500 rounded-t transition-all hover:bg-indigo-700"
-                  style={{ height: `${height}%`, minHeight: day.count > 0 ? "4px" : "0" }}
+                  className="w-full bg-[color:var(--text)] border-2 border-[color:var(--border)] transition-all hover:opacity-80"
+                  style={{ height: `${height}%`, minHeight: day.count > 0 ? "8px" : "0" }}
                   title={`${day.date}: ${day.count} completions`}
                 />
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-2 hidden group-hover:block">
+                <span className="text-[0.6rem] retro-text-muted mt-2 hidden group-hover:block uppercase font-black">
                   {new Date(day.date).getDate()}
                 </span>
               </div>
             );
           })}
         </div>
-        <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2">
+        <div className="flex justify-between text-xs retro-text-muted uppercase tracking-widest mt-3">
           <span>30 days ago</span>
           <span>Today</span>
         </div>
       </div>
 
       {/* Habits Breakdown */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="retro-panel p-6">
+        <h2 className="retro-subheading text-base mb-6">
           Habits Breakdown
         </h2>
         {stats.habitsWithStreaks.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-400">No habits yet</p>
+          <p className="retro-text-muted uppercase tracking-wider text-center py-8">No habits yet</p>
         ) : (
           <div className="space-y-4">
             {stats.habitsWithStreaks.map((habit) => (
               <div
                 key={habit.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                className="retro-panel-flat p-5 hover-lift"
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-black uppercase tracking-wide">
                       {habit.title}
                     </h3>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="retro-text-muted text-xs uppercase tracking-wider mt-1 inline-block">
                       {habit.frequency}
                     </span>
                   </div>
-                  <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded">
+                  <span className="retro-tag text-xs">
                     {habit.totalCompletions} completions
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t-2 border-[color:var(--border)]">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="retro-text-muted text-xs uppercase tracking-wider mb-2">
                       Current Streak
                     </p>
-                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    <p className="text-3xl font-black">
                       {habit.currentStreak} 🔥
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="retro-text-muted text-xs uppercase tracking-wider mb-2">
                       Longest Streak
                     </p>
-                    <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                    <p className="text-3xl font-black">
                       {habit.longestStreak} ⭐
                     </p>
                   </div>

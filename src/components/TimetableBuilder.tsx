@@ -17,12 +17,12 @@ type TimetableBuilderProps = {
 };
 
 const CATEGORIES = [
-  { id: "health", label: "Health & Fitness", color: "bg-green-500", icon: "💪" },
-  { id: "work", label: "Work & Study", color: "bg-blue-500", icon: "💼" },
-  { id: "personal", label: "Personal Care", color: "bg-purple-500", icon: "🧘" },
-  { id: "social", label: "Social & Family", color: "bg-pink-500", icon: "👥" },
-  { id: "creative", label: "Creative", color: "bg-yellow-500", icon: "🎨" },
-  { id: "learning", label: "Learning", color: "bg-indigo-500", icon: "📚" },
+  { id: "health", label: "Health & Fitness", color: "retro-panel-flat", icon: "💪" },
+  { id: "work", label: "Work & Study", color: "retro-panel-flat", icon: "💼" },
+  { id: "personal", label: "Personal Care", color: "retro-panel-flat", icon: "🧘" },
+  { id: "social", label: "Social & Family", color: "retro-panel-flat", icon: "👥" },
+  { id: "creative", label: "Creative", color: "retro-panel-flat", icon: "🎨" },
+  { id: "learning", label: "Learning", color: "retro-panel-flat", icon: "📚" },
 ];
 
 const PRESET_ROUTINES = [
@@ -110,22 +110,22 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-[color:var(--background)]/90 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-5xl w-full my-8"
+        className="retro-panel max-w-5xl w-full my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Fixed */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b-2 border-[color:var(--border)] bg-[color:var(--surface)]">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Daily Timetable Builder</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Create your perfect daily routine</p>
+            <h2 className="retro-heading text-xl">⏰ TIMETABLE BUILDER</h2>
+            <p className="retro-text-muted text-xs uppercase tracking-wider mt-1">Create your perfect daily routine</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"
+            className="retro-button-outline p-2 hover-lift"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -136,28 +136,28 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
         <div className="p-6 max-h-[calc(90vh-8rem)] overflow-y-auto">
           {/* Preset Templates */}
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Start Templates</h3>
+            <h3 className="retro-subheading text-sm mb-3">QUICK START TEMPLATES</h3>
             <div className="grid grid-cols-3 gap-3">
               {PRESET_ROUTINES.map((preset) => (
                 <button
                   key={preset.name}
                   onClick={() => loadPreset(preset.name)}
-                  className={`p-4 rounded-lg border-2 transition ${
+                  className={`retro-panel-flat p-4 border-2 transition hover-lift ${
                     selectedPreset === preset.name
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
+                      ? "border-[color:var(--text)]"
+                      : "border-[color:var(--border)]"
                   }`}
                 >
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">{preset.name}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">{preset.slots.length} activities</div>
+                  <div className="font-bold">{preset.name}</div>
+                  <div className="retro-text-muted text-[0.65rem] uppercase tracking-wider mt-1">{preset.slots.length} ACTIVITIES</div>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Add New Slot */}
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Add Activity</h3>
+          <div className="mb-6 retro-panel-flat p-4">
+            <h3 className="retro-subheading text-sm mb-3">ADD ACTIVITY</h3>
             <div className="grid grid-cols-12 gap-3">
               <input
                 type="time"

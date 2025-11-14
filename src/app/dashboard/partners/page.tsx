@@ -113,7 +113,7 @@ export default function PartnersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted">LOADING...</div>
       </div>
     );
   }
@@ -122,35 +122,35 @@ export default function PartnersPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Partners&apos; Progress
+          <h1 className="retro-heading text-2xl">
+            👥 PARTNERS&apos; PROGRESS
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="retro-text-muted text-xs uppercase tracking-wider mt-2">
             See how your accountability partners are doing
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => fetchPartners()}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+            className="retro-button text-xs hover-lift"
           >
-            🔄 Refresh
+            🔄 REFRESH
           </button>
-          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <label className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold">
             <input
               type="checkbox"
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="rounded"
+              className="w-4 h-4 border-2 border-[color:var(--border)]"
             />
-            Auto-refresh
+            AUTO-REFRESH
           </label>
         </div>
       </div>
 
       {partners.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <div className="retro-panel p-12 text-center">
+          <p className="retro-text-muted uppercase tracking-wider">
             No partners yet. Connect with others in the Connections tab to see their progress!
           </p>
         </div>
@@ -159,29 +159,29 @@ export default function PartnersPage() {
           {partners.map((partnerData) => (
             <div
               key={partnerData.partner.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+              className="retro-panel p-6 hover-lift"
             >
-              <div className="flex items-center justify-between mb-6 pb-4 border-b dark:border-gray-700">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-[color:var(--border)]">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="retro-heading text-lg">
                     {partnerData.partner.name || "Partner"}
                   </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="retro-text-muted text-xs uppercase tracking-wider">
                     {partnerData.partner.email}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Habits
+                  <p className="retro-text-muted text-xs uppercase tracking-wider">
+                    TOTAL HABITS
                   </p>
-                  <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                  <p className="text-3xl font-black">
                     {partnerData.habits.length}
                   </p>
                 </div>
               </div>
 
               {partnerData.habits.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-400 text-center py-8">
+                <p className="retro-text-muted uppercase tracking-wider text-center py-8">
                   No habits created yet
                 </p>
               ) : (
@@ -193,59 +193,59 @@ export default function PartnersPage() {
                     return (
                       <div
                         key={habit.id}
-                        className={`border-2 rounded-lg p-4 transition ${
+                        className={`retro-panel-flat border-2 p-4 transition hover-lift ${
                           completedToday
-                            ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                            : "border-gray-200 dark:border-gray-700"
+                            ? "border-[color:var(--text)]"
+                            : "border-[color:var(--border)]"
                         }`}
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className="font-bold">
                             {habit.title}
                           </h3>
                           {completedToday && (
-                            <span className="text-green-600 dark:text-green-400 text-xl">
+                            <span className="text-xl">
                               ✓
                             </span>
                           )}
                         </div>
 
                         <div className="space-y-2">
-                          <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">
+                          <span className="retro-tag text-[0.65rem]">
                             {habit.frequency}
                           </span>
 
                           {habit.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="retro-text-muted text-xs uppercase tracking-wide">
                               {habit.description}
                             </p>
                           )}
 
-                          <div className="flex items-center justify-between pt-2">
-                            <div className="text-sm">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Streak:{" "}
+                          <div className="flex items-center justify-between pt-2 border-t border-[color:var(--border)]">
+                            <div className="text-xs">
+                              <span className="retro-text-muted uppercase tracking-wider">
+                                STREAK:{" "}
                               </span>
-                              <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                                {streak} days 🔥
+                              <span className="font-black">
+                                {streak} 🔥
                               </span>
                             </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {habit.completions.length} total
+                            <div className="retro-text-muted text-[0.6rem] uppercase tracking-wider">
+                              {habit.completions.length} TOTAL
                             </div>
                           </div>
 
                           {completedToday ? (
-                            <p className="text-xs text-green-600 dark:text-green-400 font-medium pt-2">
-                              ✨ Completed today!
+                            <p className="retro-tag text-[0.65rem] mt-2">
+                              ✨ DONE TODAY
                             </p>
                           ) : (
                             <button
                               onClick={() => handleSendReminder(partnerData.partner.id, habit.title)}
                               disabled={sendingReminder === partnerData.partner.id}
-                              className="w-full mt-2 px-3 py-1.5 text-xs font-medium bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="w-full mt-2 retro-button-outline text-xs hover-lift disabled:opacity-50"
                             >
-                              {sendingReminder === partnerData.partner.id ? "Sending..." : "🔔 Send Reminder"}
+                              {sendingReminder === partnerData.partner.id ? "⏳ SENDING..." : "🔔 REMIND"}
                             </button>
                           )}
                         </div>

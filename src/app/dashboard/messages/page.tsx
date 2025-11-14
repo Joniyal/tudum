@@ -177,43 +177,43 @@ function MessagesContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted uppercase tracking-widest animate-pulse">Loading...</div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex-shrink-0">
+      <h1 className="retro-heading text-2xl mb-6 flex-shrink-0">
         Messages
       </h1>
 
       {partners.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
+        <div className="retro-panel p-12 text-center">
+          <p className="retro-text-muted uppercase tracking-wider">
             No partners yet. Add connections to start messaging!
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-hidden">
           {/* Partners List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col overflow-hidden">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white p-4 flex-shrink-0">
+          <div className="retro-panel flex flex-col overflow-hidden">
+            <h2 className="retro-subheading text-sm p-4 border-b-2 border-[color:var(--border)] flex-shrink-0">
               Partners
             </h2>
-            <div className="overflow-y-auto flex-1 px-4 pb-4 space-y-2">
+            <div className="overflow-y-auto flex-1 divide-y-2 divide-[color:var(--border)]">
               {partners.map((partner) => (
                 <button
                   key={partner.id}
                   onClick={() => setSelectedPartner(partner)}
-                  className={`w-full text-left p-3 rounded-lg transition ${
+                  className={`w-full text-left p-4 uppercase tracking-wider font-bold text-xs transition-all hover-lift ${
                     selectedPartner?.id === partner.id
-                      ? "bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
+                      ? "bg-[color:var(--text)] text-[color:var(--background)]"
+                      : "hover:bg-[color:var(--surface-alt)]"
                   }`}
                 >
-                  <div className="font-medium">{partner.name || "Partner"}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                  <div className="font-black">{partner.name || "Partner"}</div>
+                  <div className="retro-text-muted text-[0.65rem] truncate mt-1">
                     {partner.email}
                   </div>
                 </button>
@@ -222,12 +222,12 @@ function MessagesContent() {
           </div>
 
           {/* Chat Area */}
-          <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md flex flex-col overflow-hidden">
+          <div className="md:col-span-2 retro-panel flex flex-col overflow-hidden">
             {selectedPartner ? (
               <>
                 {/* Header */}
-                <div className="p-4 border-b dark:border-gray-700 flex-shrink-0">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <div className="p-4 border-b-2 border-[color:var(--border)] flex-shrink-0">
+                  <h3 className="retro-subheading text-sm">
                     {selectedPartner.name || selectedPartner.email}
                   </h3>
                 </div>
@@ -236,7 +236,7 @@ function MessagesContent() {
                 <div 
                   ref={messagesContainerRef}
                   onScroll={handleScroll}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  className="flex-1 overflow-y-auto p-4 space-y-4 bg-[color:var(--surface-alt)]"
                 >
                   {messages.map((message) => {
                     const isOwn = message.fromUserId === session?.user?.id;
@@ -245,29 +245,29 @@ function MessagesContent() {
                         key={message.id}
                         className={`flex ${isOwn ? "justify-end" : "justify-start"} group`}
                       >
-                        <div className="flex flex-col gap-1 max-w-xs md:max-w-md">
+                        <div className="flex flex-col gap-2 max-w-xs md:max-w-md">
                           {/* Reply Quote */}
                           {message.replyTo && (
-                            <div className={`text-xs px-3 py-2 rounded border-l-4 ${
+                            <div className={`text-xs px-3 py-2 border-l-4 border-[color:var(--border)] uppercase tracking-wide ${
                               isOwn
-                                ? "bg-indigo-700 border-indigo-500 text-indigo-100"
-                                : "bg-gray-100 dark:bg-gray-600 border-gray-400 text-gray-600 dark:text-gray-300"
+                                ? "bg-[color:var(--text)] text-[color:var(--background)]"
+                                : "bg-[color:var(--surface)] retro-text-muted"
                             }`}>
-                              <div className="font-semibold">{message.replyTo.fromUser.name || message.replyTo.fromUser.email}</div>
-                              <div className="truncate">{message.replyTo.content}</div>
+                              <div className="font-black">{message.replyTo.fromUser.name || message.replyTo.fromUser.email}</div>
+                              <div className="truncate opacity-75">{message.replyTo.content}</div>
                             </div>
                           )}
                           
                           {/* Main Message */}
                           <div
-                            className={`px-4 py-2 rounded-lg ${
+                            className={`px-4 py-3 border-2 border-[color:var(--border)] font-semibold tracking-wide ${
                               isOwn
-                                ? "bg-indigo-600 text-white"
-                                : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                                ? "bg-[color:var(--text)] text-[color:var(--background)]"
+                                : "bg-[color:var(--surface)]"
                             }`}
                           >
                             <p className="break-words">{message.content}</p>
-                            <p className={`text-xs mt-1 ${isOwn ? "text-indigo-200" : "text-gray-500 dark:text-gray-400"}`}>
+                            <p className={`text-[0.65rem] mt-2 uppercase tracking-widest ${isOwn ? "opacity-60" : "retro-text-muted"}`}>
                               {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                             </p>
                           </div>
@@ -276,7 +276,7 @@ function MessagesContent() {
                           <div className={`flex gap-2 text-xs opacity-0 group-hover:opacity-100 transition ${isOwn ? "justify-end" : "justify-start"}`}>
                             <button
                               onClick={() => setReplyingTo(message)}
-                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800"
+                              className="retro-button-outline px-3 py-1 text-[0.65rem]"
                             >
                               ↩️ Reply
                             </button>
@@ -298,7 +298,7 @@ function MessagesContent() {
                                   alert("Failed to forward message");
                                 }
                               }}
-                              className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-800"
+                              className="retro-button-outline px-3 py-1 text-[0.65rem]"
                             >
                               📤 Forward
                             </button>
@@ -312,14 +312,14 @@ function MessagesContent() {
 
                 {/* Reply Preview */}
                 {replyingTo && (
-                  <div className="px-4 pt-2 pb-0 border-t dark:border-gray-700 bg-blue-50 dark:bg-blue-900/30 flex items-center justify-between">
-                    <div className="text-sm">
-                      <div className="font-semibold text-blue-700 dark:text-blue-300">Replying to {replyingTo.fromUser.name || replyingTo.fromUser.email}</div>
-                      <div className="text-blue-600 dark:text-blue-400 truncate">{replyingTo.content}</div>
+                  <div className="px-4 pt-3 pb-2 border-t-2 border-[color:var(--border)] bg-[color:var(--surface-alt)] flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wide">
+                      <div className="font-black">Replying to {replyingTo.fromUser.name || replyingTo.fromUser.email}</div>
+                      <div className="retro-text-muted truncate text-[0.65rem] mt-1">{replyingTo.content}</div>
                     </div>
                     <button
                       onClick={() => setReplyingTo(null)}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 ml-2"
+                      className="retro-button-outline px-2 py-1 ml-3 text-xs"
                     >
                       ✕
                     </button>
@@ -327,14 +327,14 @@ function MessagesContent() {
                 )}
 
                 {/* Input */}
-                <form onSubmit={handleSendMessage} className="p-4 border-t dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-800">
+                <form onSubmit={handleSendMessage} className="p-4 border-t-2 border-[color:var(--border)] flex-shrink-0">
                     <div className="flex gap-2 items-center">
                     <input
                       type="text"
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                      placeholder="TYPE A MESSAGE..."
+                      className="retro-input flex-1 py-3 text-xs"
                       maxLength={1000}
                       autoComplete="off"
                     />
@@ -342,7 +342,7 @@ function MessagesContent() {
                     <button
                       type="submit"
                       disabled={!newMessage.trim()}
-                      className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="retro-button px-6 py-3 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Send
                     </button>
@@ -350,7 +350,7 @@ function MessagesContent() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-600 dark:text-gray-400">
+              <div className="flex-1 flex items-center justify-center retro-text-muted uppercase tracking-widest text-sm">
                 Select a partner to start messaging
               </div>
             )}

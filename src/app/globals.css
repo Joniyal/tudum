@@ -1,36 +1,93 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
+  color-scheme: dark;
   --background: #000000;
-  --foreground: #ffffff;
+  --surface: #000000;
+  --surface-alt: rgba(255, 255, 255, 0.02);
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.68);
+  --border: #ffffff;
+  --shadow: rgba(255, 255, 255, 0.12);
+  --accent: #ffffff;
+}
+
+html.theme-day {
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: rgba(0, 0, 0, 0.03);
+  --text: #000000;
+  --text-muted: rgba(0, 0, 0, 0.68);
+  --border: #000000;
+  --shadow: rgba(0, 0, 0, 0.12);
+  --accent: #000000;
 }
 
 html {
-  background-color: #000000;
   scroll-behavior: smooth;
 }
 
+html.theme-night {
+  color-scheme: dark;
+}
+
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: 'Courier New', 'Monaco', monospace;
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.03),
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px,
-      transparent 2px
-    );
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  transition: background-color 300ms ease, color 300ms ease;
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, var(--border) 1px, transparent 1px),
+    linear-gradient(0deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: lighten;
+}
+
+.theme-day body::before {
+  mix-blend-mode: multiply;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0px, rgba(0, 0, 0, 0.08) 1px, transparent 1px, transparent 2px);
+  opacity: 0.05;
+}
+
+.theme-day body::after {
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0px, rgba(0, 0, 0, 0.08) 1px, transparent 1px, transparent 2px);
+  opacity: 0.06;
+}
+
+::selection {
+  background: var(--text);
+  color: var(--background);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 @layer base {
   * {
-    transition-property: color, background-color, border-color, box-shadow, transform;
-    transition-duration: 200ms;
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 220ms;
     transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
@@ -39,56 +96,295 @@ body {
   }
 
   button:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     transition: all 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  input:focus, textarea:focus, select:focus {
-    transform: scale(1.01);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
   }
 }
 
 @layer components {
-  /* Retro button styling */
-  .retro-button {
-    padding: 0.75rem 1.5rem;
-    background-color: black;
-    border: 2px solid white;
-    color: white;
-    font-weight: 900;
+  .retro-app {
+    background: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .retro-page {
+    padding: 3rem 1rem;
+    color: var(--text);
+  }
+
+  .retro-container {
+    margin: 0 auto;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  .retro-panel {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    box-shadow: 8px 8px 0 var(--shadow);
+    color: var(--text);
+  }
+
+  .retro-panel-flat {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    color: var(--text);
+  }
+
+  .retro-subtle {
+    background: var(--surface-alt);
+    border: 2px dashed var(--border);
+    color: var(--text);
+  }
+
+  .retro-heading {
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 0.125em;
-    transition: all 200ms ease-out;
-    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .retro-subheading {
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .retro-text-muted {
+    color: var(--text-muted);
+  }
+
+  .retro-link {
+    position: relative;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .retro-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.35rem;
+    width: 100%;
+    height: 2px;
+    background: var(--text);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  .retro-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .retro-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.9rem;
+    background: var(--text);
+    color: var(--background);
+    border: 2px solid var(--border);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 800;
+    box-shadow: 6px 6px 0 var(--shadow);
   }
 
   .retro-button:hover {
-    background-color: white;
-    color: black;
+    background: var(--background);
+    color: var(--text);
   }
 
-  .retro-button:active {
-    transform: scale(0.95);
+  .retro-button-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.9rem;
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 800;
   }
 
-  /* Retro card styling */
-  .retro-card {
-    background-color: black;
-    border: 2px solid white;
-    transition: all 300ms ease-out;
+  .retro-button-outline:hover {
+    background: var(--text);
+    color: var(--background);
   }
 
-  .retro-border {
-    border: 2px solid white;
+  .retro-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .retro-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--text);
+    background: var(--background);
+  }
+
+  .retro-textarea {
+    width: 100%;
+    padding: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    resize: none;
+  }
+
+  .retro-textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--text);
+    background: var(--background);
+  }
+
+  .retro-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.15rem 0.75rem;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  .retro-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    background: var(--text);
+    color: var(--background);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+  }
+
+  .retro-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    background: var(--text);
+    color: var(--background);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .retro-divider {
+    width: 100%;
+    height: 2px;
+    background-image: repeating-linear-gradient(90deg, var(--border), var(--border) 8px, transparent 8px, transparent 16px);
+  }
+
+  .retro-nav {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .retro-nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.4rem;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+  }
+
+  .retro-nav-link:hover {
+    border-color: var(--border);
+    background: var(--surface-alt);
+  }
+
+  .retro-nav-link.is-active {
+    border-color: var(--border);
+    background: var(--background);
+  }
+
+  .retro-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    background: var(--surface);
+  }
+
+  .retro-switch__indicator {
+    position: relative;
+    width: 56px;
+    height: 26px;
+    border: 2px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    background: var(--background);
+    padding: 2px;
+    transition: background 220ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .retro-switch__indicator::after {
+    content: "";
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: var(--text);
+    transform: translateX(0);
+    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), background 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .retro-switch__indicator.is-night::after {
+    transform: translateX(26px);
+  }
+
+  .retro-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid var(--border);
+  }
+
+  .retro-table th,
+  .retro-table td {
+    border: 2px solid var(--border);
+    padding: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
   }
 }
 
 @layer utilities {
-  /* Smooth animations */
   .animate-slide-up {
     animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -117,41 +413,31 @@ body {
     animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* Smooth hover effects */
   .hover-lift {
-    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 0px rgba(255, 255, 255, 0.3);
+    transform: translateY(-6px);
+    box-shadow: 10px 10px 0 var(--shadow);
   }
 
   .hover-glow {
-    transition: box-shadow 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: box-shadow 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .hover-glow:hover {
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.5), inset 0 0 12px rgba(255, 255, 255, 0.1);
-  }
-
-  .smooth-transition {
-    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .smooth-transform {
-    transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 0 2px var(--text), 0 0 24px rgba(255, 255, 255, 0.3);
   }
 
   .animate-shimmer {
-    animation: shimmer 2s infinite;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2.2s linear infinite;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
     background-size: 200% 100%;
   }
 
   .animate-rotate {
-    animation: rotate360 1s linear infinite;
+    animation: rotate360 4s linear infinite;
   }
 
   .animate-pulse {
@@ -163,15 +449,15 @@ body {
   }
 
   .animate-slide-down {
-    animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: slideDown 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-slide-left {
-    animation: slideLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: slideLeft 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .animate-expand {
-    animation: expand 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: expand 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .line-clamp-2 {
@@ -183,7 +469,6 @@ body {
   }
 }
 
-/* Smooth animations - silk-like easing */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -238,7 +523,8 @@ body {
 }
 
 @keyframes bounceSubtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -263,10 +549,10 @@ body {
 
 @keyframes shimmer {
   0% {
-    background-position: -1000px 0;
+    background-position: -200% 0;
   }
   100% {
-    background-position: 1000px 0;
+    background-position: 200% 0;
   }
 }
 
@@ -276,6 +562,62 @@ body {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes expand {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

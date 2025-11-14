@@ -68,45 +68,44 @@ export default function UserProfileModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-black border-4 border-white max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="retro-panel max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-expand"
         onClick={(e) => e.stopPropagation()}
-        style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}
       >
         {loading ? (
           <div className="p-12 text-center">
-            <div className="text-white font-bold uppercase tracking-wide">LOADING PROFILE...</div>
+            <div className="retro-text-muted uppercase tracking-widest animate-pulse">Loading Profile...</div>
           </div>
         ) : error ? (
           <div className="p-12 text-center">
-            <div className="text-white font-bold">{error}</div>
+            <div className="mb-4">{error}</div>
             <button
               onClick={onClose}
-              className="mt-4 px-4 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition"
+              className="retro-button px-4 py-2 text-xs"
             >
-              CLOSE
+              Close
             </button>
           </div>
         ) : profile ? (
           <>
             {/* Header */}
-            <div className="bg-black border-b-4 border-white p-6">
+            <div className="bg-[color:var(--surface-alt)] border-b-4 border-[color:var(--border)] p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="w-20 h-20 bg-white border-2 border-white flex items-center justify-center text-3xl font-black text-black mb-3">
+                  <div className="retro-avatar w-20 h-20 text-3xl mb-3">
                     {(profile.name || profile.username)?.[0]?.toUpperCase()}
                   </div>
-                  <h2 className="text-2xl font-black text-white uppercase tracking-wider">
+                  <h2 className="retro-heading text-xl">
                     {profile.name || profile.username}
                   </h2>
-                  <p className="text-white font-bold uppercase tracking-wide">@{profile.username}</p>
+                  <p className="retro-text-muted text-xs uppercase tracking-wider mt-1">@{profile.username}</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="text-white hover:bg-white hover:text-black text-3xl font-black p-2"
+                  className="hover:bg-[color:var(--surface-alt)] text-2xl font-black p-2"
                 >
                   ✕
                 </button>
@@ -117,78 +116,78 @@ export default function UserProfileModal({
               {/* Bio */}
               {profile.bio && (
                 <div className="mb-6">
-                  <p className="text-white font-bold">{profile.bio}</p>
+                  <p className="text-sm leading-relaxed">{profile.bio}</p>
                 </div>
               )}
 
               {/* Member Since */}
-              <div className="mb-6 text-sm text-white font-bold uppercase tracking-wide">
-                📅 MEMBER SINCE {memberSince.toUpperCase()}
+              <div className="mb-6 retro-text-muted text-xs uppercase tracking-wider">
+                📅 Member Since {memberSince}
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-black border-2 border-white p-4 text-center">
-                  <div className="text-2xl font-black text-white">
+                <div className="retro-panel-flat p-4 text-center">
+                  <div className="text-2xl font-black">
                     {profile.stats.totalHabits}
                   </div>
-                  <div className="text-sm text-white font-bold uppercase">
-                    HABITS
+                  <div className="retro-text-muted text-xs uppercase tracking-wider mt-1">
+                    Habits
                   </div>
                 </div>
-                <div className="bg-black border-2 border-white p-4 text-center">
-                  <div className="text-2xl font-black text-white">
+                <div className="retro-panel-flat p-4 text-center">
+                  <div className="text-2xl font-black">
                     {profile.stats.totalCompletions}
                   </div>
-                  <div className="text-sm text-white font-bold uppercase">
-                    COMPLETIONS
+                  <div className="retro-text-muted text-xs uppercase tracking-wider mt-1">
+                    Completions
                   </div>
                 </div>
-                <div className="bg-black border-2 border-white p-4 text-center">
-                  <div className="text-2xl font-black text-white">
+                <div className="retro-panel-flat p-4 text-center">
+                  <div className="text-2xl font-black">
                     {profile.stats.currentStreak}
                   </div>
-                  <div className="text-sm text-white font-bold uppercase">
-                    CURRENT
+                  <div className="retro-text-muted text-xs uppercase tracking-wider mt-1">
+                    Current
                   </div>
                 </div>
-                <div className="bg-black border-2 border-white p-4 text-center">
-                  <div className="text-2xl font-black text-white">
+                <div className="retro-panel-flat p-4 text-center">
+                  <div className="text-2xl font-black">
                     {profile.stats.longestStreak}
                   </div>
-                  <div className="text-sm text-white font-bold uppercase">
-                    LONGEST
+                  <div className="retro-text-muted text-xs uppercase tracking-wider mt-1">
+                    Longest
                   </div>
                 </div>
               </div>
 
               {/* Current Habits */}
               <div className="mb-6">
-                <h3 className="text-lg font-black text-white mb-3 uppercase tracking-wider">
-                  CURRENT HABITS
+                <h3 className="retro-subheading text-base mb-3">
+                  Current Habits
                 </h3>
                 {profile.habits.length === 0 ? (
-                  <p className="text-white text-sm font-bold">
-                    NO HABITS YET
+                  <p className="retro-text-muted text-xs uppercase tracking-wider">
+                    No habits yet
                   </p>
                 ) : (
                   <div className="space-y-2">
                     {profile.habits.slice(0, 5).map((habit) => (
                       <div
                         key={habit.id}
-                        className="flex items-center justify-between bg-black border-2 border-white p-3"
+                        className="flex items-center justify-between retro-panel-flat p-3"
                       >
-                        <span className="text-white font-bold">
+                        <span className="font-bold text-sm">
                           {habit.title}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-white text-black border-2 border-white font-black uppercase">
+                        <span className="retro-tag text-[0.65rem]">
                           {habit.frequency}
                         </span>
                       </div>
                     ))}
                     {profile.habits.length > 5 && (
-                      <p className="text-sm text-white text-center pt-2 font-bold">
-                        +{profile.habits.length - 5} MORE HABITS
+                      <p className="retro-text-muted text-xs text-center pt-2 uppercase tracking-wider">
+                        +{profile.habits.length - 5} more habits
                       </p>
                     )}
                   </div>
@@ -202,15 +201,15 @@ export default function UserProfileModal({
                     onClose();
                     window.location.href = `/dashboard/messages?partnerId=${userId}`;
                   }}
-                  className="flex-1 px-4 py-3 bg-white text-black font-black uppercase border-2 border-white hover:bg-black hover:text-white hover:border-white transition tracking-wider"
+                  className="retro-button flex-1 text-xs"
                 >
-                  💬 MESSAGE
+                  💬 Message
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-4 py-3 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition tracking-wider"
+                  className="retro-button-outline px-4 py-2 text-xs"
                 >
-                  CLOSE
+                  Close
                 </button>
               </div>
             </div>

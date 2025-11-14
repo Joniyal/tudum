@@ -117,31 +117,31 @@ export default function ConnectionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted">LOADING...</div>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Connections
+      <h1 className="retro-heading text-2xl mb-8">
+        🤝 CONNECTIONS
       </h1>
 
       {/* Send Connection Request */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Add Accountability Partner
+      <div className="retro-panel p-6 mb-8 hover-lift">
+        <h2 className="retro-subheading text-lg mb-4">
+          ADD ACCOUNTABILITY PARTNER
         </h2>
         <form onSubmit={handleSendRequest} className="space-y-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded">
-              {error}
+            <div className="retro-panel-flat p-4 border-2 border-[color:var(--text)]">
+              <p className="retro-text-muted text-xs uppercase tracking-wide">{error}</p>
             </div>
           )}
           {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-4 py-3 rounded">
-              {success}
+            <div className="retro-panel-flat p-4 border-2 border-[color:var(--text)]">
+              <p className="text-xs uppercase tracking-wide font-bold">✓ {success}</p>
             </div>
           )}
 
@@ -151,14 +151,14 @@ export default function ConnectionsPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-              placeholder="Enter partner's email"
+              className="flex-1 retro-input"
+              placeholder="partner@email.com"
             />
             <button
               type="submit"
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+              className="retro-button hover-lift"
             >
-              Send Request
+              ➤ SEND
             </button>
           </div>
         </form>
@@ -167,8 +167,8 @@ export default function ConnectionsPage() {
       {/* Pending Requests */}
       {pendingRequests.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Pending Requests
+          <h2 className="retro-subheading text-lg mb-4">
+            ⏳ PENDING REQUESTS
           </h2>
           <div className="space-y-3">
             {pendingRequests.map((connection) => {
@@ -183,17 +183,17 @@ export default function ConnectionsPage() {
               return (
                 <div
                   key={connection.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex items-center justify-between"
+                  className="retro-panel p-4 flex items-center justify-between hover-lift"
                 >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className="font-bold">
                       {otherUser.name || otherUser.email}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="retro-text-muted text-xs uppercase tracking-wider">
                       {otherUser.email}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      {isReceived ? "Received" : "Sent"}
+                    <p className="retro-tag text-[0.6rem] mt-2">
+                      {isReceived ? "← RECEIVED" : "→ SENT"}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -201,23 +201,23 @@ export default function ConnectionsPage() {
                       <>
                         <button
                           onClick={() => handleAcceptRequest(connection.id)}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
+                          className="retro-button text-xs px-3 py-2 hover-lift"
                         >
-                          Accept
+                          ✓ ACCEPT
                         </button>
                         <button
                           onClick={() => handleRejectRequest(connection.id)}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition"
+                          className="retro-button-outline text-xs px-3 py-2 hover-lift"
                         >
-                          Reject
+                          ✕ REJECT
                         </button>
                       </>
                     ) : (
                       <button
                         onClick={() => handleDeleteConnection(connection.id)}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg transition"
+                        className="retro-button-outline text-xs px-3 py-2 hover-lift"
                       >
-                        Cancel
+                        ✕ CANCEL
                       </button>
                     )}
                   </div>
@@ -230,12 +230,12 @@ export default function ConnectionsPage() {
 
       {/* Accepted Connections */}
       <div>
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          My Partners ({acceptedConnections.length})
+        <h2 className="retro-subheading text-lg mb-4">
+          👥 MY PARTNERS <span className="retro-badge text-xs ml-2">{acceptedConnections.length}</span>
         </h2>
         {acceptedConnections.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="retro-panel p-12 text-center">
+            <p className="retro-text-muted uppercase tracking-wider text-sm">
               No active connections yet. Send a request to add your first accountability partner!
             </p>
           </div>
@@ -250,26 +250,26 @@ export default function ConnectionsPage() {
               return (
                 <div
                   key={connection.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+                  className="retro-panel p-6 hover-lift"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                      <h3 className="font-bold">
                         {otherUser.name || "Partner"}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="retro-text-muted text-xs uppercase tracking-wider">
                         {otherUser.email}
                       </p>
                     </div>
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded">
-                      Connected
+                    <span className="retro-tag text-[0.65rem]">
+                      ✓ ACTIVE
                     </span>
                   </div>
                   <button
                     onClick={() => handleDeleteConnection(connection.id)}
-                    className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition"
+                    className="w-full retro-button-outline text-xs hover-lift"
                   >
-                    Remove Connection
+                    ✕ REMOVE
                   </button>
                 </div>
               );

@@ -363,47 +363,47 @@ export default function UnifiedPartnersPage() {
   };
 
   return (
-    <div className="font-mono">
-      <h1 className="text-3xl font-black text-white mb-6 uppercase tracking-wider">
-        SOCIAL HUB
+    <div>
+      <h1 className="retro-heading text-2xl mb-6">
+        Social Hub
       </h1>
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 mb-8 border-b-2 border-white">
+      <div className="flex gap-2 mb-8 border-b-2 border-[color:var(--border)]">
         <button
           onClick={() => setActiveTab("discover")}
-          className={`px-6 py-3 font-black uppercase tracking-wider transition-all border-b-4 ${
+          className={`px-6 py-3 retro-subheading text-xs transition-all border-b-4 ${
             activeTab === "discover"
-              ? "border-white bg-white text-black"
-              : "border-transparent text-white hover:bg-white hover:text-black"
+              ? "border-[color:var(--border)] bg-[color:var(--text)] text-[color:var(--background)]"
+              : "border-transparent hover:bg-[color:var(--surface-alt)]"
           }`}
         >
-          DISCOVER
+          Discover
         </button>
         <button
           onClick={() => setActiveTab("requests")}
-          className={`px-6 py-3 font-black uppercase tracking-wider transition-all border-b-4 relative ${
+          className={`px-6 py-3 retro-subheading text-xs transition-all border-b-4 relative ${
             activeTab === "requests"
-              ? "border-white bg-white text-black"
-              : "border-transparent text-white hover:bg-white hover:text-black"
+              ? "border-[color:var(--border)] bg-[color:var(--text)] text-[color:var(--background)]"
+              : "border-transparent hover:bg-[color:var(--surface-alt)]"
           }`}
         >
-          REQUESTS
+          Requests
           {(pendingConnections.length > 0 || pendingHabitShares.length > 0) && (
-            <span className="absolute -top-1 -right-1 bg-white text-black text-xs font-black rounded-none h-5 w-5 flex items-center justify-center border-2 border-white">
+            <span className="absolute -top-1 -right-1 retro-badge">
               {pendingConnections.length + pendingHabitShares.length}
             </span>
           )}
         </button>
         <button
           onClick={() => setActiveTab("partners")}
-          className={`px-6 py-3 font-black uppercase tracking-wider transition-all border-b-4 ${
+          className={`px-6 py-3 retro-subheading text-xs transition-all border-b-4 ${
             activeTab === "partners"
-              ? "border-white bg-white text-black"
-              : "border-transparent text-white hover:bg-white hover:text-black"
+              ? "border-[color:var(--border)] bg-[color:var(--text)] text-[color:var(--background)]"
+              : "border-transparent hover:bg-[color:var(--surface-alt)]"
           }`}
         >
-          PARTNERS
+          Partners
         </button>
       </div>
 
@@ -416,10 +416,10 @@ export default function UnifiedPartnersPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="SEARCH BY USERNAME OR NAME"
-              className="w-full px-4 py-3 border-2 border-white bg-black text-white font-bold placeholder-gray-500 focus:outline-none uppercase"
+              className="retro-input text-xs"
             />
             {searchQuery.length > 0 && searchQuery.length < 2 && (
-              <p className="mt-2 text-sm text-white font-bold uppercase">
+              <p className="mt-2 retro-text-muted text-xs uppercase tracking-wider">
                 TYPE AT LEAST 2 CHARACTERS TO SEARCH
               </p>
             )}
@@ -427,13 +427,13 @@ export default function UnifiedPartnersPage() {
 
           {searchLoading && (
             <div className="text-center py-8">
-              <div className="text-white font-bold uppercase">SEARCHING...</div>
+              <div className="retro-text-muted uppercase tracking-widest animate-pulse">SEARCHING...</div>
             </div>
           )}
 
           {searchResults.length === 0 && !searchLoading && searchQuery.length >= 2 && (
             <div className="text-center py-8">
-              <div className="text-white font-bold uppercase">NO USERS FOUND</div>
+              <div className="retro-text-muted uppercase tracking-widest">NO USERS FOUND</div>
             </div>
           )}
 
@@ -444,26 +444,25 @@ export default function UnifiedPartnersPage() {
                 return (
                   <div
                     key={user.id}
-                    className="bg-black border-2 border-white p-6 flex flex-col"
-                    style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
+                    className="retro-panel p-6 flex flex-col hover-lift"
                   >
                     <div className="flex-1">
                       <div className="mb-4">
                         <button
                           onClick={() => handleUserClick(user)}
-                          className="text-lg font-black text-white hover:underline break-words text-left uppercase tracking-wider"
+                          className="retro-heading text-base hover:underline break-words text-left"
                         >
                           @{user.username}
                         </button>
                         {user.name && (
-                          <p className="text-sm text-white font-bold uppercase">
+                          <p className="retro-text-muted text-xs uppercase tracking-wide mt-1">
                             {user.name}
                           </p>
                         )}
                       </div>
 
                       {user.bio && (
-                        <p className="text-sm text-white font-bold mb-4 break-words opacity-80">
+                        <p className="text-sm mb-4 break-words leading-relaxed">
                           {user.bio}
                         </p>
                       )}
@@ -472,19 +471,15 @@ export default function UnifiedPartnersPage() {
                     <button
                       onClick={() => handleAddConnection(user.id)}
                       disabled={status !== "none"}
-                      className={`w-full px-4 py-2 font-black uppercase tracking-wider transition-all border-2 ${
-                        status === "none"
-                          ? "bg-white text-black border-white hover:bg-black hover:text-white"
-                          : status === "pending"
-                          ? "bg-black text-white border-white opacity-50 cursor-not-allowed"
-                          : "bg-black text-white border-white opacity-50 cursor-not-allowed"
+                      className={`retro-button w-full text-xs ${
+                        status !== "none" ? "opacity-50 cursor-not-allowed" : ""
                       }`}
                     >
                       {status === "none"
-                        ? "ADD CONNECTION"
+                        ? "Add Connection"
                         : status === "pending"
-                        ? "PENDING"
-                        : "CONNECTED"}
+                        ? "Pending"
+                        : "Connected"}
                     </button>
                   </div>
                 );
@@ -493,8 +488,8 @@ export default function UnifiedPartnersPage() {
           )}
 
           {searchQuery.length === 0 && (
-            <div className="bg-black border-2 border-white p-8 text-center">
-              <p className="text-white font-bold uppercase">
+            <div className="retro-panel p-8 text-center">
+              <p className="retro-text-muted uppercase tracking-wider">
                 START TYPING TO SEARCH FOR USERS TO CONNECT WITH!
               </p>
             </div>
@@ -507,18 +502,18 @@ export default function UnifiedPartnersPage() {
         <div>
           {requestsLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="text-white font-bold uppercase">LOADING...</div>
+              <div className="retro-text-muted uppercase tracking-widest animate-pulse">LOADING...</div>
             </div>
           ) : (
             <div className="space-y-8">
               {/* Connection Requests */}
               <div>
-                <h2 className="text-xl font-black text-white mb-4 uppercase tracking-wider">
-                  CONNECTION REQUESTS
+                <h2 className="retro-subheading text-base mb-4">
+                  Connection Requests
                 </h2>
                 {pendingConnections.length === 0 ? (
-                  <div className="bg-black border-2 border-white p-8 text-center">
-                    <p className="text-white font-bold uppercase">
+                  <div className="retro-panel p-8 text-center">
+                    <p className="retro-text-muted uppercase tracking-wider">
                       NO PENDING CONNECTION REQUESTS
                     </p>
                   </div>
@@ -527,17 +522,16 @@ export default function UnifiedPartnersPage() {
                     {pendingConnections.map((request) => (
                       <div
                         key={request.id}
-                        className="bg-black border-2 border-white p-6 flex items-center justify-between"
-                        style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
+                        className="retro-panel p-6 flex items-center justify-between hover-lift"
                       >
                         <div className="flex-1">
                           <button
                             onClick={() => handleUserClick(request.fromUser)}
-                            className="text-lg font-black text-white hover:underline text-left uppercase tracking-wider"
+                            className="retro-heading text-base hover:underline text-left"
                           >
                             {request.fromUser.name || request.fromUser.email}
                           </button>
-                          <p className="text-sm text-white font-bold uppercase">
+                          <p className="retro-text-muted text-xs uppercase tracking-wide mt-1">
                             {request.fromUser.email}
                           </p>
                         </div>
@@ -545,15 +539,15 @@ export default function UnifiedPartnersPage() {
                         <div className="flex gap-3">
                           <button
                             onClick={() => handleAcceptConnection(request.id)}
-                            className="px-4 py-2 bg-white text-black font-black border-2 border-white hover:bg-black hover:text-white uppercase tracking-wider transition-all"
+                            className="retro-button px-4 py-2 text-xs"
                           >
-                            ACCEPT
+                            Accept
                           </button>
                           <button
                             onClick={() => handleRejectConnection(request.id)}
-                            className="px-4 py-2 bg-black text-white font-black border-2 border-white hover:bg-white hover:text-black uppercase tracking-wider transition-all"
+                            className="retro-button-outline px-4 py-2 text-xs"
                           >
-                            REJECT
+                            Reject
                           </button>
                         </div>
                       </div>
@@ -564,12 +558,12 @@ export default function UnifiedPartnersPage() {
 
               {/* Habit Share Invitations */}
               <div>
-                <h2 className="text-xl font-black text-white mb-4 uppercase tracking-wider">
-                  HABIT INVITATIONS
+                <h2 className="retro-subheading text-base mb-4">
+                  Habit Invitations
                 </h2>
                 {pendingHabitShares.length === 0 ? (
-                  <div className="bg-black border-2 border-white p-8 text-center">
-                    <p className="text-white font-bold uppercase">
+                  <div className="retro-panel p-8 text-center">
+                    <p className="retro-text-muted uppercase tracking-wider">
                       NO PENDING HABIT INVITATIONS
                     </p>
                   </div>
@@ -578,38 +572,37 @@ export default function UnifiedPartnersPage() {
                     {pendingHabitShares.map((share) => (
                       <div
                         key={share.id}
-                        className="bg-black border-2 border-white p-6"
-                        style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
+                        className="retro-panel p-6 hover-lift"
                       >
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <button
                               onClick={() => handleUserClick(share.fromUser)}
-                              className="text-sm text-white font-black hover:underline uppercase tracking-wider"
+                              className="retro-subheading text-sm hover:underline"
                             >
                               {share.fromUser.name || share.fromUser.email}
                             </button>
-                            <p className="text-xs text-white font-bold uppercase">
+                            <p className="retro-text-muted text-[0.65rem] uppercase tracking-wider mt-1">
                               WANTS TO SHARE A HABIT WITH YOU
                             </p>
                           </div>
-                          <span className="px-2 py-1 text-xs font-black bg-white text-black border-2 border-white uppercase tracking-wider">
+                          <span className="retro-tag text-[0.65rem]">
                             {share.habit.frequency}
                           </span>
                         </div>
 
-                        <h3 className="text-lg font-black text-white mb-2 uppercase tracking-wider">
+                        <h3 className="retro-heading text-base mb-2">
                           {share.habit.title}
                         </h3>
                         
                         {share.habit.description && (
-                          <p className="text-sm text-white font-bold mb-3 opacity-80">
+                          <p className="text-sm mb-3 leading-relaxed">
                             {share.habit.description}
                           </p>
                         )}
 
                         {share.message && (
-                          <p className="text-sm italic text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-3 rounded mb-4">
+                          <p className="text-xs retro-text-muted italic border-l-4 border-[color:var(--border)] pl-3 py-2 mb-4">
                             &ldquo;{share.message}&rdquo;
                           </p>
                         )}
@@ -617,13 +610,13 @@ export default function UnifiedPartnersPage() {
                         <div className="flex gap-3">
                           <button
                             onClick={() => handleAcceptHabitShare(share.id)}
-                            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
+                            className="retro-button flex-1 text-xs"
                           >
                             ✓ Accept & Add to My Habits
                           </button>
                           <button
                             onClick={() => handleRejectHabitShare(share.id)}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition"
+                            className="retro-button-outline px-4 py-2 text-xs"
                           >
                             ✕ Decline
                           </button>
@@ -642,22 +635,22 @@ export default function UnifiedPartnersPage() {
       {activeTab === "partners" && (
         <div>
           <div className="flex justify-between items-center mb-6">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="retro-text-muted text-xs uppercase tracking-wider">
               See how your accountability partners are doing
             </p>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => fetchPartners()}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+                className="retro-button-outline px-4 py-2 text-xs"
               >
                 🔄 Refresh
               </button>
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <label className="flex items-center gap-2 text-xs uppercase tracking-wide font-bold">
                 <input
                   type="checkbox"
                   checked={autoRefresh}
                   onChange={(e) => setAutoRefresh(e.target.checked)}
-                  className="rounded"
+                  className="border-2 border-[color:var(--border)]"
                 />
                 Auto-refresh
               </label>
@@ -666,11 +659,11 @@ export default function UnifiedPartnersPage() {
 
           {partnersLoading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+              <div className="retro-text-muted uppercase tracking-widest animate-pulse">Loading...</div>
             </div>
           ) : partners.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <div className="retro-panel p-12 text-center">
+              <p className="retro-text-muted uppercase tracking-wider mb-4">
                 No partners yet. Connect with others in the Discover tab!
               </p>
             </div>
@@ -679,40 +672,40 @@ export default function UnifiedPartnersPage() {
               {partners.map((partnerData) => (
                 <div
                   key={partnerData.partner.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer"
+                  className="retro-panel p-6 hover-lift cursor-pointer"
                   onClick={() => handleUserClick(partnerData.partner)}
                 >
                   <div className="flex items-center justify-center mb-4">
-                    <div className="w-20 h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    <div className="retro-avatar w-20 h-20 text-3xl">
                       {(partnerData.partner.name || "P")[0].toUpperCase()}
                     </div>
                   </div>
                   
                   <div className="text-center">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    <h3 className="retro-heading text-lg mb-4">
                       {partnerData.partner.name || "Partner"}
                     </h3>
                     
                     <div className="grid grid-cols-2 gap-3 mt-4">
-                      <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                      <div className="retro-panel-flat p-3">
+                        <p className="text-2xl font-black">
                           {partnerData.habits.length}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="retro-text-muted text-[0.65rem] uppercase tracking-wider mt-1">
                           Habits
                         </p>
                       </div>
-                      <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3">
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      <div className="retro-panel-flat p-3">
+                        <p className="text-2xl font-black">
                           {partnerData.habits.reduce((acc, h) => acc + h.completions.length, 0)}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="retro-text-muted text-[0.65rem] uppercase tracking-wider mt-1">
                           Total
                         </p>
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                    <p className="retro-text-muted text-xs uppercase tracking-wider mt-4">
                       Click to view profile
                     </p>
                   </div>

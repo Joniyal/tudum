@@ -35,13 +35,13 @@ export default function BulkActionsToolbar({
 
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-black border-4 border-white text-white px-6 py-4 flex items-center gap-4 shadow-lg" style={{boxShadow: '8px 8px 0px rgba(255,255,255,0.3)'}}>
+      <div className="retro-panel px-6 py-4 flex items-center gap-4">
         {/* Selection Info */}
-        <div className="flex items-center gap-2 border-r-2 border-white pr-4">
-          <div className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center font-black text-lg">
+        <div className="flex items-center gap-2 border-r-2 border-[color:var(--border)] pr-4">
+          <div className="retro-badge w-8 h-8 text-base">
             {selectedCount}
           </div>
-          <span className="font-black uppercase tracking-wide">SELECTED</span>
+          <span className="retro-subheading text-xs">Selected</span>
         </div>
 
         {/* Actions */}
@@ -49,28 +49,28 @@ export default function BulkActionsToolbar({
           {/* Select All/None */}
           <button
             onClick={selectedCount === totalCount ? onDeselectAll : onSelectAll}
-            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+            className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title={selectedCount === totalCount ? "Deselect All" : "Select All"}
           >
-            {selectedCount === totalCount ? "✕ CLEAR" : "✓ ALL"}
+            {selectedCount === totalCount ? "✕ Clear" : "✓ All"}
           </button>
 
           {/* Mark Complete */}
           <button
             onClick={onComplete}
-            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+            className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title="Mark all selected as complete"
           >
-            ✓ COMPLETE
+            ✓ Complete
           </button>
 
           {/* Create Collection */}
           <button
             onClick={onCreateCollection}
-            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+            className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title="Create collection from selected"
           >
-            📁 GROUP
+            📁 Group
           </button>
 
           {/* Add to Collection */}
@@ -78,13 +78,13 @@ export default function BulkActionsToolbar({
             <div className="relative">
               <button
                 onClick={() => setShowCollectionMenu(!showCollectionMenu)}
-                className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+                className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
                 title="Add to existing collection"
               >
-                ➕ ADD TO
+                ➕ Add To
               </button>
               {showCollectionMenu && (
-                <div className="absolute bottom-full mb-2 left-0 bg-black border-2 border-white py-0 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute bottom-full mb-2 left-0 retro-panel py-0 min-w-[200px] max-h-[300px] overflow-y-auto">
                   {collections.map((collection) => (
                     <button
                       key={collection.id}
@@ -92,11 +92,10 @@ export default function BulkActionsToolbar({
                         onAddToCollection();
                         setShowCollectionMenu(false);
                       }}
-                      className="w-full px-4 py-2 text-left hover:bg-white hover:text-black text-white font-bold uppercase text-sm flex items-center gap-2 border-b border-white last:border-b-0"
+                      className="w-full px-4 py-2 text-left hover:bg-[color:var(--text)] hover:text-[color:var(--background)] font-bold uppercase text-xs flex items-center gap-2 border-b border-[color:var(--border)] last:border-b-0"
                     >
                       <div
-                        className="w-3 h-3 border border-white"
-                        style={{ backgroundColor: collection.color }}
+                        className="w-3 h-3 border border-[color:var(--border)] opacity-30"
                       />
                       {collection.name}
                     </button>
@@ -109,19 +108,19 @@ export default function BulkActionsToolbar({
           {/* Archive */}
           <button
             onClick={onArchive}
-            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+            className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title="Archive selected habits"
           >
-            📦 ARCHIVE
+            📦 Archive
           </button>
 
           {/* Delete */}
           <button
             onClick={onDelete}
-            className="px-3 py-2 bg-black border-2 border-white text-white font-black uppercase hover:bg-white hover:text-black transition text-sm flex items-center gap-2"
+            className="retro-button px-3 py-2 text-xs flex items-center gap-2"
             title="Delete selected habits permanently"
           >
-            🗑️ DELETE
+            🗑️ Delete
           </button>
         </div>
       </div>

@@ -67,25 +67,18 @@ export default function EnhancedHabitCard({
     }, 1000);
   };
 
-  const frequencyColors = {
-    DAILY: "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
-    WEEKLY: "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
-    MONTHLY: "bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300",
-  };
-
   return (
     <div
       data-habit-card="true"
       data-habit-card-id={habit.id}
-      className="retro-card group relative bg-black border-2 border-white hover-lift animate-fade-in hover:shadow-lg hover:shadow-white/30"
-      style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}
+      className="retro-panel group relative hover-lift animate-fade-in"
     >
       {/* Collection Badge */}
       {habit.collection && (
         <div
-          className="absolute top-0 left-0 right-0 h-2 z-10"
+          className="absolute top-0 left-0 right-0 h-2 z-10 opacity-20"
           style={{
-            background: `linear-gradient(90deg, ${habit.collection.color} 0%, ${habit.collection.color}dd 100%)`,
+            background: `repeating-linear-gradient(90deg, var(--border), var(--border) 8px, transparent 8px, transparent 16px)`,
           }}
         />
       )}
@@ -101,19 +94,18 @@ export default function EnhancedHabitCard({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => onSelect(habit.id)}
-                  className="w-5 h-5 bg-black border-2 border-white cursor-pointer"
-                  style={{accentColor: '#ffffff'}}
+                  className="w-5 h-5 border-2 border-[color:var(--border)] cursor-pointer"
                 />
               </div>
             )}
 
             <div className="flex-1 min-w-0">
               {/* Title */}
-              <h3 className="text-lg font-black text-white uppercase tracking-wide mb-1">
+              <h3 className="retro-heading text-base mb-2">
                 {habit.title}
               </h3>
               {habit.reminderTime && (
-                <span className="text-xs bg-white text-black px-2 py-1 font-bold uppercase inline-block">
+                <span className="retro-tag text-[0.65rem] inline-block">
                   ⏰ {(() => {
                     const [h, m] = habit.reminderTime.split(":").map(Number);
                     const hour = h % 12 || 12;
@@ -139,25 +131,25 @@ export default function EnhancedHabitCard({
 
         {/* Description */}
         {habit.description && (
-          <p className="text-sm text-white mb-4 line-clamp-2 uppercase font-bold tracking-wide">
+          <p className="retro-text-muted text-xs mb-4 line-clamp-2 uppercase tracking-wide">
             {habit.description}
           </p>
         )}
 
         {/* Stats & Action */}
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b-2 border-[color:var(--border)]">
           {/* Streak */}
           <div className="flex items-center gap-3">
             <div className="text-sm">
-              <span className="text-white font-bold uppercase">Streak: </span>
-              <span className="font-black text-white text-lg">
+              <span className="retro-text-muted font-bold uppercase tracking-wide">Streak: </span>
+              <span className="font-black text-lg">
                 {streak}
               </span>
               {streak > 0 && <span className="ml-2">🔥</span>}
             </div>
 
             {/* Total Completions */}
-            <div className="text-xs text-white font-bold uppercase border-l-2 border-white pl-3">
+            <div className="retro-text-muted text-xs font-bold uppercase border-l-2 border-[color:var(--border)] pl-3">
               {habit.completions.length} TOTAL
             </div>
           </div>
@@ -168,10 +160,10 @@ export default function EnhancedHabitCard({
           <button
             onClick={handleComplete}
             disabled={completedToday}
-            className={`w-full py-3 px-4 font-black uppercase tracking-wider border-2 smooth-transition ${
+            className={`retro-button w-full text-xs ${
               completedToday
-                ? "bg-black border-white text-white opacity-50 cursor-default"
-                : "bg-black border-white text-white hover:bg-white hover:text-black active:scale-95"
+                ? "opacity-50 cursor-default"
+                : ""
             }`}
           >
             {completedToday ? "✓ DONE TODAY" : "✓ MARK COMPLETE"}
@@ -181,7 +173,7 @@ export default function EnhancedHabitCard({
 
       {/* Completion Celebration Overlay */}
       {isAnimating && (
-        <div className="absolute inset-0 bg-white/10 pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 bg-[color:var(--surface-alt)] pointer-events-none flex items-center justify-center">
           <div className="text-6xl animate-ping-once">✨</div>
         </div>
       )}

@@ -83,20 +83,20 @@ export default function RequestsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="retro-text-muted">LOADING...</div>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Friend Requests
+      <h1 className="retro-heading text-2xl mb-8">
+        📨 FRIEND REQUESTS
       </h1>
 
       {pendingRequests.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400">
+        <div className="retro-panel p-12 text-center">
+          <p className="retro-text-muted uppercase tracking-wider">
             No pending friend requests
           </p>
         </div>
@@ -105,13 +105,13 @@ export default function RequestsPage() {
           {pendingRequests.map((request) => (
             <div
               key={request.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center justify-between"
+              className="retro-panel p-6 flex items-center justify-between hover-lift"
             >
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="font-bold text-lg">
                   {request.fromUser.name || request.fromUser.email}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="retro-text-muted text-xs uppercase tracking-wider">
                   {request.fromUser.email}
                 </p>
               </div>
@@ -119,15 +119,15 @@ export default function RequestsPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => handleAcceptRequest(request.id)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition"
+                  className="retro-button text-xs px-4 py-2 hover-lift"
                 >
-                  ✓ Accept
+                  ✓ ACCEPT
                 </button>
                 <button
                   onClick={() => handleRejectRequest(request.id)}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition"
+                  className="retro-button-outline text-xs px-4 py-2 hover-lift"
                 >
-                  ✕ Reject
+                  ✕ REJECT
                 </button>
               </div>
             </div>

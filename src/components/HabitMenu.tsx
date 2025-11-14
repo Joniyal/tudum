@@ -39,15 +39,15 @@ export default function HabitMenu({ habitId, onEdit, onDelete, onArchive, isArch
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className="p-2 bg-black border-2 border-white text-white font-bold hover:bg-white hover:text-black transition"
+        className="p-2 hover:bg-[color:var(--surface-alt)] transition-all"
         aria-label="Habit options"
       >
-        ⋯
+        <span className="text-xl font-black">⋯</span>
       </button>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-black border-2 border-white z-10">
+        <div className="absolute right-0 mt-2 w-48 retro-panel z-10 animate-slide-down">
           <div className="py-0">
             <button
               onClick={(e) => {
@@ -55,10 +55,10 @@ export default function HabitMenu({ habitId, onEdit, onDelete, onArchive, isArch
                 setIsOpen(false);
                 onEdit();
               }}
-              className="w-full px-4 py-3 text-left text-sm text-white font-bold uppercase hover:bg-white hover:text-black flex items-center space-x-2 border-b border-white"
+              className="w-full px-4 py-3 text-left text-xs font-bold uppercase hover:bg-[color:var(--text)] hover:text-[color:var(--background)] flex items-center gap-2 border-b-2 border-[color:var(--border)]"
             >
-              ✏️
-              <span>EDIT</span>
+              <span>✏️</span>
+              <span>Edit</span>
             </button>
 
             {onArchive && (
@@ -68,17 +68,17 @@ export default function HabitMenu({ habitId, onEdit, onDelete, onArchive, isArch
                   setIsOpen(false);
                   onArchive();
                 }}
-                className="w-full px-4 py-3 text-left text-sm text-white font-bold uppercase hover:bg-white hover:text-black flex items-center space-x-2 border-b border-white"
+                className="w-full px-4 py-3 text-left text-xs font-bold uppercase hover:bg-[color:var(--text)] hover:text-[color:var(--background)] flex items-center gap-2 border-b-2 border-[color:var(--border)]"
               >
                 {isArchived ? (
                   <>
-                    📂
-                    <span>UNARCHIVE</span>
+                    <span>📂</span>
+                    <span>Unarchive</span>
                   </>
                 ) : (
                   <>
-                    📦
-                    <span>ARCHIVE</span>
+                    <span>📦</span>
+                    <span>Archive</span>
                   </>
                 )}
               </button>
@@ -90,10 +90,10 @@ export default function HabitMenu({ habitId, onEdit, onDelete, onArchive, isArch
                 setIsOpen(false);
                 onDelete();
               }}
-              className="w-full px-4 py-3 text-left text-sm text-white font-bold uppercase hover:bg-white hover:text-black flex items-center space-x-2"
+              className="w-full px-4 py-3 text-left text-xs font-bold uppercase hover:bg-[color:var(--text)] hover:text-[color:var(--background)] flex items-center gap-2"
             >
-              🗑️
-              <span>DELETE</span>
+              <span>🗑️</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>
