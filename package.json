@@ -1,6 +1,7 @@
 {
   "name": "tudum",
   "version": "0.1.0",
+  "description": "Retro collaborative habit tracker — share habits with partners and track progress in real time.",
   "private": true,
   "scripts": {
     "dev": "next dev",
