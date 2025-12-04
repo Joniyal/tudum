@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ClockIcon } from "./Icons";
 
 type Habit = {
   id: string;
@@ -125,10 +126,10 @@ export default function TimetableHabitCarousel({
     return (
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span className="text-2xl">📅</span>
-            Today&apos;s Schedule
-          </h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <ClockIcon className="w-6 h-6" />
+          Today&apos;s Schedule
+        </h2>
           <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
             --:-- --
           </div>
@@ -278,8 +279,8 @@ export default function TimetableHabitCarousel({
                     ✓ Mark Complete
                   </button>
                 ) : (
-                  <div className="w-full bg-gray-500/20 border-2 border-gray-400/50 text-gray-100 font-semibold py-3 px-6 rounded-xl text-center">
-                    ⏰ Time window has passed
+                  <div className="w-full bg-gray-500/20 border-2 border-gray-400/50 text-gray-100 font-semibold py-3 px-6 rounded-xl text-center flex items-center justify-center gap-2">
+                    <ClockIcon className="w-4 h-4" /> Time window has passed
                   </div>
                 )}
                 {currentHabit.alarmDuration && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FolderIcon, StarIcon, TargetIcon, DumbbellIcon, BrainIcon, HeartIcon, FireIcon, SparklesIcon, PaletteIcon } from "./Icons";
 
 type CreateCollectionModalProps = {
   selectedHabitIds: string[];
@@ -27,7 +28,18 @@ const PRESET_COLORS = [
   "#84cc16", // Lime
 ];
 
-const PRESET_ICONS = ["📁", "⭐", "🎯", "💪", "🧠", "❤️", "🌟", "🔥", "✨", "🎨"];
+const PRESET_ICONS = [
+  { id: "folder", icon: <FolderIcon className="w-5 h-5" /> },
+  { id: "star", icon: <StarIcon className="w-5 h-5" /> },
+  { id: "target", icon: <TargetIcon className="w-5 h-5" /> },
+  { id: "health", icon: <DumbbellIcon className="w-5 h-5" /> },
+  { id: "brain", icon: <BrainIcon className="w-5 h-5" /> },
+  { id: "heart", icon: <HeartIcon className="w-5 h-5" /> },
+  { id: "star-2", icon: <StarIcon className="w-5 h-5" /> },
+  { id: "fire", icon: <FireIcon className="w-5 h-5" /> },
+  { id: "sparkles", icon: <SparklesIcon className="w-5 h-5" /> },
+  { id: "palette", icon: <PaletteIcon className="w-5 h-5" /> },
+];
 
 const DAYS = [
   "All Days",
@@ -49,7 +61,7 @@ export default function CreateCollectionModal({
     name: "",
     description: "",
     color: PRESET_COLORS[0],
-    icon: PRESET_ICONS[0],
+    icon: PRESET_ICONS[0].id,
     dayOfWeek: null as string | null,
   });
 
@@ -116,18 +128,18 @@ export default function CreateCollectionModal({
               CHOOSE ICON
             </label>
             <div className="grid grid-cols-10 gap-2">
-              {PRESET_ICONS.map((icon) => (
+              {PRESET_ICONS.map(({ id, icon }) => (
                 <button
-                  key={icon}
+                  key={id}
                   type="button"
-                  onClick={() => setFormData({ ...formData, icon })}
-                  className={`text-2xl p-2 border-2 transition-all ${
-                    formData.icon === icon
+                  onClick={() => setFormData({ ...formData, icon: id })}
+                  className={`p-2 border-2 transition-all flex items-center justify-center ${
+                    formData.icon === id
                       ? "border-white bg-white"
                       : "border-white hover:bg-white/10"
                   }`}
                 >
-                  {icon}
+                  <span className="text-sm text-[color:var(--text)]">{icon}</span>
                 </button>
               ))}
             </div>
@@ -190,7 +202,9 @@ export default function CreateCollectionModal({
               style={{ backgroundColor: formData.color, borderColor: 'white' }}
             >
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{formData.icon}</span>
+                <span className="text-3xl">
+                  {PRESET_ICONS.find((p) => p.id === formData.icon)?.icon}
+                </span>
                 <div>
                   <h3 className="font-black text-lg uppercase tracking-wider">
                     {formData.name || "COLLECTION NAME"}

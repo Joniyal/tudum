@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { DumbbellIcon, BriefcaseIcon, LotusIcon, UsersIcon, PaletteIcon, BookIcon, ClockIcon } from "../components/Icons";
 
 type TimeSlot = {
   id: string;
@@ -17,12 +18,12 @@ type TimetableBuilderProps = {
 };
 
 const CATEGORIES = [
-  { id: "health", label: "Health & Fitness", color: "retro-panel-flat", icon: "💪" },
-  { id: "work", label: "Work & Study", color: "retro-panel-flat", icon: "💼" },
-  { id: "personal", label: "Personal Care", color: "retro-panel-flat", icon: "🧘" },
-  { id: "social", label: "Social & Family", color: "retro-panel-flat", icon: "👥" },
-  { id: "creative", label: "Creative", color: "retro-panel-flat", icon: "🎨" },
-  { id: "learning", label: "Learning", color: "retro-panel-flat", icon: "📚" },
+  { id: "health", label: "Health & Fitness", color: "retro-panel-flat", icon: <DumbbellIcon className="w-5 h-5" /> },
+  { id: "work", label: "Work & Study", color: "retro-panel-flat", icon: <BriefcaseIcon className="w-5 h-5" /> },
+  { id: "personal", label: "Personal Care", color: "retro-panel-flat", icon: <LotusIcon className="w-5 h-5" /> },
+  { id: "social", label: "Social & Family", color: "retro-panel-flat", icon: <UsersIcon className="w-5 h-5" /> },
+  { id: "creative", label: "Creative", color: "retro-panel-flat", icon: <PaletteIcon className="w-5 h-5" /> },
+  { id: "learning", label: "Learning", color: "retro-panel-flat", icon: <BookIcon className="w-5 h-5" /> },
 ];
 
 const PRESET_ROUTINES = [
@@ -120,7 +121,7 @@ export default function TimetableBuilder({ onClose, onSave, existingSlots = [] }
         {/* Header - Fixed */}
         <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b-2 border-[color:var(--border)] bg-[color:var(--surface)]">
           <div>
-            <h2 className="retro-heading text-xl">⏰ TIMETABLE BUILDER</h2>
+            <h2 className="retro-heading text-xl flex items-center gap-2"><ClockIcon className="w-5 h-5" />TIMETABLE BUILDER</h2>
             <p className="retro-text-muted text-xs uppercase tracking-wider mt-1">Create your perfect daily routine</p>
           </div>
           <button

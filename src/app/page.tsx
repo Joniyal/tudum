@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CheckIcon, UsersIcon, FireIcon } from "../components/Icons";
 
 export default function Home() {
   return (
@@ -31,7 +32,7 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-8 mt-16">
           <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
-            <div className="text-4xl mb-4">✅</div>
+            <div className="text-4xl mb-4"><CheckIcon className="w-8 h-8" /></div>
             <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
               TRACK YOUR HABITS
             </h3>
@@ -41,7 +42,7 @@ export default function Home() {
           </div>
 
           <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
-            <div className="text-4xl mb-4">👥</div>
+            <div className="text-4xl mb-4"><UsersIcon className="w-8 h-8" /></div>
             <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
               CONNECT WITH PARTNERS
             </h3>
@@ -51,7 +52,7 @@ export default function Home() {
           </div>
 
           <div className="bg-black border-4 border-white p-6" style={{boxShadow: '4px 4px 0px rgba(255,255,255,0.2)'}}>
-            <div className="text-4xl mb-4">🔥</div>
+            <div className="text-4xl mb-4"><FireIcon className="w-8 h-8" /></div>
             <h3 className="text-xl font-black mb-2 text-white uppercase tracking-wider">
               BUILD STREAKS
             </h3>

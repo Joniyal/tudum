@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { UsersIcon, RefreshIcon, FireIcon, SparklesIcon, BellIcon } from "../../../components/Icons";
 
 type Partner = {
   partner: {
@@ -122,8 +123,8 @@ export default function PartnersPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="retro-heading text-2xl">
-            👥 PARTNERS&apos; PROGRESS
+          <h1 className="retro-heading text-2xl flex items-center gap-2">
+            <UsersIcon className="w-5 h-5" /> PARTNERS&apos; PROGRESS
           </h1>
           <p className="retro-text-muted text-xs uppercase tracking-wider mt-2">
             See how your accountability partners are doing
@@ -132,9 +133,9 @@ export default function PartnersPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => fetchPartners()}
-            className="retro-button text-xs hover-lift"
+            className="retro-button text-xs hover-lift flex items-center gap-2"
           >
-            🔄 REFRESH
+            <RefreshIcon className="w-4 h-4" /> REFRESH
           </button>
           <label className="flex items-center gap-2 text-xs uppercase tracking-wider font-bold">
             <input
@@ -226,8 +227,8 @@ export default function PartnersPage() {
                               <span className="retro-text-muted uppercase tracking-wider">
                                 STREAK:{" "}
                               </span>
-                              <span className="font-black">
-                                {streak} 🔥
+                              <span className="font-black flex items-center gap-2">
+                                {streak} <FireIcon className="w-4 h-4 inline" />
                               </span>
                             </div>
                             <div className="retro-text-muted text-[0.6rem] uppercase tracking-wider">
@@ -235,9 +236,9 @@ export default function PartnersPage() {
                             </div>
                           </div>
 
-                          {completedToday ? (
-                            <p className="retro-tag text-[0.65rem] mt-2">
-                              ✨ DONE TODAY
+                            {completedToday ? (
+                            <p className="retro-tag text-[0.65rem] mt-2 flex items-center gap-2">
+                              <SparklesIcon className="w-4 h-4" /> DONE TODAY
                             </p>
                           ) : (
                             <button
@@ -245,7 +246,7 @@ export default function PartnersPage() {
                               disabled={sendingReminder === partnerData.partner.id}
                               className="w-full mt-2 retro-button-outline text-xs hover-lift disabled:opacity-50"
                             >
-                              {sendingReminder === partnerData.partner.id ? "⏳ SENDING..." : "🔔 REMIND"}
+                              {sendingReminder === partnerData.partner.id ? "SENDING..." : <><BellIcon className="w-4 h-4 inline mr-1"/> REMIND</>}
                             </button>
                           )}
                         </div>

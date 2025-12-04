@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { ClockIcon } from "./Icons";
 
 type AlarmModalProps = {
   habit: {
@@ -117,7 +118,7 @@ export default function AlarmModal({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-white border-2 border-white rounded-full flex items-center justify-center">
-                <span className="text-2xl">⏰</span>
+                <ClockIcon className="w-6 h-6 text-black" />
               </div>
               <div>
                 <h2 className="text-xl font-black text-white uppercase tracking-wider">

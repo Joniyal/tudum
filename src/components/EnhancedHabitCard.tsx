@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import HabitMenu from "./HabitMenu";
+import { ClockIcon, FireIcon, SparklesIcon } from "./Icons";
 
 type Habit = {
   id: string;
@@ -105,14 +106,14 @@ export default function EnhancedHabitCard({
                 {habit.title}
               </h3>
               {habit.reminderTime && (
-                <span className="retro-tag text-[0.65rem] inline-block">
-                  ⏰ {(() => {
+                <span className="retro-tag text-[0.65rem] inline-block flex items-center gap-2">
+                    <ClockIcon className="w-4 h-4" /> {(() => {
                     const [h, m] = habit.reminderTime.split(":").map(Number);
                     const hour = h % 12 || 12;
                     const period = h < 12 ? "AM" : "PM";
                     return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
                   })()}
-                </span>
+                  </span>
               )}
             </div>
           </div>
@@ -145,7 +146,7 @@ export default function EnhancedHabitCard({
               <span className="font-black text-lg">
                 {streak}
               </span>
-              {streak > 0 && <span className="ml-2">🔥</span>}
+              {streak > 0 && <span className="ml-2"><FireIcon className="w-4 h-4 inline" /></span>}
             </div>
 
             {/* Total Completions */}
@@ -172,9 +173,11 @@ export default function EnhancedHabitCard({
       </div>
 
       {/* Completion Celebration Overlay */}
-      {isAnimating && (
+        {isAnimating && (
         <div className="absolute inset-0 bg-[color:var(--surface-alt)] pointer-events-none flex items-center justify-center">
-          <div className="text-6xl animate-ping-once">✨</div>
+          <div className="text-6xl animate-ping-once">
+            <SparklesIcon className="w-12 h-12" />
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FolderIcon, TrashIcon } from "./Icons";
 
 type BulkActionsToolbarProps = {
   selectedCount: number;
@@ -70,7 +71,7 @@ export default function BulkActionsToolbar({
             className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title="Create collection from selected"
           >
-            📁 Group
+            <FolderIcon className="w-4 h-4" /> Group
           </button>
 
           {/* Add to Collection */}
@@ -111,7 +112,7 @@ export default function BulkActionsToolbar({
             className="retro-button-outline px-3 py-2 text-xs flex items-center gap-2"
             title="Archive selected habits"
           >
-            📦 Archive
+            <FolderIcon className="w-4 h-4" /> Archive
           </button>
 
           {/* Delete */}
@@ -120,7 +121,7 @@ export default function BulkActionsToolbar({
             className="retro-button px-3 py-2 text-xs flex items-center gap-2"
             title="Delete selected habits permanently"
           >
-            🗑️ Delete
+            <TrashIcon className="w-4 h-4" /> Delete
           </button>
         </div>
       </div>

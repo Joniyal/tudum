@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense, useCallback } from "react";
+import { FireIcon, StarIcon } from "../../../components/Icons";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
@@ -230,16 +231,16 @@ function StatsContent() {
                     <p className="retro-text-muted text-xs uppercase tracking-wider mb-2">
                       Current Streak
                     </p>
-                    <p className="text-3xl font-black">
-                      {habit.currentStreak} 🔥
+                    <p className="text-3xl font-black flex items-center gap-2">
+                      {habit.currentStreak} <FireIcon className="w-6 h-6 inline" />
                     </p>
                   </div>
                   <div>
                     <p className="retro-text-muted text-xs uppercase tracking-wider mb-2">
                       Longest Streak
                     </p>
-                    <p className="text-3xl font-black">
-                      {habit.longestStreak} ⭐
+                    <p className="text-3xl font-black flex items-center gap-2">
+                      {habit.longestStreak} <StarIcon className="w-6 h-6 inline" />
                     </p>
                   </div>
                 </div>
