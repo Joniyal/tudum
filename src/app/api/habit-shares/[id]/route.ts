@@ -144,7 +144,7 @@ export async function DELETE(
 // Update user to be admin
 await prisma.user.updateMany({
   where: {
-    email: 'your@email.com',
+    email: 'your-email@example.com',
   },
   data: {
     isAdmin: true,
