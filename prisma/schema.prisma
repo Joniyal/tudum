@@ -17,6 +17,7 @@ model User {
   name      String?
   bio       String?
   password  String
+  isAdmin   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

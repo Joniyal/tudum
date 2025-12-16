@@ -213,6 +213,15 @@ function DashboardNav() {
                     >
                       Edit Profile
                     </Link>
+                    {session?.user?.isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="px-5 py-3 text-sm tracking-[0.14em] uppercase hover:bg-[color:var(--background)]"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
                     <button
                       onClick={() => signOut({ callbackUrl: "/" })}
                       className="px-5 py-3 text-left text-sm tracking-[0.14em] uppercase hover:bg-[color:var(--background)]"

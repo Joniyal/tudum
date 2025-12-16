@@ -10,6 +10,7 @@ import ShareHabitModal from "@/components/ShareHabitModal";
 import EnhancedHabitCard from "@/components/EnhancedHabitCard";
 import BulkActionsToolbar from "@/components/BulkActionsToolbar";
 import CreateCollectionModal from "@/components/CreateCollectionModal";
+import { ClockIcon, FolderIcon, TargetIcon } from "@/components/Icons";
 
 type Habit = {
   id: string;
@@ -681,8 +682,8 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
-                    <label className="retro-subheading text-xs mb-2 block">
-                      ⏰ Alarm Duration
+                      <label className="retro-subheading text-xs mb-2 block flex items-center gap-2">
+                      <ClockIcon className="w-4 h-4" /> Alarm Duration
                     </label>
                     <select
                       value={formData.alarmDuration || 5}
@@ -791,7 +792,7 @@ export default function DashboardPage() {
                 </button>
                 <div>
                   <h2 className="retro-heading text-base flex items-center gap-3">
-                    {showArchived ? "📦 Archived Habits" : "🎯 Your Habits"}
+                    {showArchived ? <><FolderIcon className="w-4 h-4" /> Archived Habits</> : <><TargetIcon className="w-4 h-4" /> Your Habits</>}
                     <span className="retro-badge text-xs">
                       {filteredHabits.length}
                     </span>

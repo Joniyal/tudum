@@ -3,6 +3,27 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name?: string | null;
+      isAdmin: boolean;
+    }
+  }
+  interface User {
+    isAdmin: boolean;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    isAdmin: boolean;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -39,6 +60,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          isAdmin: user.isAdmin,
         };
       }
     })
@@ -53,12 +75,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.isAdmin = token.isAdmin;
       }
       return session;
     },
